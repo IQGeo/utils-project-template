@@ -1,0 +1,34 @@
+# create container for unpacking IQGEO artifacts
+FROM harbor.delivery.iqgeo.cloud/injectors/nm-comms-v7030:latest as iqgeo-nm-software
+
+# Create container for building the project
+FROM iqgeoproddev.azurecr.io/platform-build:7.1
+
+ENV IQGEO_WORK_DIR=/tmp
+
+RUN mkdir -p /tmp/modules
+
+# Extract the comms modules
+COPY --from=iqgeo-nm-software /opt/iqgeo/products/*.tar.gz ${IQGEO_WORK_DIR}/modules
+
+RUN cd ${IQGEO_WORK_DIR}/modules && \
+    tar xzvf ${IQGEO_WORK_DIR}/modules/IQGeo_comms_v*.tar.gz && \
+    rm -f ${IQGEO_WORK_DIR}/modules/*.tar.gz
+
+# Copy extracted modules to the modules directory under platform
+RUN mv /tmp/modules/* ${MODULES}/
+
+# Copy patches
+RUN mkdir -p /tmp/comms/patches
+COPY --chown=www-data:www-data --from=iqgeo-nm-software /opt/iqgeo/products/[Pp]atches/ /tmp/comms/patches
+
+# Give www-data user ownership of the modules
+RUN chown -R www-data:www-data ${MODULES}
+
+# Install all of the comms patches
+RUN myw_product install /tmp/comms/patches || echo "*** No patches found to load"
+
+# Fetch node_modules and build all
+RUN myw_product fetch node_modules
+RUN myw_product build all 
+

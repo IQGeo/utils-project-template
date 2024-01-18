@@ -1,0 +1,27 @@
+
+############################################## project appserver image
+FROM iqgeo-myproj-build as iqgeo_builder
+
+FROM iqgeoproddev.azurecr.io/platform-appserver:7.1
+
+USER root
+
+# Copy modules
+# COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES} ${MODULES}/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/__init__.py ${MODULES}/comms/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/version_info.json ${MODULES}/comms/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/server ${MODULES}/comms/server
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/public/ ${MODULES}/comms/public/
+
+# TODO: Copy modules' pip dependencies 
+
+
+# Copy in generated bundles 
+COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
+
+
+USER www-data
+
+
+# add additional entrypoint scripts (build db, ...)
+COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/

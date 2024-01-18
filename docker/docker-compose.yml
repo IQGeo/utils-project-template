@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  postgis:
+    image: ghcr.io/iqgeo/utils-docker-postgis/postgis:12-3.4
+    restart: always
+    environment:
+      PGDATA: /opt/iqgeo/data/pgdata
+      POSTGRES_USER: ${DB_USERNAME:-iqgeo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - pgdata-example:/opt/iqgeo/data/pgdata
+  iqgeo:
+    build:
+      context: ./
+      dockerfile: dockerfile.appserver
+    image: iqgeo-myproj-appserver:latest
+    container_name: iqgeo
+    restart: always
+    depends_on:
+      - postgis
+    environment:
+      DEBUG: "true"
+      WSGI_PROCESSES: 2
+      WSGI_THREADS: 4
+      PGHOST: ${DB_HOST:-postgis}
+      PGPORT: 5432
+      PGUSER: ${DB_USERNAME:-iqgeo}
+      PGPASSWORD: ${DB_PASSWORD:-password}
+      MYW_DB_NAME: ${MYW_DB_NAME:-dev_db}
+      MYW_DB_HOST: ${DB_HOST:-postgis}
+      MYW_DB_PORT: 5432
+      MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
+      MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - ${APPSERVER_PORT:-80}:80
+volumes:
+  pgdata-example:

@@ -1,0 +1,22 @@
+FROM iqgeo-myproj-build as iqgeo_builder
+
+FROM iqgeoproddev.azurecr.io/platform-tools:7.1
+
+USER root
+
+# Copy modules
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES} ${MODULES}/
+
+# TODO: Copy modules' pip dependencies 
+
+# Copy in generated bundles 
+COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
+
+# Copy in code package
+COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/dist ${WEBAPPS}/myworldapp/dist/
+
+USER www-data
+
+
+# add additional entrypoint scripts (build db, ...)
+COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/

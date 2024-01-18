@@ -1,0 +1,64 @@
+# 
+# This dockerfile is used to build the devcontainer image for development of modules to extend the 
+# IQGeo Platform. It is based on the platform-dev_tools image and optionally
+# adds additional modules to the image. The modules are copied from the injector images
+#
+
+# UNCOMMENT to add addtional modules to the dev container image
+FROM harbor.delivery.iqgeo.cloud/injectors/nm-comms-v7030:latest as iqgeo-nm-software
+# FROM harbor.delivery.iqgeo.cloud/injectors/wfm-v7022:latest as iqgeo-wfm-software
+# FROM harbor.delivery.iqgeo.cloud/injectors/nro-v7013:latest as iqgeo-nro-software
+
+FROM iqgeoproddev.azurecr.io/platform-devenv:7.1
+
+USER root
+
+RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
+RUN chown iqgeo:iqgeo ${MYWORLD_DATA_HOME}/tests
+
+# Copy modules from the injector images.
+# UNCOMMENT to copy addtional modules to the dev container image
+# RUN mkdir -p /tmp/modules
+COPY  --from=iqgeo-nm-software /opt/iqgeo/products/*.tar.gz ${MODULES}/
+# COPY  --from=iqgeo-wfm-software /opt/iqgeo/products/*.tar.gz ${MODULES}/
+# COPY  --from=iqgeo-nro-software /opt/iqgeo/products/*.tar.gz ${MODULES}/
+
+# Extract the modules copied from the injector images and remove the tar files
+# UNCOMMENT to extract addtional modules to the dev container image
+RUN cd ${MODULES}/ && \
+    #     tar xzvf ${MODULES}/IQGeo_workflow_manager_v*.tar.gz && \
+    #     tar xzvf ${MODULES}/IQGeo_comsof_v*.tar.gz && \
+    tar xzvf ${MODULES}/IQGeo_comms_v*.tar.gz && \
+    #     tar xzvf ${MODULES}/IQGeo_NRO_v*.tar.gz && \
+    rm -f ${MODULES}/*.tar.gz
+
+# Copy patches from the injector images
+# UNCOMMENT to copy addtional patches to the dev container image
+# RUN mkdir -p /tmp/comms/patches
+COPY --chown=iqgeo:iqgeo --from=iqgeo-nm-software /opt/iqgeo/products/[Pp]atches/ /tmp/comms/patches
+# COPY --chown=iqgeo:iqgeo --from=iqgeo-wfm-software /opt/iqgeo/products/[Pp]atches/ /tmp/wfm/patches
+# COPY --chown=iqgeo:iqgeo --from=iqgeo-nro-software /opt/iqgeo/products/[Pp]atches/ /tmp/nro/patches
+
+# Give iqgeo user ownership of the modules
+RUN chown -R iqgeo:iqgeo ${MODULES}
+
+USER iqgeo
+
+# Install all of the patches that were copied into the image
+
+# UNCOMMENT to install addtional patches to the dev container image
+RUN myw_product install /tmp/comms/patches || echo "*** No comms patches found to load"
+# RUN myw_product install /tmp/wfm/patches || echo "*** No wfm patches found to load"
+# RUN myw_product install /tmp/nro/patches || echo "*** No nro patches found to load"
+
+# Build additional node_modules
+RUN myw_product fetch node_modules
+
+# fetch additional python dependencies
+RUN myw_product fetch pip_packages
+
+
+# add additional entrypoint scripts 
+COPY --chown=iqgeo:iqgeo entrypoint.d/* /entrypoint.d/
+
+
