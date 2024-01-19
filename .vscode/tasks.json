@@ -14,6 +14,10 @@
             "type": "shell",
             "command": "myw_product watch applications_dev --debug",
             "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -22,7 +26,7 @@
         {
             "label": "Build code package & export",
             "type": "shell",
-            "command": "myw_product build code_package && myw_db myw_dev export --include_code",
+            "command": "myw_product build code_package && myw_db myw_dev export --include_code"
         },
         {
             "label": "Restart Python env in Apache",

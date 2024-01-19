@@ -1,6 +1,6 @@
 # 
 # This dockerfile is used to build the devcontainer image for development of modules to extend the 
-# IQGeo Platform. It is based on the platform-dev_tools image and optionally
+# IQGeo Platform. It is based on the platform-devenv image and optionally
 # adds additional modules to the image. The modules are copied from the injector images
 #
 
@@ -62,3 +62,6 @@ RUN myw_product fetch pip_packages
 COPY --chown=iqgeo:iqgeo entrypoint.d/* /entrypoint.d/
 
 
+# configuration
+# paths for tools from modules
+# aditional environment variables

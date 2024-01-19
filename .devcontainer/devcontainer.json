@@ -1,17 +1,22 @@
 {
     "name": "IQGeo Module Development Template",
     "dockerComposeFile": "docker-compose.yml",
-    "service": "iqgeo",
+    "service": "iqgeo_devserver",
     "workspaceFolder": "/opt/iqgeo/platform/WebApps/myworldapp/modules",
     "shutdownAction": "stopCompose",
-    "settings": {
-        "editor.formatOnSave": true
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "ms-python.python",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "eamodio.gitlens",
+                "IQGeo.iqgeo-utils-vscode"
+            ]
+        }
     },
-    "extensions": [
-        "ms-python.python",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "eamodio.gitlens"
-    ],
     "remoteUser": "iqgeo"
 }

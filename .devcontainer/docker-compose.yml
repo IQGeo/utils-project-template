@@ -1,78 +1,80 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  postgis:
-    image: ghcr.io/iqgeo/utils-docker-postgis/postgis:12-3.4
-    container_name: postgis_${PROJ_PREFIX:-myproj}
-    restart: always
-    environment:
-      PGDATA: /opt/iqgeo/data/pgdata
-      POSTGRES_USER: ${DB_USERNAME:-iqgeo}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-    ports:
-      - ${POSTGIS_PORT:-5432}:5432
-    volumes:
-      - pgdata:/opt/iqgeo/data/pgdata
-  iqgeo:
-    container_name: iqgeo_${PROJ_PREFIX:-myproj}
-    restart: always
-    build:
-      context: ./
-    environment:
-      PGHOST: postgis
-      PGPORT: 5432
-      PGUSER: ${DB_USERNAME:-iqgeo}
-      PGPASSWORD: ${DB_PASSWORD:-password}
-      MYW_DB_NAME: ${MYW_DB_NAME:-dev_db}
-      MYW_DB_HOST: postgis
-      MYW_DB_PORT: 5432
-      MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
-      MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
-      EXTERNAL_IP: ${EXTERNAL_IP:-localhost} # IP for access from other devices (e.g. iPad running anywhere)
-      MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost} # for access from other devices (e.g. iPad running anywhere)
-      MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
-      MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
-    ports:
-      - ${APP_PORT:-80}:80
-    volumes:
-      # Map host directories into the container individually, to allow container to be created without loosing platform directories
-      - ../.vscode:/opt/iqgeo/platform/WebApps/myworldapp/modules/.vscode:delegated
-      - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated
-      - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/core/public/bundles # to keep builds when container is recreated
+    postgis:
+        image: ghcr.io/iqgeo/utils-docker-postgis/postgis:12-3.4
+        container_name: postgis_${PROJ_PREFIX:-myproj}
+        restart: always
+        environment:
+            PGDATA: /opt/iqgeo/data/pgdata
+            POSTGRES_USER: ${DB_USERNAME:-iqgeo}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+        ports:
+            - ${POSTGIS_PORT:-5432}:5432
+        volumes:
+            - pgdata:/opt/iqgeo/data/pgdata
+    iqgeo_devserver:
+        container_name: iqgeo_${PROJ_PREFIX:-myproj}
+        restart: always
+        build:
+            context: ./
+        environment:
+            PGHOST: postgis
+            PGPORT: 5432
+            PGUSER: ${DB_USERNAME:-iqgeo}
+            PGPASSWORD: ${DB_PASSWORD:-password}
+            MYW_DB_NAME: ${MYW_DB_NAME:-dev_db}
+            MYW_DB_HOST: postgis
+            MYW_DB_PORT: 5432
+            MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
+            MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
+            EXTERNAL_IP: ${EXTERNAL_IP:-localhost} # IP for access from other devices (e.g. iPad running anywhere)
+            MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost} # for access from other devices (e.g. iPad running anywhere)
+            MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
+            MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
+            APACHE_ERROR_LOG: /var/log/apache2/error.log
+        ports:
+            - ${APP_PORT:-80}:80
+        volumes:
+            # Map host directories into the container individually, to allow container to be created without loosing platform directories
+            - ../.vscode:/opt/iqgeo/platform/WebApps/myworldapp/modules/.vscode:delegated
+            - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated
+            - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/core/public/bundles # to keep builds when container is recreated
 
-      # define custom module volumes here that you want to mount into the container
-      # - ../my_module:/opt/iqgeo/platform/WebApps/myworldapp/modules/my_module:delegated
-    depends_on:
-      - postgis
-  selenium-chrome:
-    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome}:latest
-    container_name: selenium-chrome_${PROJ_PREFIX:-myproj}
-    shm_size: 2g
-    environment:
-      LANG_WHICH: en
-      LANG_WHERE: GB
-      LANGUAGE: en_GB.UTF-8
-      LANG: en_GB.UTF-8
-      VNC_NO_PASSWORD: 1
-      VNC_VIEW_ONLY: 1
-    ports:
-      - ${SELENIUM_PORT:-4444}:4444
-  pgadmin:
-    container_name: pgadmin_${PROJ_PREFIX:-myproj}
-    image: dpage/pgadmin4
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: someone@iqgeo.com
-      PGADMIN_DEFAULT_PASSWORD: pgadmin
-    ports:
-      - ${PGADMIN_PORT:-8082}:80
-    volumes:
-      - ./pgadmin_servers.json:/pgadmin4/servers.json
-    depends_on:
-      - postgis
+            # define project module volumes here that you want to mount into the container
+            - ../custom:/opt/iqgeo/platform/WebApps/myworldapp/modules/custom:delegated
+            # - ../my_module:/opt/iqgeo/platform/WebApps/myworldapp/modules/my_module:delegated
+        depends_on:
+            - postgis
+    selenium-chrome:
+        image: ${SELENIUM_IMAGE:-selenium/standalone-chrome}:latest
+        container_name: selenium-chrome_${PROJ_PREFIX:-myproj}
+        shm_size: 2g
+        environment:
+            LANG_WHICH: en
+            LANG_WHERE: GB
+            LANGUAGE: en_GB.UTF-8
+            LANG: en_GB.UTF-8
+            VNC_NO_PASSWORD: 1
+            VNC_VIEW_ONLY: 1
+        ports:
+            - ${SELENIUM_PORT:-4444}:4444
+    pgadmin:
+        container_name: pgadmin_${PROJ_PREFIX:-myproj}
+        image: dpage/pgadmin4
+        restart: unless-stopped
+        environment:
+            PGADMIN_DEFAULT_EMAIL: someone@iqgeo.com
+            PGADMIN_DEFAULT_PASSWORD: pgadmin
+        ports:
+            - ${PGADMIN_PORT:-8082}:80
+        volumes:
+            - ./pgadmin_servers.json:/pgadmin4/servers.json
+        depends_on:
+            - postgis
 
 volumes:
-  pgdata:
-    name: ${PROJ_PREFIX:-myproj}_pgdata
-  js_bundles:
-    name: ${PROJ_PREFIX:-myproj}_js_bundles
+    pgdata:
+        name: ${PROJ_PREFIX:-myproj}_pgdata
+    js_bundles:
+        name: ${PROJ_PREFIX:-myproj}_js_bundles

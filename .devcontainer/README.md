@@ -1,4 +1,5 @@
 # Prerequisites
+
 #### VS Code
 
 Install VS Code and the Remote Containers extension. The Remote Containers extension allows you to develop code inside a docker container.
@@ -35,15 +36,7 @@ The **Visual Studio Code Remote - Containers** extension lets you use a Docker c
 
 ### Overriding ENV variables
 
-If you need to override any environment variable, in particular ones set in the `docker-compose.yml`, create a `.env` in this folder setting the new values. Example:
-```
-APP_PORT=82
-```
-If on an mac with an apple chip, override the environment variable `SELENIUM_IMAGE` by adding the following to your `.env` file.
-
-```
-SELENIUM_IMAGE=seleniarm/standalone-chromium
-```
+Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
 
 ### Connecting To Containers From Host
 
@@ -67,4 +60,4 @@ VS Code will then begin building the development container. This might take a fe
 
 Now create the dev database. From the _Terminal_ menu, select _Run Task..._ and then _Build Database_.
 
-After the database has finished building, you now have a fully functioning application! From your local machine, use a browser to access http://localhost:*APP_PORT*
+After the database has finished building, you now have a fully functioning application! From your local machine, use a browser to access http://localhost:_APP_PORT_

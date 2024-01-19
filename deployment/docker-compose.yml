@@ -3,6 +3,7 @@ version: "3.8"
 services:
   postgis:
     image: ghcr.io/iqgeo/utils-docker-postgis/postgis:12-3.4
+    container_name: postgis_${PROJ_PREFIX:-myproj}
     restart: always
     environment:
       PGDATA: /opt/iqgeo/data/pgdata
@@ -15,7 +16,7 @@ services:
       context: ./
       dockerfile: dockerfile.appserver
     image: iqgeo-myproj-appserver:latest
-    container_name: iqgeo
+    container_name: iqgeo_${PROJ_PREFIX:-myproj}_appserver
     restart: always
     depends_on:
       - postgis
