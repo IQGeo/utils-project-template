@@ -13,6 +13,7 @@ It includes the following:
 ## Contents
 
 -   [Template Usage](#template-usage)
+-   [Module Dependencies](#module-dependencies)
 -   [Update Project Files](#update-project-files) - [Update README.md](#devcontainerreadmemd) - [Update devcontainer.json](#devcontainerdevcontainerjson) - [Update docker-compose.json](#devcontainerdocker-composeyml) - [Update dockerfile](#devcontainerdockerfile) - [Configure VSCode launch.json](#vscodelaunchjson) - [Configure VSCode tasks.json](#vscodetasksjson)
     &nbsp;
 
@@ -27,6 +28,24 @@ Provide a name and description for your new repository.
 Clone your new repository to your local machine.
 Update the existing files for your project/product/module (see sections below for guidance).
 Commit and push your changes to the new repository.
+
+## Module Dependencies
+
+There are two options for importing external module dependencies into your project. The method chosen will depend on the needs of the project development team.
+
+1.  **Utilizing Injector Images for Dependency Management**
+
+    If a module is a dependency of your project, then it's preferred to use injector images. Using injector images offers several benefits. They provide consistency, as each build will use the exact same version of the module, ensuring that all developers are working with the same dependencies. Additionally, each injector image is versioned, which provides an easy way to switch between different versions. Please review [Update dockerfile](#devcontainerdockerfile) for additional information on using injector images.
+
+2.  **Mounting Locally Cloned Modules from the Host Machine**
+
+    If your project requires more flexibility with its module dependencies, one approach is to mount a locally cloned Git repository containing the module directly from your host machine into your Docker container. This method can be particularly useful in several scenarios:
+
+    -   **Feature Development**: If you're developing a new feature that requires updates to a module only found in a feature branch, you can checkout the feature branch from your cloned repository. By mounting the locally cloned repository, you can work off this feature branch directly from within your Docker container, ensuring that the changes in the module are immediately reflected in your project.
+
+    -   **Simultaneous Development**: If your project and the module are being developed simultaneously, mounting the module's repository can help streamline the development process. Any changes made to the module on your host machine will be immediately reflected in the Docker container. This eliminates the need to rebuild the container or manually copy changes every time the module is updated.
+
+    Mounting modules external to your project will need to be configured through the [docker-compose.yml](#devcontainerdocker-composeyml) file.
 
 ## Review Provided Files
 
