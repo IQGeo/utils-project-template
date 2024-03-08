@@ -1,0 +1,58 @@
+<script>
+    var styleRules = [
+        '.page-size {width: 297mm; height: 200mm; border:1px solid;}',
+        '.map-size  {margin-left: 15mm !important; width: 210mm; height: 150mm; float: left}',
+        '.content-width {width: 210mm;}',
+        '#print-page-footer {float: left; margin-left: 15mm}',
+        '#Notes {height: 180mm; width: 70mm; float: right; margin-right: 10; word-wrap: break-word;}',
+        '.centered {margin-left: 15mm !important;}'
+    ];
+
+    myw.Util.loadStyleRules(styleRules, 'print');
+</script>
+
+<div class="page-size">
+    <div id="print-page-header" class="content-width centered">
+        <span class="center">
+            <img style="height: 25px" src="images/logos/IQGeo_Logo_main.svg" />
+        </span>
+    </div>
+
+    <div>
+        <div id="print_map_canvas" class="map-size centered"></div>
+        <span
+            myw_print_element="long-text"
+            id="Notes"
+            label="{:notes}"
+            style="font-size: medium; text-align: left"
+        >
+            <pre></pre>
+        </span>
+    </div>
+    <div id="print-page-footer" class="content-width centered">
+        <span
+            myw_print_element="image-picklist"
+            id="Logo"
+            label="{:logo}"
+            style="font-size: small"
+        ></span>
+        <span
+            myw_print_element="text-label"
+            id="Title"
+            label="{:title}"
+            class="center"
+            style="font-size: x-large; text-align: center"
+        >
+            <pre></pre>
+        </span>
+        <span class="right text-right">
+            <div>{:user}: <span myw_print_element="username" style="font-size: small"></span></div>
+            <div>
+                {:date}: <span myw_print_element="current-date" style="font-size: small"></span>
+            </div>
+            <div>
+                {:time}: <span myw_print_element="current-time" style="font-size: small"></span>
+            </div>
+        </span>
+    </div>
+</div>

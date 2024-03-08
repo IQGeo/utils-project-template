@@ -1,0 +1,38 @@
+{
+    "name": "my_project",
+    // Dev Container display name
+    "display_name": "Project for customer MyProject",
+    // Prefix to use in container names and Docker compose
+    "prefix": "myproj",
+    "db_name": "iqgeo",
+    "platform": {
+        "version": "7.1",
+        // Dev environment optional dependencies
+        "devenv": ["memcached", "oidc"],
+        // Optional dependencies for deployment environment application server
+        "appserver": ["memcached", "oidc"],
+        // Optional dependencies for deployment tools image
+        "tools": []
+    },
+    // Modules to be included in the project
+    "modules": [
+        // each entry must have:
+        // {string} name: the name of the module. Should match the folder name as it exists in the modules directory and the injector image name if a product module
+        // and can optionally have:
+        // {string} [version]: the version of the module to use. If not provided, the corresponding folder needs to exist in the repository with a IQGeo module structure
+        // {boolean} [devOnly=false]: if true, the module is only included in the development environment. e.g. a dev database module
+        // {string} [devSrc]: (product modules only) relative path to the source code for the module in the development environment
+        // {boolean} [dbInit]: (default true for product modules) if false, skips creating a schema initialisation step in the 600_init_db.sh script
+        {
+            "name": "custom"
+        },
+        {
+            "name": "comms",
+            "version": "3.1"
+        }
+        // {
+        //     "name": "comsof",
+        //     "version": "1.2"
+        // }
+    ]
+}

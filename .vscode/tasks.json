@@ -1,0 +1,51 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Fetch node_modules",
+            "type": "shell",
+            "command": "myw_product fetch node_modules",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build & Watch",
+            "type": "shell",
+            "command": "myw_product watch applications_dev --debug",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build code package & export",
+            "type": "shell",
+            "command": "myw_product build code_package && myw_db myw_dev export --include_code"
+        },
+        {
+            "label": "Restart Python env in Apache",
+            "type": "shell",
+            "command": "touch /opt/iqgeo/platform/WebApps/myworldapp.wsgi",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "View Apache Error Log",
+            "type": "shell",
+            "command": "code /var/log/apache2/error.log",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

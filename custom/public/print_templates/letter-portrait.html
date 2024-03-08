@@ -1,0 +1,31 @@
+<script>
+    var styleRules = [
+        '.page-size {width: 8.5in; height: 10.5in; border:1px solid;}',
+        '.map-size {width: 7.25in; height: 8.5in; }',
+        '.content-width{width: 7.25in;}',
+        '@media print { .map-size{margin-left: 0.5in !important;} .centered { margin-left: 0.5in !important;}}'
+    ];
+    myw.Util.loadStyleRules(styleRules, 'print');
+</script>
+
+<div class="page-size">
+    <div id="print-page-header" class="content-width centered">
+        <span class="center">
+            <img style="height: 25px" src="images/logos/IQGeo_Logo_main.svg" />
+        </span>
+    </div>
+
+    <div id="print_map_canvas" class="map-size centered"></div>
+
+    <div id="print-page-footer" class="content-width centered">
+        <span
+            myw_print_element="text-label"
+            id="Title"
+            label="{:title}"
+            class="center"
+            style="font-size: x-large; text-align: center"
+        >
+            <pre></pre>
+        </span>
+    </div>
+</div>

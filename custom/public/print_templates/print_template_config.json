@@ -1,0 +1,17 @@
+{
+    "templates": {
+        "{:letter_landscape}": "letter-landscape.html",
+        "{:letter_portrait}": "letter-portrait.html",
+        "{:a4_landscape}": "a4-landscape.html",
+        "{:a4_landscape_with_notes}": "a4-landscape_with_notes.html",
+        "{:a4_portrait}": "a4-portrait.html",
+        "{:a3_landscape}": "a3-landscape.html"
+    },
+
+    "image-picklists": {
+        "Logo": {
+            "{:no_logo}": null,
+            "IQGeo": "images/logos/IQGeo_Logo_main.svg"
+        }
+    }
+}

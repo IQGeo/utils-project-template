@@ -1,0 +1,60 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "black",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingModuleSource": "none"
+    },
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/Externals/rhel/lib/python3.8/site-packages",
+        "${workspaceFolder}/WebApps"
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/WebApps",
+        "${workspaceFolder}/Externals/rhel/lib/python3.8/site-packages"
+    ],
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/._*": true,
+        "**/*.pyc": true,
+        "**/node_modules": true,
+        "**/__pycache__": true,
+        "Doc/en": true,
+        "Externals": true,
+        "WebApps/data": true,
+        "WebApps/myworldapp/core/public/bundles": true
+    },
+    "files.autoGuessEncoding": true,
+    "js/ts.implicitProjectConfig.experimentalDecorators": true,
+    "gitlens.advanced.blame.customArguments": ["--ignore-revs-file", ".git-blame-ignore-revs"],
+    "python.linting.pylintArgs": ["-E"],
+    "eslint.workingDirectories": ["WebApps/myworldapp"],
+    "files.associations": {
+        "*.def": "json",
+        "*.application": "json",
+        "*.layer": "json",
+        "*.config": "json",
+        "*.msg": "json",
+        "*.user": "json",
+        "*.role": "json",
+        "*.settings": "json",
+        "*.datasource": "json",
+        "*.right": "json",
+        "*.network": "json",
+        "*.group": "json",
+        "*.enum": "json",
+        "*.delta": "json"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "terminal.integrated.defaultProfile.linux": "bash"
+}

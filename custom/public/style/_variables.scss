@@ -1,0 +1,73 @@
+/**
+* Override myWorld core styles
+* This file list the available myWorld css variables
+* Uncomment a line and modify it to specify a different value
+*/
+// Generic
+// ==========================================================================
+// $box-shadow-main: 0 2px 4px rgba(0, 0, 0, 0.2), 0 -1px 0 rgba(0, 0, 0, 0.02);
+
+// Borders
+// ==========================================================================
+// $border-radius-default: 4px;
+// $border-radius-circle: 23px;
+
+// $border-dark: 1px solid #c1c1c1;
+// $border-light: 1px solid #ddd;
+// $border-lighter: 1px solid #eee;
+
+// Image paths
+// ==========================================================================
+// $path-to-img: '../../images/';
+// $path-to-actions-img: '#{$path-to-img}actions/';
+// $path-to-panels-img: '#{$path-to-img}panels/';
+// $path-to-toolbar-img: '#{$path-to-img}toolbar/';
+
+// Colors
+// ==========================================================================
+
+// $color-primary: #3ca22d;
+// $color-form-item-focus-box-shadow: rgba(31, 90, 8, 0.17);
+
+// $color-dark-background: #eee;
+// $color-light-background: #fff;
+
+// $color-main-font: #333333;
+// $color-dark-font: #000000;
+// $color-light-font: #c1c1c1;
+// $color-link-font: $color-primary;
+
+// $color-ui-component-border: #d9d9d9;
+// $color-border-on-hover: $color-primary;
+// $color-dangerous: #ff4d4f;
+// $color-dangerous-light: #ff7875;
+
+// $list-item-hover-background-color: #f6f6f6;
+
+// Icon colors
+// ==========================================================================
+// $color-toolbar-icons: $color-primary;
+// $color-toolbar-icons-inactive: #cccccc;
+// $color-toolbar-icon-active-circle: #535353;
+
+// $color-action-icons: #535353;
+// $color-action-icons-inactive: #cbcbcb;
+
+// Spacing
+// ==========================================================================
+// $container-outer-padding: 14px;
+// $container-outer-padding-compact: 7px;
+// $safe-area-inset-bottom: env(safe-area-inset-bottom);
+// $safe-area-inset-top: env(safe-area-inset-top);
+// $desktop-safe-area-inset-bottom: $safe-area-inset-bottom;
+// $desktop-safe-area-inset-top: $safe-area-inset-top;
+// $phone-safe-area-inset-bottom: $safe-area-inset-bottom;
+// $phone-safe-area-inset-top: $safe-area-inset-top;
+
+// Fonts
+// ==========================================================================
+// $font-size-ui-components: 13.2px;
+
+/**
+* Define your own variables below
+*/

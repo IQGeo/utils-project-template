@@ -1,0 +1,7 @@
+{
+    "comments": [
+        "This file is used to specify values to pass to the less-loader modifyVars object",
+        "This is useful when we want to override colors used by AntD",
+        "For example, to change the primary color used by AntD, add a value for the key: primary-color"
+    ]
+}

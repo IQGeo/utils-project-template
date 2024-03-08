@@ -1,0 +1,24 @@
+ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+# START SECTION Aliases for Injector images
+FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
+# END SECTION
+
+# Create container for building the project
+FROM ${CONTAINER_REGISTRY}platform-build:7.1
+
+# START SECTION Copy the modules - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+COPY --link custom ${MODULES}/custom
+COPY --link --from=comms / ${MODULES}/
+# END SECTION
+
+# Give www-data user ownership of the modules
+RUN chown -R www-data:www-data ${MODULES}
+
+# Fetch pip packages
+# --include options are: memcached, redis, ldap, oidc, saml
+RUN myw_product fetch pip_packages 
+
+# Fetch node_modules and build all
+RUN myw_product fetch node_modules
+RUN myw_product build all 
+

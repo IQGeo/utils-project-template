@@ -1,0 +1,35 @@
+ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+
+FROM iqgeo-myproj-build as iqgeo_builder
+
+FROM ${CONTAINER_REGISTRY}platform-tools:7.1 as tools_intermediate
+
+USER root
+
+# Copy pip packages including modules' pip dependencies
+COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python3.10/site-packages /opt/iqgeo/platform/Externals/lib/python3.10/site-packages
+
+
+# Copy modules
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES} ${MODULES}/
+
+# Copy in code package
+COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/dist ${WEBAPPS}/myworldapp/dist/
+
+# remove unneeded files
+RUN rm -rf /opt/iqgeo/platform/Doc && \
+    rm -rf /opt/iqgeo/platform/WebApps/mwyworldapp/public && \
+    rm -rf /opt/iqgeo/platform/WebApps/mwyworldapp/core/client && \
+    rm -rf /opt/iqgeo/platform/WebApps/mwyworldapp/core/config && \
+    rm -rf /opt/iqgeo/platform/WebApps/mwyworldapp/core/native \
+    rm -rf /opt/iqgeo/platform/WebApps/mwyworldapp/modules/*/Doc
+
+USER www-data
+
+# add additional entrypoint scripts (build db, ...)
+#COPY --chown=www-data:www-data entrypoint.d_tools/* /entrypoint.d/
+
+
+FROM scratch as final
+
+COPY --from=tools_intermediate / /

@@ -1,0 +1,182 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Client in Chrome",
+            "url": "http://localhost:${env:APP_PORT}",
+            "webRoot": "${workspaceFolder}",
+            "sourceMapRenames": true,
+            "sourceMapPathOverrides": {
+                "file:///myWorldClient/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "file:///myWorldApps/*": "${workspaceFolder}/*",
+                "file:///myWorldClientTests/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "file:///myWorldClientNativeServices/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "webpack:///./~/*": "/opt/iqgeo/platform/WebApps/myworldapp/node_modules/*",
+                "webpack:////*": "/*",
+                "webpack://?:*/*": "${workspaceFolder}/*",
+                "webpack:///([a-z]):/(.+)": "$1:/$2"
+            }
+        },
+        {
+            "name": "Python: attach to Apache",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "/opt/iqgeo/platform/WebApps/myworldapp",
+                    "remoteRoot": "/opt/iqgeo/platform/WebApps/myworldapp"
+                }
+            ]
+        },
+        {
+            "name": "Tests: Engine Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/dev_db/tests/server/engine_tests.py",
+            "console": "integratedTerminal",
+            "args": ["run", "${input:tests_to_run}"],
+            "presentation": {
+                "group": "tests",
+                "order": 1
+            }
+        },
+        {
+            "name": "Tests: Server Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/dev_db/tests/server/server_tests.py",
+            "console": "integratedTerminal",
+            "args": ["run", "${input:tests_to_run}"],
+            "presentation": {
+                "group": "tests",
+                "order": 2
+            }
+        },
+        {
+            "name": "Tests: Tools Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/dev_db/tests/tools/tools_tests.py",
+            "console": "integratedTerminal",
+            "args": ["run", "${input:tests_to_run}"],
+            "presentation": {
+                "group": "tests",
+                "order": 5
+            }
+        },
+        {
+            "name": "Tests: Client In Selenium",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "dev_db/tests/client/client_tests.py",
+            "console": "integratedTerminal",
+            "args": [
+                "run",
+                "${input:tests_to_run}",
+                "--remote_url",
+                "http://host.docker.internal:4444"
+            ],
+            "presentation": {
+                "group": "tests",
+                "order": 6
+            }
+        },
+        {
+            "name": "Tests: Config In Selenium",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "dev_db/tests/config/config_tests.py",
+            "console": "integratedTerminal",
+            "args": [
+                "run",
+                "${input:tests_to_run}",
+                "--remote_url",
+                "http://host.docker.internal:4444"
+            ],
+            "presentation": {
+                "group": "tests",
+                "order": 7
+            }
+        },
+        {
+            "name": "Tests: JS",
+            "type": "node",
+            "request": "launch",
+            "program": "modules/dev_tools/tests/js/js_tests.js",
+            "args": ["dev_db", "http://iqgeo", "run", "${input:tests_to_run}"],
+            // "restart": true,
+            "localRoot": "/opt/iqgeo/platform/WebApps/myworldapp",
+            "remoteRoot": "/opt/iqgeo/platform/WebApps/myworldapp",
+            "sourceMapRenames": true,
+            "sourceMapPathOverrides": {
+                "file:///myWorldClient/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "file:///myWorldApps/*": "${workspaceFolder}/*",
+                "file:///myWorldClientTests/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "webpack:///./~/*": "/opt/iqgeo/platform/WebApps/myworldapp/node_modules/*",
+                "webpack:////*": "/*",
+                "webpack://?:*/*": "${workspaceFolder}/*",
+                "webpack:///([a-z]):/(.+)": "$1:/$2"
+            },
+            "env": {
+                "TEMP": "${env:MYW_BUILD_TEMP_DIR}" //corresponds to env set in JSTestSuite.run_engine() (js_test_suite.py)
+            },
+            "skipFiles": ["<node_internals>/**"],
+            "presentation": {
+                "group": "tests",
+                "order": 3
+            }
+        },
+        {
+            "name": "Tests: JS native",
+            "type": "node",
+            "request": "launch",
+            "program": "modules/dev_tools/tests/js/js_tests_native.js",
+            "args": ["dev_db", "http://iqgeo", "run", "${input:tests_to_run}"],
+            // "restart": true,
+            "localRoot": "/opt/iqgeo/platform/WebApps/myworldapp",
+            "remoteRoot": "/opt/iqgeo/platform/WebApps/myworldapp",
+            "sourceMapRenames": true,
+            "sourceMapPathOverrides": {
+                "file:///myWorldClient/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "file:///myWorldApps/*": "${workspaceFolder}/*",
+                "file:///myWorldClientTests/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "file:///myWorldClientNativeServices/*": "/opt/iqgeo/platform/WebApps/myworldapp/*",
+                "webpack:///./~/*": "/opt/iqgeo/platform/WebApps/myworldapp/node_modules/*",
+                "webpack:////*": "/*",
+                "webpack://?:*/*": "${workspaceFolder}/*",
+                "webpack:///([a-z]):/(.+)": "$1:/$2"
+            },
+            "env": {
+                "TEMP": "${env:MYW_BUILD_TEMP_DIR}" //corresponds to env set in JSTestSuite.run_engine() (js_test_suite.py)
+            },
+            "skipFiles": ["<node_internals>/**"],
+            "presentation": {
+                "group": "tests",
+                "order": 4
+            }
+        }
+    ],
+    "presentation": [
+        {
+            "group": "tests",
+            "label": "Tests"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "tests_to_run",
+            "type": "promptString",
+            "default": "*",
+            "description": "test(s) to execute - can use wildcards"
+        }
+    ]
+}

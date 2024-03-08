@@ -1,0 +1,58 @@
+# 
+# This dockerfile is used to build the devcontainer image for development of modules to extend the 
+# IQGeo Platform. It is based on the platform-devenv image and optionally
+# adds additional modules to the image. The modules are copied from the injector images
+#
+ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+
+# START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
+FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
+# END SECTION
+
+
+FROM ${CONTAINER_REGISTRY}platform-devenv:7.1
+
+USER root
+
+# START SECTION optional dependencies - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+
+# END SECTION
+
+RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
+RUN chown iqgeo:iqgeo ${MYWORLD_DATA_HOME}/tests
+
+# START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+RUN apt-get update && \
+    apt-get install -y libmemcached-dev \
+    && apt-get autoremove && apt-get clean
+# END SECTION
+
+RUN pip install cryptojwt
+
+# START SECTION Copy the modules - beware this section is updated by the IQGeo project configuration tool
+COPY --link --from=comms / ${MODULES}/
+# END SECTION
+
+# Give iqgeo user ownership of the modules
+RUN chown -R iqgeo:iqgeo ${MODULES}
+
+USER iqgeo
+
+
+# Build additional node_modules
+RUN myw_product fetch node_modules
+
+# fetch additional python dependencies
+RUN myw_product fetch pip_packages --include memcached oidc
+
+RUN myw_product build core_dev --debug
+
+
+# add additional entrypoint scripts 
+COPY --chown=iqgeo:iqgeo entrypoint.d/* /entrypoint.d/
+
+COPY --chown=iqgeo:iqgeo devserver_config/ /opt/iqgeo/config/
+
+# configuration
+# paths for tools from modules
+# aditional environment variables

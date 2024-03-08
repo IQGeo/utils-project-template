@@ -1,0 +1,18 @@
+/*
+ * Modify this file to add project specific styles and/or override myWorld's styles.
+ */
+@import '_variables';
+
+#myWorldApp {
+    &[data-myw-layout='phone'] {
+        //add entries in this section to override styles specific to the phone layout
+    }
+
+    &[data-myw-layout='desktop'] {
+        //add entries in this section to override styles specific to the desktop layout
+    }
+
+    &.touch-enabled {
+        //add entries in this section to override styles specific to touch enabled devices
+    }
+}

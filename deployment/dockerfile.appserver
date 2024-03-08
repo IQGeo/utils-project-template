@@ -1,0 +1,48 @@
+ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+
+FROM iqgeo-myproj-build as iqgeo_builder
+
+# START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+RUN apt-get update && \
+    apt-get install -y libmemcached-dev \
+    && apt-get autoremove && apt-get clean
+# END SECTION
+
+RUN myw_product fetch pip_packages --include memcached oidc
+
+# remove unneeded files for appserver
+RUN rm -rf ${MODULES}/*/node_modules \
+    && rm -rf ${MODULES}/*/package*.json \
+    && rm -rf ${MODULES}/*/native
+
+############################################## project appserver image
+FROM ${CONTAINER_REGISTRY}platform-appserver:7.1
+
+USER root
+
+# START SECTION optional dependencies (runtime) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+RUN apt-get update && \
+    apt-get install -y libmemcached11 \
+    && apt-get autoremove && apt-get clean
+# END SECTION
+
+# Copy pip packages including modules' pip dependencies
+COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python3.10/site-packages /opt/iqgeo/platform/Externals/lib/python3.10/site-packages
+
+# START SECTION Copy modules  - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES}/custom/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}/comms/
+# END SECTION
+
+
+# Copy in generated bundles 
+COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
+
+
+USER www-data
+
+
+# add additional entrypoint scripts (build db, ...)
+COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/
+
+COPY --chown=www-data:www-data appserver_config/ /opt/iqgeo/config/

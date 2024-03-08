@@ -1,0 +1,6 @@
+# Edit backup files etc
+*.pyc
+*.py.bak
+*~
+.DS_Store
+.env
