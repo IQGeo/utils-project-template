@@ -4,13 +4,12 @@ services:
         container_name: postgis_${PROJ_PREFIX:-myproj}
         restart: always
         environment:
-            PGDATA: /opt/iqgeo/data/pgdata
             POSTGRES_USER: ${DB_USERNAME:-iqgeo}
             POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
         ports:
             - ${POSTGIS_PORT:-5432}:5432
         volumes:
-            - pgdata:/opt/iqgeo/data/pgdata
+            - pgdata:/var/lib/postgresql/data
 
     iqgeo_myproj_devserver:
         container_name: iqgeo_${PROJ_PREFIX:-myproj}
@@ -111,11 +110,14 @@ services:
             - ${PGADMIN_PORT:-8082}:80
         volumes:
             - ./pgadmin_servers.json:/pgadmin4/servers.json
+            - pgadmin-data:/var/lib/pgadmin #Define a volume name so a random name is not used
         depends_on:
             - postgis
 
 volumes:
     pgdata:
         name: ${PROJ_PREFIX:-myproj}_pgdata
+    pgadmin-data:
+        name: ${PROJ_PREFIX:-myproj}_pgadmin_data
     js_bundles:
         name: ${PROJ_PREFIX:-myproj}_js_bundles
