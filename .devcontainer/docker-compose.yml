@@ -84,21 +84,6 @@ services:
         ports:
             - ${MEMCACHE_PORT:-11211}:11211
 
-    selenium-chrome:
-        profiles:
-            - tests
-        image: ${SELENIUM_IMAGE:-selenium/standalone-chrome}:latest
-        container_name: selenium-chrome_${PROJ_PREFIX:-myproj}
-        shm_size: 2g
-        environment:
-            LANG_WHICH: en
-            LANG_WHERE: GB
-            LANGUAGE: en_GB.UTF-8
-            LANG: en_GB.UTF-8
-            VNC_NO_PASSWORD: 1
-            VNC_VIEW_ONLY: 1
-        ports:
-            - ${SELENIUM_PORT:-4444}:4444
     pgadmin:
         container_name: pgadmin_${PROJ_PREFIX:-myproj}
         image: dpage/pgadmin4
