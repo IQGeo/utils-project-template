@@ -81,8 +81,6 @@ services:
         container_name: memcached_${PROJ_PREFIX:-myproj}
         image: memcached:latest
         restart: always
-        ports:
-            - ${MEMCACHE_PORT:-11211}:11211
 
     pgadmin:
         container_name: pgadmin_${PROJ_PREFIX:-myproj}
@@ -92,7 +90,7 @@ services:
             PGADMIN_DEFAULT_EMAIL: someone@iqgeo.com
             PGADMIN_DEFAULT_PASSWORD: pgadmin
         ports:
-            - ${PGADMIN_PORT:-8082}:80
+            - ${PGADMIN_PORT:-8090}:80
         volumes:
             - ./pgadmin_servers.json:/pgadmin4/servers.json
             - pgadmin-data:/var/lib/pgadmin #Define a volume name so a random name is not used
