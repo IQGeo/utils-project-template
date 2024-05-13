@@ -36,9 +36,9 @@ To use this template when creating a new repository, follow these steps:
     - Alternatively, you can download the repository as a zip file and extract it to your local machine.
 
 1. Create an initial commit.
-1. Review and update the `.iqgeorc.json` file to match your project settings and dependencies.
+1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies.
 1. Ensure you have the IQGeo VSCode extension installed. It's available in the Extensions Marketplace.
-1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.json` file or its contents to get the command in the context menu.
+1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
 1. Review the changes made by the tool, adjust them if required, and commit them to your repository.
 1. Update other files for your project/product/module (see sections below for guidance).
 1. Test the changes and make required adjustments by executing the dev environment
@@ -59,9 +59,9 @@ To apply this template to an existing repository, follow these steps:
 1. Download the zip file of this repository and extract it to a temporary location.
 1. Copy the contents from the extracted folder to the root of your repository, with the exception of the `custom` folder (you should already have a folder for the module you're working with).
     - Depending on what you already have, this will overwrite some files in your repository, and it will discard some configuration you might want to keep, but we'll review those in a later step and recover them if necessary using git.
-1. Review and update the `.iqgeorc.json` file to match your project settings and dependencies.
+1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies.
 1. Ensure you have the IQGeo VSCode extension installed. It's available in the Extensions Marketplace.
-1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.json` file or its contents to get the command in the context menu.
+1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
 1. Review the changes made by the tool, adjust them if required.
 1. Using a git client, review the changes made to the repository
     - recover (discard changes) that remove lines required for your specific project, like specific environment variables or specific commands in dockerfiles
