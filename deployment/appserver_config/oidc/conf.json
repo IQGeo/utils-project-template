@@ -1,7 +1,4 @@
 {
-    "domain": "localhost",
-    "port": 80,
-    "base_url": "http://{domain}:{port}",
     "httpc_params": {
         "verify": false
     },
@@ -11,11 +8,11 @@
             "client_id": "iqgeo-oidc",
             "client_secret": "qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6",
             "redirect_uris": [
-                "http://localhost/auth",
-                "http://localhost/auth?redirect_to=index",
-                "http://localhost/auth/anywhere/myw_oidc_auth_engine"
+                "{myw_ext_base_url}/auth",
+                "{myw_ext_base_url}/auth?redirect_to=index",
+                "{myw_ext_base_url}/auth/anywhere/myw_oidc_auth_engine"
             ],
-            "post_logout_redirect_uris": ["http://localhost"],
+            "post_logout_redirect_uris": ["{myw_ext_base_url}"],
             "behaviour": {
                 "response_types": ["code"],
                 "scope": ["openid", "profile", "roles"],
