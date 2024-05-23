@@ -4,3 +4,8 @@
 *~
 .DS_Store
 .env
+
+# START SECTION Product modules
+./comms
+./dev_tools
+# END SECTION
