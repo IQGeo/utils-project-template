@@ -2,9 +2,17 @@ ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 
 FROM iqgeo-myproj-build as iqgeo_builder
 
+# START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+
+# END SECTION
+
 FROM ${CONTAINER_REGISTRY}platform-tools:7.1 as tools_intermediate
 
 USER root
+
+# START SECTION optional dependencies (runtime) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+
+# END SECTION
 
 # Copy pip packages including modules' pip dependencies
 COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python3.10/site-packages /opt/iqgeo/platform/Externals/lib/python3.10/site-packages
