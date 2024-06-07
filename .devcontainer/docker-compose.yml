@@ -50,7 +50,7 @@ services:
             - ../.gitignore:/opt/iqgeo/platform/WebApps/myworldapp/modules/.gitignore:delegated
             - ../README.md:/opt/iqgeo/platform/WebApps/myworldapp/modules/README.md:delegated
 
-            - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/core/public/bundles # to keep builds when container is recreated
+            - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/public/bundles # to keep builds when container is recreated
 
             # Map host module directories to the container
             # START SECTION - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
