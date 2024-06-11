@@ -11,6 +11,9 @@ COPY --link custom ${MODULES}/custom
 COPY --link --from=comms / ${MODULES}/
 # END SECTION
 
+# START CUSTOM SECTION
+# END CUSTOM SECTION
+
 # Give www-data user ownership of the modules
 RUN chown -R www-data:www-data ${MODULES}
 

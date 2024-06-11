@@ -36,6 +36,8 @@ services:
             MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
             APACHE_ERROR_LOG: /var/log/apache2/error.log
+            # START CUSTOM SECTION
+            # END CUSTOM SECTION
         ports:
             - ${APP_PORT:-80}:80
         volumes:
@@ -97,7 +99,8 @@ services:
             - pgadmin-data:/var/lib/pgadmin #Define a volume name so a random name is not used
         depends_on:
             - postgis
-
+    # START CUSTOM SECTION
+    # END CUSTOM SECTION
 volumes:
     pgdata:
         name: ${PROJ_PREFIX:-myproj}_pgdata
@@ -105,3 +108,5 @@ volumes:
         name: ${PROJ_PREFIX:-myproj}_pgadmin_data
     js_bundles:
         name: ${PROJ_PREFIX:-myproj}_js_bundles
+    # START CUSTOM SECTION
+    # END CUSTOM SECTION

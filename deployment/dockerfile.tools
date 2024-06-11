@@ -35,7 +35,10 @@ RUN rm -rf /opt/iqgeo/platform/Doc && \
 USER www-data
 
 # add additional entrypoint scripts (build db, ...)
+# START CUSTOM SECTION
 #COPY --chown=www-data:www-data entrypoint.d_tools/* /entrypoint.d/
+# END CUSTOM SECTION
+
 
 
 FROM scratch as final

@@ -29,6 +29,9 @@ RUN pip install cryptojwt
 COPY --link --from=comms / ${MODULES}/
 # END SECTION
 
+# START CUSTOM SECTION - root user
+# END CUSTOM SECTION
+
 # Give iqgeo user ownership of the modules
 RUN chown -R iqgeo:iqgeo ${MODULES}
 
@@ -52,3 +55,5 @@ COPY --chown=iqgeo:iqgeo devserver_config/ /opt/iqgeo/config/
 # configuration
 # paths for tools from modules
 # aditional environment variables
+# START CUSTOM SECTION - root user
+# END CUSTOM SECTION

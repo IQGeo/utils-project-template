@@ -39,6 +39,8 @@ services:
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
+            # START CUSTOM SECTION
+            # END CUSTOM SECTION
         ports:
             - ${APPSERVER_PORT:-80}:80
 
@@ -64,6 +66,10 @@ services:
         container_name: memcached_${PROJ_PREFIX:-myproj}
         image: memcached:latest
         restart: always
+    # START CUSTOM SECTION
+    # END CUSTOM SECTION
 
 volumes:
     pgdata-example:
+        # START CUSTOM SECTION
+        # END CUSTOM SECTION

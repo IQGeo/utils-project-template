@@ -34,6 +34,9 @@ COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}/comms/
 # END SECTION
 
+# START CUSTOM SECTION
+# END CUSTOM SECTION
+
 
 # Copy in generated bundles 
 COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
