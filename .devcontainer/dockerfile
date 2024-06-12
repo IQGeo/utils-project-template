@@ -55,5 +55,5 @@ COPY --chown=iqgeo:iqgeo devserver_config/ /opt/iqgeo/config/
 # configuration
 # paths for tools from modules
 # aditional environment variables
-# START CUSTOM SECTION - root user
+# START CUSTOM SECTION - iqgeo user
 # END CUSTOM SECTION

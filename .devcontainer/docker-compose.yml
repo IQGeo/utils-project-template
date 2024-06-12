@@ -101,6 +101,7 @@ services:
             - postgis
     # START CUSTOM SECTION
     # END CUSTOM SECTION
+
 volumes:
     pgdata:
         name: ${PROJ_PREFIX:-myproj}_pgdata
