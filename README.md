@@ -103,7 +103,7 @@ Check out the [development README](.devcontainer/README.md) for instructions on 
 
 Using host-bound volumes when running linux containers on a windows host comes with considerable overhead. Using **myw_product build** and **myw_product watch** within a container becomes impractical. By following these steps, you will be able to checkout and access your source code within WSL2, and cut on the need to access the windows host at all.
 
-[Developing with Containers on Windows](https://github.com/IQGeo/example-docker-platform/blob/master/.readme/windows/0-developing-with-containers-windows.md)
+[Developing with Containers on Windows](https://github.com/IQGeo/utils-project-template/wiki/Developing-with-containers-on-Windows)
 
 ## Deployment
 
