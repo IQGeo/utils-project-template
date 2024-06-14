@@ -43,7 +43,7 @@ To use this template when creating a new repository, follow these steps:
 1. Update other files for your project/product/module (see sections below for guidance).
 1. Test the changes and make required adjustments by executing the dev environment
     - The dev environment is configured to use Keycloak for authentication. This requires you to add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
-      `127.0.0.1    keycloak`
+      `127.0.0.1    keycloak.local`
     - execute the dev environment by running: `docker compose -f ".devcontainer/docker-compose.yml" up -d --build `.
     - add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 1. Commit and push your changes to the new repository.

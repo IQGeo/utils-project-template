@@ -43,7 +43,7 @@ Overriding of environment variables in the `docker-compose.yml` can be done via 
 Authentication by default is setup to use Keycloak. To use Keycloak, add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
 
 ```shell
-keycloak 127.0.0.1
+keycloak.local 127.0.0.1
 ```
 
 ### Connecting To Containers From Host

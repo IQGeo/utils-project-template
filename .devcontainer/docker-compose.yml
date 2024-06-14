@@ -31,7 +31,7 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
-            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
+            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost}:${APP_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
             MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
@@ -68,7 +68,7 @@ services:
         restart: always
         command: start-dev --import-realm
         environment:
-            KC_HOSTNAME: keycloak
+            KC_HOSTNAME: keycloak.local
             KC_HOSTNAME_PORT: ${KEYCLOAK_PORT:-8080}
             KC_HTTP_PORT: ${KEYCLOAK_PORT:-8080}
             KEYCLOAK_ADMIN: admin
@@ -79,6 +79,10 @@ services:
         ports:
             - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
             - ${KEYCLOAK_PORT:-8080}:${KEYCLOAK_PORT:-8080}
+        networks:
+            default:
+                aliases:
+                    - keycloak.local
 
     memcached:
         container_name: memcached_${PROJ_PREFIX:-myproj}
