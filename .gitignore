@@ -6,8 +6,8 @@
 .env
 
 # START SECTION Product modules
-./comms
-./dev_tools
+/comms
+/dev_tools
 # END SECTION
 
 # START CUSTOM SECTION
