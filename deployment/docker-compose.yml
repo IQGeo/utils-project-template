@@ -23,7 +23,8 @@ services:
             - postgis
             - keycloak
         environment:
-            DEBUG: 'true'
+            DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
+            ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
             WSGI_PROCESSES: 2
             WSGI_THREADS: 4
             PGHOST: ${DB_HOST:-postgis}
@@ -37,8 +38,9 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
+            SERVER_NAME: ${SERVER_NAME:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
-            MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
+            MYW_EXT_BASE_URL: http://${SERVER_NAME:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
@@ -56,7 +58,7 @@ services:
             KEYCLOAK_ADMIN: admin
             KEYCLOAK_ADMIN_PASSWORD: _mywWorld_
             KC_PROXY: edge
-            IQGEO_DOMAIN: http://localhost:${APPSERVER_PORT:-80}
+            IQGEO_DOMAIN: http://${SERVER_NAME-localhost}:${APPSERVER_PORT:-80}
             IQGEO_CLIENT_SECRET: qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6
         ports:
             - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
