@@ -38,9 +38,9 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
-            SERVER_NAME: ${SERVER_NAME:-localhost}
+            IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
-            MYW_EXT_BASE_URL: http://${SERVER_NAME:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
+            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
