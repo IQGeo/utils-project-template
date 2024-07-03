@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  postgis:
+    image: postgis/postgis:12-3.3-alpine
+    container_name: postgis
+    restart: always
+    environment:
+      PGDATA: /opt/iqgeo/data/pgdata
+      POSTGRES_USER: ${DB_USERNAME:-iqgeo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - ${DB_PORT:-5432}:5432
+    networks:
+      - iqgeo-network
+    volumes:
+      - pgdata:/opt/iqgeo/data/pgdata
+
+  #  memcached:
+  #    image: memcached
+  #    container_name: memcached
+  #    command: memcached -m 64
+  #    ports:
+  #      - ${MC_PORT:-11211}:${MC_PORT:-11211}
+  #    networks:
+  #      - iqgeo-network
+
+  #  geoserver:
+  #    image: docker.osgeo.org/geoserver:2.24.x
+  #    container_name: geoserver
+  #    restart: always
+  #    ports:
+  #      - ${GS_PORT:-8080}:8080
+  #    networks:
+  #      - ${NETWORK_NAME:-iqgeo-network}
+  #    volumes:
+  #      - /var/iqgeo/geoserver_data:/opt/geoserver_data   
+  #    depends_on:
+  #      - postgis   
+
+  # pgadmin:
+  #   container_name: pgadmin
+  #   image: dpage/pgadmin4
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: someone@iqgeo.com
+  #     PGADMIN_DEFAULT_PASSWORD: pgadmin
+  #   ports:
+  #     - ${PGADMIN_PORT:-9090}:80
+  #   volumes:
+  #     - ./pgadmin_servers.json:/pgadmin4/servers.json
+  #   networks:
+  #     - ${NETWORK_NAME:-iqgeo-network}
+  #   depends_on:
+  #     - postgis
+
+volumes:
+  pgdata:
+    name: ${VOLUME_NAME_PREFIX:-my_proj}_pgdata
+    external: false
+
+networks:
+  iqgeo-network:
+    name: ${NETWORK_NAME:-iqgeo-network}
+    external: false

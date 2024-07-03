@@ -11,11 +11,21 @@ FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
 
 
 FROM ${CONTAINER_REGISTRY}platform-devenv:7.1
+ARG USER_ID=1000
 
 USER root
 
+RUN useradd -l -u ${USER_ID} -g www-data iqgeo
+RUN chown -R iqgeo:www-data ${MODULES} && \
+    chown -R iqgeo:www-data entrypoint.d && \
+    chown -R iqgeo:www-data /etc/apache2/sites-enabled && \
+    chown -R iqgeo:www-data /var/log/apache2 && \
+    chown -R iqgeo:www-data /var/run/apache2 && \
+    chown -R iqgeo:www-data /opt/iqgeo/* && \ 
+    chown -R iqgeo:www-data /home/iqgeo
+
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
-RUN chown iqgeo:iqgeo ${MYWORLD_DATA_HOME}/tests
+RUN chown iqgeo:www-data ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 RUN apt-get update && \
@@ -33,7 +43,7 @@ COPY --link --from=comms / ${MODULES}/
 # END CUSTOM SECTION
 
 # Give iqgeo user ownership of the modules
-RUN chown -R iqgeo:iqgeo ${MODULES}
+RUN chown -R iqgeo:www-data ${MODULES}
 
 USER iqgeo
 
@@ -48,9 +58,9 @@ RUN myw_product build core_dev --debug
 
 
 # add additional entrypoint scripts 
-COPY --chown=iqgeo:iqgeo entrypoint.d/* /entrypoint.d/
+COPY --chown=iqgeo:www-data entrypoint.d/* /entrypoint.d/
 
-COPY --chown=iqgeo:iqgeo devserver_config/ /opt/iqgeo/config/
+COPY --chown=iqgeo:www-data devserver_config/ /opt/iqgeo/config/
 
 # configuration
 # paths for tools from modules
