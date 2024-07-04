@@ -11,17 +11,20 @@ FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
 
 
 FROM ${CONTAINER_REGISTRY}platform-devenv:7.1
-ARG USER_ID=1003
 
 USER root
 
-RUN useradd -l -u ${USER_ID} -g www-data iqgeo
-RUN chown -R iqgeo:www-data ${MODULES} && \
-    chown -R iqgeo:www-data entrypoint.d && \
-    chown -R iqgeo:www-data /etc/apache2/sites-enabled && \
-    chown -R iqgeo:www-data /var/log/apache2 && \
-    chown -R iqgeo:www-data /var/run/apache2 && \
-    chown -R iqgeo:www-data ${MYWORLD_HOME}/Externals && \ 
+RUN useradd -m iqgeo && \
+    usermod -a -G iqgeo iqgeo && \
+    usermod -a -G www-data iqgeo && \
+    usermod -a -G iqgeo www-data
+
+RUN chown -R www-data:www-data ${MODULES} && \
+    chown -R www-data:www-data entrypoint.d && \
+    chown -R www-data:www-data /etc/apache2/sites-enabled && \
+    chown -R www-data:www-data /var/log/apache2 && \
+    chown -R www-data:www-data /var/run/apache2 && \
+    chown -R www-data:www-data ${MYWORLD_HOME}/Externals && \ 
     chown -R iqgeo:www-data /home/iqgeo
 
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
