@@ -20,6 +20,8 @@ services:
             args:
                 - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
         environment:
+            DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
+            ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!        
             PGHOST: postgis
             PGPORT: 5432
             PGUSER: ${DB_USERNAME:-iqgeo}
@@ -31,8 +33,9 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
+            IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
-            MYW_EXT_BASE_URL: http://${EXTERNAL_IP:-localhost}:${APP_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
+            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
             MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
             APACHE_ERROR_LOG: /var/log/apache2/error.log
@@ -74,7 +77,7 @@ services:
             KEYCLOAK_ADMIN: admin
             KEYCLOAK_ADMIN_PASSWORD: _mywWorld_
             KC_PROXY: edge
-            IQGEO_DOMAIN: http://localhost:${APP_PORT:-80}
+            IQGEO_DOMAIN: http://${IQGEO_HOST:-localhost}
             IQGEO_CLIENT_SECRET: qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6
         ports:
             - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}

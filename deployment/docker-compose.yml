@@ -23,7 +23,6 @@ services:
             - postgis
             - keycloak
         environment:
-            DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
             WSGI_PROCESSES: 2
             WSGI_THREADS: 4
@@ -40,7 +39,7 @@ services:
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
-            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost}:${APPSERVER_PORT:-80} # for access from other devices (e.g. iPad running anywhere)
+            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
