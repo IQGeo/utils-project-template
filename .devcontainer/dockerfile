@@ -14,7 +14,6 @@ FROM ${CONTAINER_REGISTRY}platform-devenv:7.1
 
 USER root
 
-# set iqgeo user ownership of volumes
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
@@ -63,5 +62,5 @@ USER www-data
 # configuration
 # paths for tools from modules
 # aditional environment variables
-# START CUSTOM SECTION - iqgeo user
+# START CUSTOM SECTION - www-data user
 # END CUSTOM SECTION
