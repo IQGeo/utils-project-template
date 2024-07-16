@@ -10,6 +10,8 @@ https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-cont
 
 Install docker for window, linux, or mac. When you work with dev containers in Visual Studio Code, you are leveraging the capabilities of Docker to create isolated development environments using container images. To create and manage these containers, the Docker daemon must be running on your system. The Docker daemon is responsible for building, running, and managing containers.
 
+Ensure Docker has enough resources, in particular memory, otherwise some commands may fail. 8Gb should be enough for at least 1 environment.
+
 **Docker Login**
 
 Authenticate with harbor to access the IQGeo docker registry. To authenticate, use the docker CLI:
@@ -69,3 +71,9 @@ VS Code will then begin building the development container. This might take a fe
 Now create the dev database. From the _Terminal_ menu, select _Run Task..._ and then _Build Database_.
 
 After the database has finished building, you now have a fully functioning application! From your local machine, use a browser to access http://localhost:_APP_PORT_
+
+# Troubleshooting
+
+## I get an error when the myw_product build command runs
+
+Try increasing the memory available to Docker
