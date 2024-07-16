@@ -1,0 +1,56 @@
+services:
+    postgis:
+        extends:
+            file: ../docker-compose.yml
+            service: postgis
+        container_name: postgis
+        networks:
+            - iqgeo-network
+
+    keycloak:
+        extends:
+            file: ../docker-compose.yml
+            service: keycloak
+        container_name: keycloak
+        environment:
+            KC_HOSTNAME_PORT: ${KEYCLOAK_PORT:-8081}
+            KC_HTTP_PORT: ${KEYCLOAK_PORT:-8081}
+            IQGEO_DOMAIN: http://${IQGEO_HOST:-localhost:8080}
+        ports:
+            - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
+            - ${KEYCLOAK_PORT:-8081}:${KEYCLOAK_PORT:-8081}
+        networks:
+            iqgeo-network:
+                aliases:
+                    - keycloak.local
+
+    memcached:
+        extends:
+            file: ../docker-compose.yml
+            service: memcached
+        container_name: memcached
+        networks:
+            - iqgeo-network
+
+    pgadmin:
+        extends:
+            file: ../docker-compose.yml
+            service: pgadmin
+        container_name: pgadmin
+        networks:
+            - iqgeo-network
+    # START CUSTOM SECTION
+    # END CUSTOM SECTION
+
+volumes:
+    pgdata:
+        name: ${PROJ_PREFIX:-myproj}_pgdata
+    pgadmin-data:
+        name: ${PROJ_PREFIX:-myproj}_pgadmin_data
+    # START CUSTOM SECTION
+    # END CUSTOM SECTION
+
+networks:
+    iqgeo-network:
+        name: ${NETWORK_NAME:-iqgeo-network}
+        external: false

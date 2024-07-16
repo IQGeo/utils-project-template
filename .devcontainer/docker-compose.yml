@@ -11,9 +11,23 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
 
-    iqgeo_myproj_devserver:
+    iqgeo:
+        extends: iqgeo-common
         container_name: iqgeo_${PROJ_PREFIX:-myproj}
+        profiles: [ 'iqgeo' ]
+        environment:
+            IQGEO_HOST: ${IQGEO_HOST:-localhost:${APP_PORT:-80}}
+            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost:${APP_PORT:-80}} # for access from other devices (e.g. iPad running anywhere)
+        depends_on:
+            - postgis
+            - keycloak
+            - memcached
+
+    iqgeo-common:
+        # this service definition is necessary to allow inheritance in the remote_host dev container, which cannot inherit the depends_on entry
+        container_name: iqgeo-common_${PROJ_PREFIX:-myproj}
         restart: always
+        profiles: [ 'definition-only' ]
         build:
             context: ./
             dockerfile: dockerfile
@@ -42,17 +56,19 @@ services:
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
-            - ${APP_PORT:-80}:80
+            - ${APP_PORT:-80}:8080
         volumes:
             # add data folder to share data between host and container
             - ../data:/opt/iqgeo/platform/WebApps/myworldapp/modules/data:delegated
             # Map host directories and files into the container individually, to allow container to be created without losing platform directories
             - ../.vscode:/opt/iqgeo/platform/WebApps/myworldapp/modules/.vscode:delegated
             - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated
+            - ../deployment:/opt/iqgeo/platform/WebApps/myworldapp/modules/deployment:delegated
             - ../.git:/opt/iqgeo/platform/WebApps/myworldapp/modules/.git:delegated
             - ../.github:/opt/iqgeo/platform/WebApps/myworldapp/modules/.github:delegated
             - ../.prettierrc:/opt/iqgeo/platform/WebApps/myworldapp/modules/.prettierrc:delegated
             - ../.gitignore:/opt/iqgeo/platform/WebApps/myworldapp/modules/.gitignore:delegated
+            - ../.iqgeorc.jsonc:/opt/iqgeo/platform/WebApps/myworldapp/modules/.iqgeorc.jsonc:delegated
             - ../README.md:/opt/iqgeo/platform/WebApps/myworldapp/modules/README.md:delegated
 
             - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/public/bundles # to keep builds when container is recreated
@@ -61,9 +77,6 @@ services:
             # START SECTION - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
             - ../custom:/opt/iqgeo/platform/WebApps/myworldapp/modules/custom:delegated
             # END SECTION
-        depends_on:
-            - postgis
-            - keycloak
 
     keycloak:
         container_name: keycloak_${PROJ_PREFIX:-myproj}
