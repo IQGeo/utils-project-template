@@ -10,7 +10,7 @@ FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv:7.1
+FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.1
 
 USER root
 
