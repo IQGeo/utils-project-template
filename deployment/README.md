@@ -9,7 +9,7 @@ An example docker compose file to start the containers locally is also included
 
 ### Platform image
 
-Authenticate with harbor so docker can download the Platform image(s)
+Authenticate with harbor so docker can download the IQGeo image(s)
 
 ```shell
 docker login harbor.delivery.iqgeo.cloud

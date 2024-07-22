@@ -4,6 +4,9 @@
 *~
 .DS_Store
 .env
+#files from platform that should be ignored (show as changed because of www-data ownership)
+/__init__.py
+/jsconfig.json
 
 # START SECTION Product modules
 /comms

@@ -1,5 +1,5 @@
 {
-    "name": "IQGeo Project Template",
+    "name": "IQGeo Project Template (Remote)",
     "dockerComposeFile": "docker-compose.yml",
     "service": "iqgeo",
     "runServices": ["iqgeo"],
@@ -21,5 +21,7 @@
     },
     "remoteUser": "iqgeo",
     "containerUser": "www-data",
+    "updateRemoteUserUID": true,
+    "forwardPorts": [8080, "keycloak:8081"],
     "postStartCommand": "git config --global --add safe.directory /opt/iqgeo/platform/WebApps/myworldapp/modules && myw_product watch applications_dev --debug"
 }

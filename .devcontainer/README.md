@@ -32,14 +32,6 @@ https://harbor.delivery.iqgeo.cloud
     -   .vscode
     -   my_module
 
-# Starting a Development Container
-
-The **Visual Studio Code Remote - Containers** extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set. The development container for Network Manager Comms contains Python, NodeJS, IQGeo Platform, and other tools and libraries to facilitate the development of the app.
-
-### Overriding ENV variables
-
-Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
-
 ### Authentication
 
 Authentication by default is setup to use Keycloak. To use Keycloak, add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
@@ -47,6 +39,16 @@ Authentication by default is setup to use Keycloak. To use Keycloak, add an entr
 ```shell
 keycloak.local 127.0.0.1
 ```
+
+# Starting a Development Container (Local docker)
+
+Note: This section assumes Docker is running locally on your machine. For running development containers on a Development Server, please follow the [remote host README](remote_host/README.md)
+
+The **Visual Studio Code Remote - Containers** extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set. The development container for Network Manager Comms contains Python, NodeJS, IQGeo Platform, and other tools and libraries to facilitate the development of the app.
+
+### Overriding ENV variables
+
+Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
 
 ### Connecting To Containers From Host
 
