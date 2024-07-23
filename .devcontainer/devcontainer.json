@@ -21,5 +21,5 @@
     },
     "remoteUser": "iqgeo",
     "containerUser": "www-data",
-    "postStartCommand": "git config --global --add safe.directory /opt/iqgeo/platform/WebApps/myworldapp/modules && myw_product watch applications_dev --debug"
+    "postStartCommand": "git config --global --add safe.directory /opt/iqgeo/platform/WebApps/myworldapp/modules && myw_product fetch node_modules && myw_product watch applications_dev --debug"
 }
