@@ -6,6 +6,8 @@ services:
         container_name: iqgeo_${PROJ_PREFIX:-myproj}
         environment:
             APACHE_ERROR_LOG: ""
+            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8081}
+            
         networks:
             - iqgeo-network
             # START CUSTOM SECTION
