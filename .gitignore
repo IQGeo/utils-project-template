@@ -4,6 +4,7 @@
 *~
 .DS_Store
 .env
+node_modules
 #files from platform that should be ignored (show as changed because of www-data ownership)
 /__init__.py
 /jsconfig.json
