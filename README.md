@@ -1,4 +1,4 @@
-﻿# Template repo for an IQGeo project/product/module
+# Template repo for an IQGeo project/product/module
 
 This template provides a starting point for creating a new IQGeo project/product/module.
 It includes the following:
@@ -43,7 +43,9 @@ To use this template when creating a new repository, follow these steps:
 1. Update other files for your project/product/module (see sections below for guidance).
 1. Test the changes and make required adjustments by executing the dev environment
     - The dev environment is configured to use Keycloak for authentication. This requires you to add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
-      `127.0.0.1    keycloak.local`
+        - macOS/Linux: `127.0.0.1    keycloak.local`
+        - Windows: `keycloak.local    127.0.0.1`
+    - authenticate with docker registry: `docker login harbor.delivery.iqgeo.cloud`
     - execute the dev environment by running: `docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build `.
     - add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 1. Commit and push your changes to the new repository.
@@ -70,7 +72,8 @@ To apply this template to an existing repository, follow these steps:
 1. Update other files for your project/product/module (see sections below for guidance).
 1. Test the changes and make required adjustments by executing the dev environment
     - The dev environment is configured to use Keycloak for authentication. This requires you to add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
-      `keycloak 127.0.0.1`
+        - macOS/Linux: `127.0.0.1    keycloak.local`
+        - Windows: `keycloak.local    127.0.0.1`
     - execute the dev environment by running: `docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build `.
     - add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 1. Commit and push your changes to the branch and ask others to review and/or test.
