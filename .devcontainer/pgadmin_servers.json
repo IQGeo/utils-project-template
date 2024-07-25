@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "postgis",
+            "Group": "Servers",
+            "Port": 5432,
+            "Username": "iqgeo",
+            "Password": "password",
+            "Host": "postgis",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "postgres"
+        }
+    }
+}
