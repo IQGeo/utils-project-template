@@ -46,6 +46,7 @@ To use this template when creating a new repository, follow these steps:
         - macOS/Linux: `127.0.0.1    keycloak.local`
         - Windows: `keycloak.local    127.0.0.1`
     - authenticate with docker registry: `docker login harbor.delivery.iqgeo.cloud`
+        - you will need to obtain your CLI secret (password) from your user profile found in harbor: https://harbor.delivery.iqgeo.cloud
     - execute the dev environment by running: `docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build `.
     - add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 1. Commit and push your changes to the new repository.
