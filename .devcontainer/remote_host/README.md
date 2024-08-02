@@ -13,6 +13,8 @@ From this folder execute:
 docker compose -f docker-compose-shared.yml up -d
 ```
 
+If you override the default Keycloak port using the `KEYCLOAK_PORT` environment variable, update the `forwardPorts` in `devcontainer.json` to match the new port. By default, Keycloak runs on port 8081.
+
 ## Configure the IQGeo dev container
 
 The **Remote Development** extension pack for Visual Studio Code lets you use a Docker container as a full-featured development environment hosted on a remote server. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set.
