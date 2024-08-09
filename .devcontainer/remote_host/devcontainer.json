@@ -1,5 +1,5 @@
 {
-    "name": "IQGeo Project Template (Remote)",
+    "name": "Project for customer MyProject (Remote)",
     "dockerComposeFile": "docker-compose.yml",
     "service": "iqgeo",
     "runServices": ["iqgeo"],

@@ -1,6 +1,6 @@
 ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 # START SECTION Aliases for Injector images
-FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
+FROM ${CONTAINER_REGISTRY}comms:3.1 AS comms
 # END SECTION
 
 # Create container for building the project
