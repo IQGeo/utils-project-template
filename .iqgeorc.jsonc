@@ -44,5 +44,7 @@
 
     // (relative) path of files to exclude from pulling and updating
     // e.g. [".devcontainer/remote_host"]
-    "exclude_file_paths": []
+    "exclude_file_paths": [],
+
+    "version": "0.4.0"
 }
