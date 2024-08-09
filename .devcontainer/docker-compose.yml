@@ -40,7 +40,7 @@ services:
             PGPORT: 5432
             PGUSER: ${DB_USERNAME:-iqgeo}
             PGPASSWORD: ${DB_PASSWORD:-password}
-            MYW_DB_NAME: ${MYW_DB_NAME:-iqgeo}
+            MYW_DB_NAME: ${MYW_DB_NAME:-myproj}
             MYW_DB_HOST: postgis
             MYW_DB_PORT: 5432
             MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
