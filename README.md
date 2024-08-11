@@ -10,12 +10,21 @@ It includes the following:
     -   container image definitions optimised for deployment
     -   example docker-compose and instructions to build and run deployment docker containers
 
-## Contents
+## Table of Contents
 
--   [Template Usage](#template-usage)
--   [Module Dependencies](#module-dependencies)
--   [Update Project Files](#update-project-files) - [Update README.md](#devcontainerreadmemd) - [Update devcontainer.json](#devcontainerdevcontainerjson) - [Update docker-compose.json](#devcontainerdocker-composeyml) - [Update dockerfile](#devcontainerdockerfile) - [Configure VSCode launch.json](#vscodelaunchjson) - [Configure VSCode tasks.json](#vscodetasksjson)
-    &nbsp;
+- [Template repo for an IQGeo project/product/module](#template-repo-for-an-iqgeo-projectproductmodule)
+  - [Table of Contents](#table-of-contents)
+  - [Template Usage](#template-usage)
+    - [Create a new repository from this template](#create-a-new-repository-from-this-template)
+    - [Apply this template to an existing repository](#apply-this-template-to-an-existing-repository)
+  - [Notes on Product modules](#notes-on-product-modules)
+    - [comsof:](#comsof)
+    - [comms\_dev\_db:](#comms_dev_db)
+  - [Review Additional Files](#review-additional-files)
+    - [.devcontainer/README.md](#devcontainerreadmemd)
+  - [Updating this Readme](#updating-this-readme)
+  - [Container images hierarchy](#container-images-hierarchy)
+
 
 ---
 
@@ -110,25 +119,8 @@ After your initial setup you should review and update the following files to ens
 Once you have followed the instructions above, you can edit this file so it becomes a Readme for your project/module/product:
 
 -   update the sections below to describe your project
--   Remove all content up to and including this line leaving only the sections below
-
-# Project Name
-
-Project description
-
-## Development
-
-Check out the [development README](.devcontainer/README.md) for instructions on how to build and run the development environment.
-
-### Running a dev environment on windows.
-
-Using host-bound volumes when running linux containers on a windows host comes with considerable overhead. Using **myw_product build** and **myw_product watch** within a container becomes impractical. By following these steps, you will be able to checkout and access your source code within WSL2, and cut on the need to access the windows host at all.
-
-[Developing with Containers on Windows](https://github.com/IQGeo/utils-project-template/wiki/Developing-with-containers-on-Windows)
-
-## Deployment
-
-Check out the [deployment README](deployment/README.md) for instructions on how to build and run the deployment environment.
+-   Replace the content of this file with the contents of the `PROJECT_README.md` file in the root of the repository, delete that file and commit the changes.
+  
 
 ## Container images hierarchy
 
