@@ -36,7 +36,7 @@ To use this template when creating a new repository, follow these steps:
     - Alternatively, you can download the repository as a zip file and extract it to your local machine.
 
 1. Create an initial commit.
-1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies.
+1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. Check section [Notes on Product modules](#notes-on-product-modules) for additional requirements for some modules.
 1. Ensure you have the IQGeo VSCode extension installed. It's available in the Extensions Marketplace.
 1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
 1. Review the changes made by the tool, adjust them if required, and commit them to your repository.
@@ -61,7 +61,7 @@ To apply this template to an existing repository, follow these steps:
 1. Download the zip file of this repository and extract it to a temporary location.
 1. Copy the contents from the extracted folder to the root of your repository, with the exception of the `custom` folder (you should already have a folder for the module you're working with).
     - Depending on what you already have, this will overwrite some files in your repository, and it will discard some configuration you might want to keep, but we'll review those in a later step and recover them if necessary using git.
-1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies.
+1. Review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. Check section [Notes on Product modules](#notes-on-product-modules) for additional requirements for some 
 1. Ensure you have the IQGeo VSCode extension installed. It's available in the Extensions Marketplace.
 1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
 1. Review the changes made by the tool, adjust them if required.
@@ -76,6 +76,25 @@ To apply this template to an existing repository, follow these steps:
     - execute the dev environment by running: `docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build `.
     - add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 1. Commit and push your changes to the branch and ask others to review and/or test.
+
+## Notes on Product modules
+
+The `.iqgeorc.jsonc` provides a way to specify IQGeo products to be included in the project. This is done by adding entries to the `modules` array. The file includes comments detailing the options that can be set when specifying a module.
+
+Some modules will have additional requirements, see the following list for the requirements of each module:
+### comsof:
+
+- requires `comms` module
+
+### comms_dev_db:
+
+- to be used in dev environments only.  include `"devOnly": true`
+- requires both `comms` and `comsof` modules
+- to create the db on startup of the container (if there's no db with NMT schema) replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with the following:
+  
+      `#!/bin/bash
+      if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME fi
+`
 
 ## Review Additional Files
 
