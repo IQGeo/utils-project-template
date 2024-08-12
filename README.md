@@ -86,12 +86,12 @@ Some modules will have additional requirements, see the following list for the r
 
 #### comsof:
 
-- requires `comms` module
+- requires `comms` module to be included in the project as well
 
 #### comms_dev_db:
 
-- to be used in dev environments only.  include `"devOnly": true`
-- requires both `comms` and `comsof` modules
+- to be used in dev environments only.  include `"devOnly": true` in the properties for this module in the `.iqgeorc.jsonc` file
+- requires both `comms` and `comsof` modules to be included in the project as well
 - to create the db on startup of the container (if there's no db with NMT schema) replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with the following:
   
       #!/bin/bash
