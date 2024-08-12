@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+      "IQGeo.iqgeo-utils-vscode",
+      "ms-vscode-remote.vscode-remote-extensionpack",
+      "ms-azuretools.vscode-docker",
+      "GitHub.vscode-pull-request-github",
+      "ms-vsliveshare.vsliveshare"
+  ]
+}
