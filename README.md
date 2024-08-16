@@ -95,7 +95,7 @@ Some modules will have additional requirements, see the following list for the r
 - to create the db on startup of the container (if there's no db with NMT schema) replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with the following:
   
       #!/bin/bash
-      if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME fi
+      if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME; fi
 
 ### Updating the project files using the IQGeo VSCode extension
 
