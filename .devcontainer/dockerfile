@@ -6,11 +6,11 @@
 ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${CONTAINER_REGISTRY}comms:3.1 as comms
+FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.1
+FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.2
 
 USER root
 

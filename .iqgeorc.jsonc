@@ -4,10 +4,11 @@
     "display_name": "Project for customer MyProject",
     // Prefix to use in container names and Docker compose
     "prefix": "myproj",
-    "db_name": "iqgeo",
+    // The name of the database to use. (Should be different from "iqgeo" so myw_db can drop it - uses iqgeo user for connection)
+    "db_name": "myproj",
     "platform": {
         // The version of the IQGeo platform to use. Options are 7.0, and above
-        "version": "7.1",
+        "version": "7.2",
 
         // Dependency Options: ["memcached", "redis", "ldap", "saml", "oidc", "jwt"]
         // Please refer to the platform `Install & Configuration Guide` for more information regarding these dependencies.
@@ -37,11 +38,13 @@
         },
         {
             "name": "comms",
-            "version": "3.1"
+            "version": "3.2"
         }
     ],
 
     // (relative) path of files to exclude from pulling and updating
     // e.g. [".devcontainer/remote_host"]
-    "exclude_file_paths": []
+    "exclude_file_paths": [],
+
+    "version": "0.4.0"
 }
