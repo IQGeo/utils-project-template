@@ -7,8 +7,6 @@ services:
         environment:
             APACHE_ERROR_LOG: ""
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8081}
-            IQGEO_HOST: ${IQGEO_HOST:-localhost:8080}
-            MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost:8080} # Default to localhost:8080 so correct redirect_uri is used for Keycloak when port forwarding
 
         networks:
             - iqgeo-network
