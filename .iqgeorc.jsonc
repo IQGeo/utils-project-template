@@ -27,6 +27,7 @@
         // each entry must have:
         // {string} name: the name of the module. Should match the folder name as it exists in the modules directory and the injector image name if a product module.
         //                  Available product modules are: comms, comsof, electric, gas, survey, workflow_manager, network_revenue_optimizer, pia_interface, capture
+        //                  Available version numbers of these modules are: https://help.iqgeo.com/space/PSM/24444932/Product+support+matrix
         // and can optionally have:
         // {string}  [version]: the version of the module to use. If not provided, the corresponding folder needs to exist in the repository with a IQGeo module structure
         // {boolean} [devOnly=false]: if true, the module is only included in the development environment. e.g. a dev database module
