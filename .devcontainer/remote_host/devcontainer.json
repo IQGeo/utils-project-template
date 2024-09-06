@@ -5,6 +5,10 @@
     "runServices": ["iqgeo"],
     "workspaceFolder": "/opt/iqgeo/platform/WebApps/myworldapp/modules",
     "shutdownAction": "stopCompose",
+    "containerEnv": {
+        "IQGEO_HOST": "localhost:8080",
+        "MYW_EXT_BASE_URL": "http://localhost:8080"
+    },
     "customizations": {
         "vscode": {
             "settings": {

@@ -24,6 +24,16 @@ RUN apt-get update && \
 
 RUN pip install cryptojwt
 
+ARG USER_UID=1000
+ARG USER_GID=1000
+ARG USER_NAME=iqgeo
+
+# Update the UID and GID of the user in the container
+# to match the users UID and GID on the host
+RUN groupmod -g $USER_GID $USER_NAME 
+RUN usermod -u $USER_UID -g $USER_GID $USER_NAME
+RUN chown -R $USER_UID:$USER_GID /home/$USER_NAME
+
 # START SECTION Copy the modules - beware this section is updated by the IQGeo project configuration tool
 COPY --link --from=comms / ${MODULES}/
 # END SECTION
