@@ -10,6 +10,35 @@ services:
         volumes:
             - pgdata-example:/opt/iqgeo/data/pgdata
 
+    iqgeo-tools:
+        build:
+            context: ./
+            dockerfile: dockerfile.tools
+            args:
+                - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
+        image: iqgeo-myproj-tools:latest
+        container_name: iqgeo_${PROJ_PREFIX:-myproj}_tools
+        restart: always
+        depends_on:
+            - postgis
+            - redis
+        environment:
+            PGHOST: ${DB_HOST:-postgis}
+            PGPORT: 5432
+            PGUSER: ${DB_USERNAME:-iqgeo}
+            PGPASSWORD: ${DB_PASSWORD:-password}
+            MYW_DB_NAME: ${MYW_DB_NAME:-myproj}
+            MYW_DB_HOST: ${DB_HOST:-postgis}
+            MYW_DB_PORT: 5432
+            MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
+            MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
+            SQLALCHEMY_URL: postgresql://${DB_USERNAME:-iqgeo}:${DB_PASSWORD:-password}@${DB_HOST:-postgis}:5432/${MYW_DB_NAME:-myproj}
+            RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379}
+            TASK_WORKERS: ${TASK_WORKERS:-1}
+            TASK_QUEUES: ${TASK_QUEUES:-}
+            # START CUSTOM SECTION
+            # END CUSTOM SECTION
+
     iqgeo:
         build:
             context: ./
@@ -22,6 +51,7 @@ services:
         depends_on:
             - postgis
             - keycloak
+            - redis
         environment:
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
             WSGI_PROCESSES: 2
@@ -35,10 +65,10 @@ services:
             MYW_DB_PORT: 5432
             MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
-            BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
-            BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
+            BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:redis}
+            BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-redis://:password@redis:6379/0}
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
-            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak}:${KEYCLOAK_PORT:-8080}
+            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
             # START CUSTOM SECTION
             # END CUSTOM SECTION
@@ -51,7 +81,7 @@ services:
         restart: always
         command: start-dev --import-realm
         environment:
-            KC_HOSTNAME: keycloak
+            KC_HOSTNAME: keycloak.local
             KC_HOSTNAME_PORT: ${KEYCLOAK_PORT:-8080}
             KC_HTTP_PORT: ${KEYCLOAK_PORT:-8080}
             KEYCLOAK_ADMIN: admin
@@ -62,11 +92,18 @@ services:
         ports:
             - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
             - ${KEYCLOAK_PORT:-8080}:${KEYCLOAK_PORT:-8080}
+        networks:
+            default:
+                aliases:
+                    - keycloak.local
 
-    memcached:
-        container_name: memcached_${PROJ_PREFIX:-myproj}
-        image: memcached:latest
+    redis:
+        container_name: redis
+        image: redis:latest
         restart: always
+        command: redis-server --requirepass ${REDIS_PASSWORD:-password}
+        ports:
+            - ${REDIS_PORT:-6379}:6379
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 

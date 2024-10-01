@@ -4,7 +4,7 @@
     },
     "clients": {
         "iqgeo-oidc": {
-            "issuer": "http://keycloak:8080/realms/iqgeo",
+            "issuer": "http://keycloak.local:8080/realms/iqgeo",
             "client_id": "iqgeo-oidc",
             "client_secret": "qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6",
             "redirect_uris": [

@@ -24,6 +24,9 @@ COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES} ${MODULES}/
 # Copy in code package
 COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/dist ${WEBAPPS}/myworldapp/dist/
 
+# Set permissions so that the entrypoints can run as www-data:
+RUN chown -R www-data:www-data entrypoint.d && \
+    chown www-data:www-data entrypoint.d.sh
 
 USER www-data
 
