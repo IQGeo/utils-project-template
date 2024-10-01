@@ -32,6 +32,14 @@ services:
         networks:
             - iqgeo-network
 
+    redis:
+        extends:
+            file: ../docker-compose.yml
+            service: redis
+        container_name: redis
+        networks:
+            - iqgeo-network
+
     pgadmin:
         extends:
             file: ../docker-compose.yml
@@ -39,6 +47,15 @@ services:
         container_name: pgadmin
         networks:
             - iqgeo-network
+
+    rq-dashboard:
+        extends:
+            file: ../docker-compose.yml
+            service: rq-dashboard
+        container_name: rq-dashboard
+        networks:
+            - iqgeo-network
+
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 
