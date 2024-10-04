@@ -1,6 +1,6 @@
 ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 
-FROM iqgeo-myproj-build as iqgeo_builder
+FROM iqgeo-myproj-build AS iqgeo_builder
 
 # START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 RUN apt-get update && \
@@ -38,7 +38,7 @@ COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}
 # END CUSTOM SECTION
 
 
-# Copy in generated bundles 
+# Copy in generated bundles
 COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
 
 
