@@ -33,6 +33,8 @@ services:
             dockerfile: dockerfile
             args:
                 - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
+                - USER_UID=${UID:-1000}
+                - USER_GID=${GID:-1000}
         environment:
             DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!        
