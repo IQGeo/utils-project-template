@@ -80,13 +80,12 @@ First check the following section for additional requirements for some modules.
 
 ### Notes on Product modules
 
-The `.iqgeorc.jsonc` provides a way to specify IQGeo products to be included in the project. This is done by adding entries to the `modules` array. The file includes comments detailing the options that can be set when specifying a module.
+The `.iqgeorc.jsonc` provides a way to specify IQGeo products to be included in the project. This is done by adding entries to the `modules` array. 
 
-Some modules will have additional requirements, see the following list for the requirements of each module:
+For a list of product modules, their versions, and the required dependencies, see the following:
+[Module dependencies](https://github.com/IQGeo/utils-project-template/wiki/Module-dependencies)
 
-#### comsof:
-
-- requires `comms` module to be included in the project as well
+Some modules have additional requirements. Refer to the following list for the specific requirements of each module:
 
 #### comms_dev_db:
 
