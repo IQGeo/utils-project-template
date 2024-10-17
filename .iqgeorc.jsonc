@@ -12,15 +12,15 @@
 
         // Dependency Options: ["memcached", "redis", "ldap", "saml", "oidc", "jwt"]
         // Please refer to the platform `Install & Configuration Guide` for more information regarding these dependencies.
-        // Default: ["memcached", "oidc"] both for Keycloak authentication over OIDC
+        // Default: ["redis", "oidc"] both for Keycloak authentication over OIDC and Redis for session management and Task Queue
         // Note that you always need to have either memcached or redis - the docker-compose is pre-configured to use memcached but you may want to switch to redis if that is what will be used in production
 
         // Dev environment optional dependencies
-        "devenv": ["memcached", "oidc"],
+        "devenv": ["redis", "oidc"],
         // Optional dependencies for deployment environment application server
-        "appserver": ["memcached", "oidc"],
+        "appserver": ["redis", "oidc"],
         // Optional dependencies for deployment tools image
-        "tools": []
+        "tools": ["redis"]
     },
     // Modules to be included in the project
     "modules": [

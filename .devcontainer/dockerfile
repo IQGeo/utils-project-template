@@ -33,7 +33,7 @@ COPY --link --from=comms / ${MODULES}/
 # END CUSTOM SECTION
 
 # # fetch additional python dependencies
-RUN myw_product fetch pip_packages --include memcached oidc
+RUN myw_product fetch pip_packages --include redis oidc
 # ensure pip dependencies are readable by Apache(www-data) and iqgeo
 RUN chown -R www-data:www-data ${MYWORLD_HOME}/Externals && \
     chmod -R g+w ${MYWORLD_HOME}/Externals
