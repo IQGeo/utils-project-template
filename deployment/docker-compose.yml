@@ -10,14 +10,14 @@ services:
         volumes:
             - pgdata-example:/opt/iqgeo/data/pgdata
 
-    iqgeo-tools:
+    iqgeo-worker:
         build:
             context: ./
             dockerfile: dockerfile.tools
             args:
                 - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
         image: iqgeo-myproj-tools:latest
-        container_name: iqgeo_${PROJ_PREFIX:-myproj}_tools
+        container_name: iqgeo_${PROJ_PREFIX:-myproj}_worker
         restart: always
         depends_on:
             - postgis
@@ -34,8 +34,8 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             SQLALCHEMY_URL: postgresql://${DB_USERNAME:-iqgeo}:${DB_PASSWORD:-password}@${DB_HOST:-postgis}:5432/${MYW_DB_NAME:-myproj}
             RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379}
-            TASK_WORKERS: ${TASK_WORKERS:-1}
-            TASK_QUEUES: ${TASK_QUEUES:-}
+            MYW_TASK_WORKERS: ${MYW_TASK_WORKERS:-1}
+            MYW_TASK_QUEUES: ${MYW_TASK_QUEUES:-}
             # START CUSTOM SECTION
             # END CUSTOM SECTION
 
@@ -98,12 +98,10 @@ services:
                     - keycloak.local
 
     redis:
-        container_name: redis
+        container_name: redis_${PROJ_PREFIX:-myproj}
         image: redis:latest
         restart: always
         command: redis-server --requirepass ${REDIS_PASSWORD:-password}
-        ports:
-            - ${REDIS_PORT:-6379}:6379
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 

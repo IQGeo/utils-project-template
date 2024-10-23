@@ -22,8 +22,7 @@ services:
             - postgis
             - keycloak
             - redis
-            - rq-dashboard
-
+            
     iqgeo-common:
         # this service definition is necessary to allow inheritance in the remote_host dev container, which cannot inherit the depends_on entry
         container_name: iqgeo-common_${PROJ_PREFIX:-myproj}
@@ -49,8 +48,8 @@ services:
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:redis}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-redis://:password@redis:6379/0}
             RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
-            TASK_WORKERS: ${TASK_WORKERS:-1} # Number of workers. Set to 0 to disable task processing
-            TASK_QUEUES: ${TASK_QUEUES:-} # Comma separated list of queues to process. Leave empty to process all queues
+            MYW_TASK_WORKERS: ${MYW_TASK_WORKERS:-1} # Number of workers. Set to 0 to disable task processing
+            MYW_TASK_QUEUES: ${MYW_TASK_QUEUES:-} # Comma separated list of queues to process. Leave empty to process all queues
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
@@ -106,7 +105,7 @@ services:
                     - keycloak.local
 
     redis:
-        container_name: redis
+        container_name: redis_${PROJ_PREFIX:-myproj}
         image: redis:latest
         restart: always
         command: redis-server --requirepass ${REDIS_PASSWORD:-password}
