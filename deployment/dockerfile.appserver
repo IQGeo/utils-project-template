@@ -8,7 +8,7 @@ RUN apt-get update && \
     && apt-get autoremove && apt-get clean
 # END SECTION
 
-RUN myw_product fetch pip_packages --include memcached oidc
+RUN myw_product fetch pip_packages --include memcached redis oidc
 
 # remove unneeded files for appserver
 RUN rm -rf ${MODULES}/*/node_modules \
