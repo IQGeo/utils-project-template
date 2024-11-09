@@ -24,14 +24,6 @@ services:
                 aliases:
                     - keycloak.local
 
-    memcached:
-        extends:
-            file: ../docker-compose.yml
-            service: memcached
-        container_name: memcached
-        networks:
-            - iqgeo-network
-
     redis:
         extends:
             file: ../docker-compose.yml
