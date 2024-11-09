@@ -51,7 +51,7 @@ services:
         depends_on:
             - postgis
             - keycloak
-            - redis
+            - memcached
         environment:
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
             WSGI_PROCESSES: 2
@@ -65,8 +65,8 @@ services:
             MYW_DB_PORT: 5432
             MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
-            BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:redis}
-            BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-redis://:password@redis:6379/0}
+            BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:memcached}
+            BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-memcached:11211}
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
@@ -96,6 +96,11 @@ services:
             default:
                 aliases:
                     - keycloak.local
+
+    memcached:
+        container_name: memcached_${PROJ_PREFIX:-myproj}
+        image: memcached:latest
+        restart: always
 
     redis:
         container_name: redis_${PROJ_PREFIX:-myproj}

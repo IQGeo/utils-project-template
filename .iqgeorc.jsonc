@@ -16,9 +16,9 @@
         // Note that you always need to have either memcached or redis - the docker-compose is pre-configured to use memcached but you may want to switch to redis if that is what will be used in production
 
         // Dev environment optional dependencies
-        "devenv": ["redis", "oidc"],
+        "devenv": ["memcached", "redis", "oidc"],
         // Optional dependencies for deployment environment application server
-        "appserver": ["redis", "oidc"],
+        "appserver": ["memcached", "oidc"],
         // Optional dependencies for deployment tools image
         "tools": ["redis"]
     },
