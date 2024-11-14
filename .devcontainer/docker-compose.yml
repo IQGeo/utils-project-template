@@ -51,7 +51,7 @@ services:
             MYW_TASK_WORKERS: ${MYW_TASK_WORKERS:-1} # Number of workers. Set to 0 to disable task processing
             MYW_TASK_QUEUES: ${MYW_TASK_QUEUES:-} # Comma separated list of queues to process. Leave empty to process all queues
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
-            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KC_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
+            KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KEYCLOAK_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
             MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
@@ -88,7 +88,7 @@ services:
         restart: always
         command: start-dev --import-realm
         environment:
-            KC_HOSTNAME: keycloak.local
+            KC_HOSTNAME: ${KEYCLOAK_HOST:-keycloak.local}
             KC_HOSTNAME_PORT: ${KEYCLOAK_PORT:-8080}
             KC_HTTP_PORT: ${KEYCLOAK_PORT:-8080}
             KEYCLOAK_ADMIN: admin
