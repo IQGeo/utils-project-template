@@ -128,7 +128,7 @@ services:
             - postgis
 
     rq-dashboard:
-        container_name: rq-dashboard
+        container_name: rq-dashboard_${PROJ_PREFIX:-myproj}
         image: cjlapao/rq-dashboard:latest
         restart: always
         ports:
