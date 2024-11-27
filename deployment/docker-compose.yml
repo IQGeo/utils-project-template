@@ -1,6 +1,6 @@
 services:
     postgis:
-        image: ghcr.io/iqgeo/docker-postgis/postgis:12-3.5
+        image: ghcr.io/iqgeo/docker-postgis/postgis:15-3.5
         container_name: postgis_${PROJ_PREFIX:-myproj}
         restart: always
         environment:
@@ -107,5 +107,6 @@ services:
 
 volumes:
     pgdata-example:
+        name: ${PROJ_PREFIX:-myproj}_pgdata-example15
         # START CUSTOM SECTION
         # END CUSTOM SECTION
