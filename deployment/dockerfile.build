@@ -8,7 +8,7 @@ FROM ${CONTAINER_REGISTRY}platform-build:7.2
 
 # START SECTION Copy the modules - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --link custom ${MODULES}/custom
-COPY --link --from=comms / ${MODULES}/
+COPY --from=comms / ${MODULES}/
 # END SECTION
 
 # START CUSTOM SECTION
