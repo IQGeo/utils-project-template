@@ -8,7 +8,7 @@ https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-cont
 
 #### Docker
 
-Install docker for window, linux, or mac. When you work with dev containers in Visual Studio Code, you are leveraging the capabilities of Docker to create isolated development environments using container images. To create and manage these containers, the Docker daemon must be running on your system. The Docker daemon is responsible for building, running, and managing containers.
+Install docker for [windows](https://github.com/IQGeo/utils-project-template/wiki/Developing-with-containers-on-Windows), linux, or mac. When you work with dev containers in Visual Studio Code, you are leveraging the capabilities of Docker to create isolated development environments using container images. To create and manage these containers, the Docker daemon must be running on your system. The Docker daemon is responsible for building, running, and managing containers.
 
 Ensure Docker has enough resources, in particular memory, otherwise some commands may fail. 8Gb should be enough for at least 1 environment.
 
