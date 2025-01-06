@@ -48,7 +48,6 @@ RUN chown -R www-data:www-data ${WEBAPPS}/myworldapp/public
 RUN chmod -R g+w ${WEBAPPS}/myworldapp/public
 
 # Set up requirements for "Restart LRT task worker" vscode task
-# ENH remove inotify-tools install once this is already installed on base image
 RUN apt-get update && apt-get install -y inotify-tools
 RUN mkdir /run/myw_task
 RUN touch /run/myw_task/lrt_worker_refresh
