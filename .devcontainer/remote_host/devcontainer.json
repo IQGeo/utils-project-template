@@ -22,7 +22,7 @@
     "remoteUser": "iqgeo",
     "containerUser": "www-data",
     "updateRemoteUserUID": true,
-    "forwardPorts": [8080, "keycloak:8081", "pgadmin:80"],
+    "forwardPorts": [8080, "keycloak:8081", "pgadmin:80", "rq-dashboard:9181"],
     "containerEnv": {
         "IQGEO_HOST": "localhost:8080",
         "MYW_EXT_BASE_URL": "http://localhost:8080"
