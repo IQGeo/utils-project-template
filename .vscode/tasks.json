@@ -39,6 +39,17 @@
             "problemMatcher": []
         },
         {
+            "label": "Restart LRT task workers",
+            "type": "shell",
+            "command": "touch /run/myw_task/lrt_worker_refresh",
+            "problemMatcher": []
+        },
+        {
+            "label": "Reload Python env",
+            "dependsOn": ["Restart Python env in Apache", "Restart LRT task workers"],
+            "problemMatcher": []
+        },
+        {
             "label": "View Apache Error Log",
             "type": "shell",
             "command": "code /var/log/apache2/error.log",

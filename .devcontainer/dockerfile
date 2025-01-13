@@ -47,6 +47,11 @@ RUN myw_product build core_dev --debug
 RUN chown -R www-data:www-data ${WEBAPPS}/myworldapp/public
 RUN chmod -R g+w ${WEBAPPS}/myworldapp/public
 
+# Set up requirements for "Restart LRT task worker" vscode task
+RUN apt-get update && apt-get install -y inotify-tools
+RUN mkdir /run/myw_task
+RUN touch /run/myw_task/lrt_worker_refresh
+RUN chown -R iqgeo:iqgeo /run/myw_task
 
 # add additional entrypoint scripts 
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/

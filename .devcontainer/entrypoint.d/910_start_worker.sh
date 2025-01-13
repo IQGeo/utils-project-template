@@ -11,5 +11,14 @@ if [[ -n "${MYW_TASK_WORKERS}" && "${MYW_TASK_WORKERS}" -gt 0 ]]; then
     
     $command &
     myw_task_pid="$!"
-fi
 
+    {
+        inotifywait -q -m -e close_write /run/myw_task/lrt_worker_refresh |
+        while read -r filename event; do
+            # Start a worker
+            myw_task stop --all || myw_task stop
+            $command &
+            myw_task_pid="$!"
+        done
+    } &
+fi
