@@ -3,14 +3,14 @@
 # IQGeo Platform. It is based on the platform-devenv image and optionally
 # adds additional modules to the image. The modules are copied from the injector images
 #
-ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms:3.2 AS comms
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.2
+FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.2
 
 USER root
 

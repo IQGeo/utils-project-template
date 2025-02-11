@@ -32,7 +32,7 @@ services:
             context: ./
             dockerfile: dockerfile
             args:
-                - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
         environment:
             DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
