@@ -49,3 +49,4 @@ USER www-data
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/
 
 COPY --chown=www-data:www-data appserver_config/ /opt/iqgeo/config/
+# RUN --mount=type=secret,id=oidc,target=/opt/iqgeo/config/oidc/conf.json

@@ -69,6 +69,8 @@ jobs:
           pull: true
           context: deployment
           file: deployment/dockerfile.appserver
+          # secret-files: |
+          #   oidc=${{ secrets.oidc_config }}
           build-args: |
             CONTAINER_REGISTRY=${{ env.REGISTRY }}
           platforms: linux/amd64,linux/arm64
