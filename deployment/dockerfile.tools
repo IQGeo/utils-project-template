@@ -1,4 +1,4 @@
-ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+ARG CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases}
 
 FROM iqgeo-myproj-build AS iqgeo_builder
 
@@ -6,7 +6,7 @@ FROM iqgeo-myproj-build AS iqgeo_builder
 
 # END SECTION
 
-FROM ${CONTAINER_REGISTRY}platform-tools:7.2 AS tools_intermediate
+FROM ${CONTAINER_REGISTRY}/platform-tools:7.2 AS tools_intermediate
 
 USER root
 
