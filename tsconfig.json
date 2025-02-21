@@ -8,7 +8,9 @@
             "myWorld-native-services": ["../core/native/native-client.js"],
             "modules/dev_tools/*": ["./dev_tools/public/*"],
             "modules/vector_tile_styles/*": ["./vector_tile_styles/public/*"],
-            "images/*": ["../core/client/images/*"]
+            "images/*": ["../core/client/images/*"],
+            "config-shared": ["../core/config/shared"],
+            "config-settings": ["../core/config/config-settings.js"]
         }
     }
 }
