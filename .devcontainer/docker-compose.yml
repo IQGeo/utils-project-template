@@ -74,6 +74,7 @@ services:
             - ../.gitignore:/opt/iqgeo/platform/WebApps/myworldapp/modules/.gitignore:delegated
             - ../.iqgeorc.jsonc:/opt/iqgeo/platform/WebApps/myworldapp/modules/.iqgeorc.jsonc:delegated
             - ../README.md:/opt/iqgeo/platform/WebApps/myworldapp/modules/README.md:delegated
+            - ../tsconfig.json:/opt/iqgeo/platform/WebApps/myworldapp/modules/tsconfig.json:delegated
 
             - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/public/bundles # to keep builds when container is recreated
 
