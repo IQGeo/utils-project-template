@@ -17,9 +17,7 @@ USER root
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached-dev libmemcached11 \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
 RUN pip install cryptojwt

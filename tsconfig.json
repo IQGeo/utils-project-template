@@ -10,7 +10,9 @@
             "modules/vector_tile_styles/*": ["./vector_tile_styles/public/*"],
             "images/*": ["../core/client/images/*"],
             "config-shared": ["../core/config/shared"],
-            "config-settings": ["../core/config/config-settings.js"]
+            "config-settings": ["../core/config/config-settings.js"],
+            "modules/custom/*": ["./custom/public/*"],
+            "modules/comms/*": ["./comms/public/*"]
         }
     }
 }
