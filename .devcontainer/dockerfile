@@ -6,7 +6,7 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${PRODUCT_REGISTRY}comms/comms:3.2 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
 # END SECTION
 
 
@@ -17,9 +17,7 @@ USER root
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached-dev libmemcached11 \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
 RUN pip install cryptojwt
