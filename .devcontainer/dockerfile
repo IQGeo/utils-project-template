@@ -10,7 +10,7 @@ FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
 # END SECTION
 
 
-FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.2
+FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.3
 
 USER root
 
