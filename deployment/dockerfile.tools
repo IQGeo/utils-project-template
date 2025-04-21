@@ -6,7 +6,7 @@ FROM iqgeo-myproj-build AS iqgeo_builder
 
 # END SECTION
 
-FROM ${CONTAINER_REGISTRY}platform-tools:7.2 AS tools_intermediate
+FROM ${CONTAINER_REGISTRY}platform-tools:7.3 AS tools_intermediate
 
 USER root
 

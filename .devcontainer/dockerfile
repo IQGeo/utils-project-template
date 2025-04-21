@@ -7,25 +7,27 @@ ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
 FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
+FROM ${CONTAINER_REGISTRY}comsof:1.4 AS comsof
+FROM ${CONTAINER_REGISTRY}comms_dev_db:3.2 AS comms_dev_db
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.2
+FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.3
 
 USER root
 
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached-dev libmemcached11 \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
 RUN pip install cryptojwt
 
 # START SECTION Copy the modules - beware this section is updated by the IQGeo project configuration tool
 COPY --from=comms / ${MODULES}/
+COPY --from=comsof / ${MODULES}/
+COPY --from=comms_dev_db / ${MODULES}/
 # END SECTION
 
 
@@ -52,6 +54,10 @@ RUN apt-get update && apt-get install -y inotify-tools
 RUN mkdir /run/myw_task
 RUN touch /run/myw_task/lrt_worker_refresh
 RUN chown -R iqgeo:iqgeo /run/myw_task
+
+# Set up symlinks for anywhere development
+RUN mkdir -p /opt/iqgeo/anywhere && \
+    chown -R www-data:www-data /opt/iqgeo/anywhere
 
 # add additional entrypoint scripts 
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/

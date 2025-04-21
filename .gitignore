@@ -10,9 +10,12 @@ node_modules
 /jsconfig.json
 /tsconfig.json
 /tsconfig.core.json
+/native
 
 # START SECTION Product modules
 /comms
+/comsof
+/comms_dev_db
 /dev_tools
 # END SECTION
 

@@ -1,14 +1,16 @@
 ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
 # START SECTION Aliases for Injector images
 FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
+FROM ${CONTAINER_REGISTRY}comsof:1.4 AS comsof
 # END SECTION
 
 # Create container for building the project
-FROM ${CONTAINER_REGISTRY}platform-build:7.2
+FROM ${CONTAINER_REGISTRY}platform-build:7.3
 
 # START SECTION Copy the modules - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --link custom ${MODULES}/custom
 COPY --from=comms / ${MODULES}/
+COPY --from=comsof / ${MODULES}/
 # END SECTION
 
 # START CUSTOM SECTION
