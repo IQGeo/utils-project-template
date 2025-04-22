@@ -1,2 +1,8 @@
 #!/bin/bash
-if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME; fi
+
+#assumes database was created (300-ensure-database script)
+
+# START SECTION db init - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
+if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then myw_db $MYW_DB_NAME install comms; fi
+if ! myw_db $MYW_DB_NAME list versions --layout keys | grep iqg_comsof_schema | grep version=; then myw_db $MYW_DB_NAME install comsof; fi
+# END SECTION

@@ -15,8 +15,8 @@ services:
             context: ./
             dockerfile: dockerfile.tools
             args:
-                - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
-        image: iqgeo-myproj-tools:latest
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
+        image: iqgeo-${PROJ_PREFIX:-myproj}-tools:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_worker
         restart: always
         depends_on:
@@ -44,8 +44,8 @@ services:
             context: ./
             dockerfile: dockerfile.appserver
             args:
-                - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
-        image: iqgeo-myproj-appserver:latest
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
+        image: iqgeo-${PROJ_PREFIX:-myproj}-appserver:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_appserver
         restart: always
         depends_on:

@@ -32,7 +32,7 @@ services:
             context: ./
             dockerfile: dockerfile
             args:
-                - CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases/}
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
         environment:
             DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
@@ -60,10 +60,10 @@ services:
             # END CUSTOM SECTION
         ports:
             - ${APP_PORT:-80}:8080
+
         volumes:
             # add data folder to share data between host and container
             - ../data:/opt/iqgeo/platform/WebApps/myworldapp/modules/data:delegated
-            - ../native:/opt/iqgeo/anywhere:delegated
             # Map host directories and files into the container individually, to allow container to be created without losing platform directories
             - ../.vscode:/opt/iqgeo/platform/WebApps/myworldapp/modules/.vscode:delegated
             - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated
@@ -74,8 +74,7 @@ services:
             - ../.gitignore:/opt/iqgeo/platform/WebApps/myworldapp/modules/.gitignore:delegated
             - ../.iqgeorc.jsonc:/opt/iqgeo/platform/WebApps/myworldapp/modules/.iqgeorc.jsonc:delegated
             - ../README.md:/opt/iqgeo/platform/WebApps/myworldapp/modules/README.md:delegated
-
-            - js_bundles:/opt/iqgeo/platform/WebApps/myworldapp/public/bundles # to keep builds when container is recreated
+            - ../tsconfig.json:/opt/iqgeo/platform/WebApps/myworldapp/modules/tsconfig.json:delegated
 
             # Map host module directories to the container
             # START SECTION - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool

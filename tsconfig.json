@@ -1,0 +1,20 @@
+{
+    "extends": "./tsconfig.core.json",
+    "compilerOptions": {
+        "paths": {
+            "myWorld-base": ["../core/client/myWorld-client-namespace.js"],
+            "myWorld-client": ["../core/client/myWorld-client-namespace.js"],
+            "myWorld-client/react": ["../core/client/uiComponents/react"],
+            "myWorld-native-services": ["../core/native/native-client.js"],
+            "modules/dev_tools/*": ["./dev_tools/public/*"],
+            "modules/vector_tile_styles/*": ["./vector_tile_styles/public/*"],
+            "images/*": ["../core/client/images/*"],
+            "config-shared": ["../core/config/shared"],
+            "config-settings": ["../core/config/config-settings.js"],
+            "modules/custom/*": ["./custom/public/*"],
+            "modules/comms/*": ["./comms/public/*"],
+            "modules/comsof/*": ["./comsof/public/*"],
+            "modules/comms_dev_db/*": ["./comms_dev_db/public/*"]
+        }
+    }
+}

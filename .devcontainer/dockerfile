@@ -3,16 +3,16 @@
 # IQGeo Platform. It is based on the platform-devenv image and optionally
 # adds additional modules to the image. The modules are copied from the injector images
 #
-ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
-FROM ${CONTAINER_REGISTRY}comsof:1.4 AS comsof
-FROM ${CONTAINER_REGISTRY}comms_dev_db:3.2 AS comms_dev_db
+FROM ${PRODUCT_REGISTRY}comms/comms:3.2 AS comms
+FROM ${PRODUCT_REGISTRY}comsof/comsof:1.4 AS comsof
+FROM ${PRODUCT_REGISTRY}comms/comms_dev_db:3.2 AS comms_dev_db
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.3
+FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.3
 
 USER root
 
@@ -54,10 +54,6 @@ RUN apt-get update && apt-get install -y inotify-tools
 RUN mkdir /run/myw_task
 RUN touch /run/myw_task/lrt_worker_refresh
 RUN chown -R iqgeo:iqgeo /run/myw_task
-
-# Set up symlinks for anywhere development
-RUN mkdir -p /opt/iqgeo/anywhere && \
-    chown -R www-data:www-data /opt/iqgeo/anywhere
 
 # add additional entrypoint scripts 
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/

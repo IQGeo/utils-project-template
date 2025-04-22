@@ -1,4 +1,4 @@
-ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 FROM iqgeo-myproj-build AS iqgeo_builder
 
@@ -14,7 +14,7 @@ RUN rm -rf ${MODULES}/*/node_modules \
     && rm -rf ${MODULES}/*/native
 
 ############################################## project appserver image
-FROM ${CONTAINER_REGISTRY}platform-appserver:7.3
+FROM ${PRODUCT_REGISTRY}platform/platform-appserver:7.3
 
 USER root
 
