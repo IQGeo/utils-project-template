@@ -165,7 +165,7 @@
             }
         },
         {
-            "name": "Launch MyApp (macOS)",
+            "name": "Launch MyApp",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "bash",
@@ -173,6 +173,13 @@
                 "-c",
                 "open -a 'IQGeo' --args --debug-mode --no-writable-public --inspect=5858"
             ],
+            "windows": {
+                "runtimeExecutable": "cmd.exe",
+                "runtimeArgs": [
+                    "/c",
+                    "\"IQGeo.exe\" --debug-mode --no-writable-public --inspect=5858"
+                ]
+            },
             "env": {
                 "MYW_ELECTRON_CLIENT_ROOT": "${workspaceFolder}/native",
                 "ELECTRON_IS_DEV": "1"
