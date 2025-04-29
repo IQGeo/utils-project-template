@@ -174,7 +174,8 @@
                 "open -a 'IQGeo' --args --debug-mode --no-writable-public --inspect=5858"
             ],
             "env": {
-                "MYW_ELECTRON_CLIENT_ROOT": "${workspaceFolder}/native"
+                "MYW_ELECTRON_CLIENT_ROOT": "${workspaceFolder}/native",
+                "ELECTRON_IS_DEV": "1"
             }
         }
     ],

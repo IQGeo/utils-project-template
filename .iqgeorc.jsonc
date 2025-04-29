@@ -42,12 +42,12 @@
         {
             "name": "comsof",
             "version": "1.4"
-        },
-        {
-            "name": "comms_dev_db",
-            "version": "3.2",
-            "devOnly": true
         }
+        // {
+        //     "name": "comms_dev_db",
+        //     "version": "3.2",
+        //     "devOnly": true
+        // }
     ],
 
     // (relative) path of files to exclude from pulling and updating

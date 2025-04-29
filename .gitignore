@@ -13,9 +13,7 @@ node_modules
 # START SECTION Product modules
 /comms
 /comsof
-/comms_dev_db
 /dev_tools
 # END SECTION
 
 # START CUSTOM SECTION
-# END CUSTOM SECTION
