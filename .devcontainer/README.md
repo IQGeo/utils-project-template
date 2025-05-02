@@ -74,17 +74,6 @@ Now create the dev database. From the _Terminal_ menu, select _Run Task..._ and 
 
 After the database has finished building, you now have a fully functioning application! From your local machine, use a browser to access http://localhost:_APP_PORT_
 
-# Developing with Electron
-
-In order to facilitate faster development when working on the Electron app, a few features have been added to the project template. This includes a command to lauch the electron app referencing local build directories and commands to watch for updates and copy relevant files.
-
--   Before opening the app in a container, go to "Run and Debug" and run "Launch Electron". This will open the electron app locally in developer mode.
--   Select "Reopen in Container" to run the app in Docker.
--   If the app is not already watching and building, run the task "Build and Watch"
--   Run the task "Electron Watch"
-
-As changes are made in the code base, the app will automatically be rebuilt and the bundles will be copied to the "native" directory, which is a volume and can be accessed by the host machine. When the Electron app was launched it was pointed to the "native" directory connected to the container. As that directory is updated by the container, those changes can be viewed once the Electrong app has been reloaded using "command + R".
-
 # Troubleshooting
 
 ## I get an error when the myw_product build command runs
