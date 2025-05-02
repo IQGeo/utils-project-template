@@ -165,7 +165,7 @@
             }
         },
         {
-            "name": "Launch MyApp",
+            "name": "Launch Electron",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "bash",
