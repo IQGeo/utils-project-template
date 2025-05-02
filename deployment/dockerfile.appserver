@@ -28,7 +28,6 @@ COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/External
 # START SECTION Copy modules  - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES}/custom/
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}/comms/
-COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comsof/ ${MODULES}/comsof/
 # END SECTION
 
 # START CUSTOM SECTION

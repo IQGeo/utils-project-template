@@ -12,9 +12,7 @@
             "config-shared": ["../core/config/shared"],
             "config-settings": ["../core/config/config-settings.js"],
             "modules/custom/*": ["./custom/public/*"],
-            "modules/comms/*": ["./comms/public/*"],
-            "modules/comsof/*": ["./comsof/public/*"],
-            "modules/comms_dev_db/*": ["./comms_dev_db/public/*"]
+            "modules/comms/*": ["./comms/public/*"]
         }
     }
 }

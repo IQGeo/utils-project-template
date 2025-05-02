@@ -37,16 +37,7 @@
         },
         {
             "name": "comms",
-            "version": "3.2"
-        },
-        {
-            "name": "comsof",
             "version": "3.3"
-        },
-        {
-            "name": "comms_dev_db",
-            "version": "3.2",
-            "devOnly": true
         }
     ],
 
