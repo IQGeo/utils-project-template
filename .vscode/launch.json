@@ -163,6 +163,15 @@
                 "group": "tests",
                 "order": 4
             }
+        },
+        {
+            "name": "Python: attach to myw_task worker",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5677
+            }
         }
     ],
     "presentation": [
