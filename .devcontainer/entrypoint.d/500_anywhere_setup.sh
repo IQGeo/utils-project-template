@@ -3,7 +3,7 @@
 # Ensure the target directories exist
 mkdir -p /opt/iqgeo/anywhere/locales
 mkdir -p /opt/iqgeo/anywhere/bundles
-# START SECTION - make direcetory for bundles
+# START SECTION - make directory for bundles
 mkdir -p /opt/iqgeo/anywhere/modules/comms
 # END SECTION
 

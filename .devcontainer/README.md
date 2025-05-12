@@ -74,6 +74,10 @@ Now create the dev database. From the _Terminal_ menu, select _Run Task..._ and 
 
 After the database has finished building, you now have a fully functioning application! From your local machine, use a browser to access http://localhost:_APP_PORT_
 
+# Additional Development
+
+For more information regarding development with the Anywhere Electron App, please refer to the github wiki.
+
 # Troubleshooting
 
 ## I get an error when the myw_product build command runs
