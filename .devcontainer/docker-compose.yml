@@ -56,6 +56,7 @@ services:
             MYW_BUILD_BASE_URL: http://iqgeo # address internal to docker network, to run server, js and gui tests
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
             APACHE_ERROR_LOG: /var/log/apache2/error.log
+            ROPC_ENABLE: ${ROPC_ENABLE:-1}
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
