@@ -133,7 +133,7 @@ services:
         ports:
             - ${RQ_DASHBOARD_PORT:-9181}:9181
         environment:
-            RQ_DASHBOARD_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379}
+            RQ_DASHBOARD_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
         depends_on:
             - redis
     # START CUSTOM SECTION
