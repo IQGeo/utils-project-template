@@ -65,6 +65,7 @@ services:
         volumes:
             # add data folder to share data between host and container
             - ../data:/opt/iqgeo/platform/WebApps/myworldapp/modules/data:delegated
+            - ../native:/opt/iqgeo/anywhere:delegated
             # Map host directories and files into the container individually, to allow container to be created without losing platform directories
             - ../.vscode:/opt/iqgeo/platform/WebApps/myworldapp/modules/.vscode:delegated
             - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated

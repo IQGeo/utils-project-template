@@ -9,6 +9,7 @@ node_modules
 /__init__.py
 /jsconfig.json
 /tsconfig.core.json
+/native/*
 
 # START SECTION Product modules
 /comms
