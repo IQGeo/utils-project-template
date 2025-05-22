@@ -22,7 +22,6 @@ services:
             - postgis
             - keycloak
             - redis
-            - rq-dashboard
 
     iqgeo-common:
         # this service definition is necessary to allow inheritance in the remote_host dev container, which cannot inherit the depends_on entry
@@ -134,7 +133,7 @@ services:
         ports:
             - ${RQ_DASHBOARD_PORT:-9181}:9181
         environment:
-            RQ_DASHBOARD_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
+            RQ_DASHBOARD_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379}
         depends_on:
             - redis
     # START CUSTOM SECTION
