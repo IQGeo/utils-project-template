@@ -2,6 +2,11 @@
 
 #### v0.7.3 (Unreleased)
 
+-   PLAT-10007: devcontainer: Add ROPC_ENABLE as an optional environment varialble
+-   PLAT-10597: enable debugging of LRT tasks
+-   PLAT-11630: improvements for anywhere development with running dev container.
+-   .devcontainer: rq-dashboard changed to trigger on container start
+
 #### v0.7.2 (04/10/2025)
 
 **Fixes:**
