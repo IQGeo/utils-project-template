@@ -28,6 +28,9 @@ COPY --from=comms / ${MODULES}/
 
 
 # START CUSTOM SECTION - root user
+ARG APACHE_PORT_OVERRIDE=8080
+RUN sed -i "s|:8080|:${APACHE_PORT_OVERRIDE}|g" /etc/apache2/sites-enabled/iqgeo.apache.conf
+RUN sed -i "s|Listen 8080|Listen ${APACHE_PORT_OVERRIDE}|g" /etc/apache2/ports.conf
 # END CUSTOM SECTION
 
 # # fetch additional python dependencies
