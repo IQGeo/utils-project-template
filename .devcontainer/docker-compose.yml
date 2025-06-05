@@ -69,7 +69,11 @@ services:
             OIDC_RESPONSE_TYPES: ${OIDC_RESPONSE_TYPES:-code}
             OIDC_SCOPES: ${OIDC_SCOPES:-openid,profile,roles}
             OIDC_SERVICES: ${OIDC_SERVICES:-discovery,authorization,access_token,user_info,end_session,refresh_access_token}
+<<<<<<< HEAD
 >>>>>>> 51a05a7 (PLAT-11587: docker: update docker compose to include env variables for OIDC instead of using the oidc/conf.json file. (#59))
+=======
+            APACHE_PORT_OVERRIDE: ${APACHE_PORT_OVERRIDE:-8080}
+>>>>>>> 0136b3d (PLAT-11781: docker: moving apache port override to env variable.)
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
