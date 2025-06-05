@@ -33,7 +33,6 @@ services:
             dockerfile: dockerfile
             args:
                 - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
-                - APACHE_PORT_OVERRIDE=${APACHE_PORT_OVERRIDE:-8080}
         environment:
             DEBUG: 'true' # only for local testing. do not include in production or exposed environments!
             ALLOW_HTTP: 'YES' # only for local testing. do not include in production or exposed environments!
@@ -58,6 +57,7 @@ services:
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
             APACHE_ERROR_LOG: /var/log/apache2/error.log
             ROPC_ENABLE: ${ROPC_ENABLE:-true}
+            APACHE_PORT_OVERRIDE: ${APACHE_PORT_OVERRIDE:-8080}
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
