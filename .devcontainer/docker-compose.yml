@@ -70,7 +70,7 @@ services:
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
-            - ${APP_PORT:-80}:${APACHE_PORT_OVERRIDE:-8080}
+            - ${APP_PORT:-80}:${APACHE_PORT_OVERRIDE}
 
         volumes:
             # add data folder to share data between host and container
