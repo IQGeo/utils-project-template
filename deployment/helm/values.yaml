@@ -70,3 +70,12 @@ redis:
 
 keycloak:
     enabled: true
+
+kafka:
+    enabled: true
+    # Add any kafka-specific values here
+
+debezium:
+    enabled: true
+    topic_prefix: 'iqgeo'
+    table_include_list: 'data.note'
