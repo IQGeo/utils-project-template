@@ -3,10 +3,17 @@ services:
         image: ghcr.io/iqgeo/docker-postgis/postgis:15-3.5
         container_name: postgis_${PROJ_PREFIX:-myproj}
         restart: always
+        command: |
+            postgres 
+            -c wal_level=logical 
+            -c max_wal_senders=1 
+            -c max_replication_slots=1
         environment:
             PGDATA: /opt/iqgeo/data/pgdata
             POSTGRES_USER: ${DB_USERNAME:-iqgeo}
             POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+        ports:
+            - '5432:5432'
         volumes:
             - pgdata-example:/opt/iqgeo/data/pgdata
 
@@ -105,8 +112,67 @@ services:
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 
+    kafka:
+        extends:
+            file: ./kafka/docker-compose-kafka.yml
+            service: kafka
+        container_name: kafka_${PROJ_PREFIX:-myproj}
+        ports:
+            - ${KAFKA_PORT:-9092}:9092
+
+    debezium:
+        extends:
+            file: ./kafka/docker-compose-kafka.yml
+            service: debezium
+        container_name: debezium_${PROJ_PREFIX:-myproj}
+        depends_on:
+            - kafka
+            - postgis
+        ports:
+            - ${DEBEZIUM_PORT:-8083}:8083
+
+    # Connector configuration service
+    connector-setup:
+        image: curlimages/curl:latest
+        container_name: connector-setup
+        environment:
+            KAFKA_CONNECT_URL: http://debezium:8083
+            CONNECTOR_NAME: iqgeo-connector
+            POSTGRES_HOST: ${DB_HOST:-postgis}
+            POSTGRES_PORT: 5432
+            POSTGRES_DB: ${MYW_DB_NAME:-myproj}
+            POSTGRES_USER: ${DB_USERNAME:-iqgeo}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+            # DATABASE_SERVER_NAME: inventory-db
+            TOPIC_PREFIX: iqgeo
+            TABLE_INCLUDE_LIST: data.note
+            MAX_RETRIES: 30
+            RETRY_INTERVAL: 10
+            DELETE_EXISTING: 'true'
+        volumes:
+            - ./kafka/configure-debezium.sh:/scripts/configure-debezium.sh
+            # - ./connectors:/connectors
+        depends_on:
+            debezium:
+                condition: service_healthy
+        command: ['/scripts/configure-debezium.sh']
+        restart: 'no'
+
+    kafka-ui:
+        extends:
+            file: ./kafka/docker-compose-kafka.yml
+            service: kafka-ui
+        container_name: kafka-ui_${PROJ_PREFIX:-myproj}
+        depends_on:
+            - kafka
+            - debezium
+        ports:
+            - ${KAFKA_UI_PORT:-8060}:8080
+
 volumes:
     pgdata-example:
         name: ${PROJ_PREFIX:-myproj}_pgdata-example15
         # START CUSTOM SECTION
         # END CUSTOM SECTION
+    kafka_data:
+        name: ${PROJ_PREFIX:-myproj}_kafka_data

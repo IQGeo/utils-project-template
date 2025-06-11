@@ -1,0 +1,54 @@
+services:
+    kafka:
+        image: confluentinc/cp-kafka:7.5.0
+        container_name: kafka
+        environment:
+            KAFKA_NODE_ID: 1
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+            KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+            KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+            KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+            KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+            KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+            KAFKA_PROCESS_ROLES: 'broker,controller'
+            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            # KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+            CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+        volumes:
+            - kafka_data:/tmp/kraft-combined-logs
+
+    # Kafka Connect with Debezium
+    debezium:
+        image: debezium/connect:2.4
+        container_name: debezium
+        environment:
+            BOOTSTRAP_SERVERS: kafka:29092
+            GROUP_ID: 1
+            CONFIG_STORAGE_TOPIC: debezium-configs
+            OFFSET_STORAGE_TOPIC: debezium-offsets
+            STATUS_STORAGE_TOPIC: debezium-status
+            CONFIG_STORAGE_REPLICATION_FACTOR: 1
+            OFFSET_STORAGE_REPLICATION_FACTOR: 1
+            STATUS_STORAGE_REPLICATION_FACTOR: 1
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:8083/connectors']
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 60s
+
+    # Kafka UI for monitoring
+    kafka-ui:
+        image: provectuslabs/kafka-ui:latest
+        container_name: kafka-ui
+        environment:
+            KAFKA_CLUSTERS_0_NAME: local
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+            KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium
+            KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+
+volumes:
+    kafka_data:
