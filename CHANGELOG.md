@@ -13,7 +13,6 @@
 -   PLAT-10007: devcontainer: Add ROPC_ENABLE as an optional environment varialble
 -   PLAT-10597: enable debugging of LRT tasks
 -   PLAT-11630: improvements for anywhere development with running dev container.
--   PLAT-11587: docker: update docker compose to include env variables for OIDC instead of using the oidc/conf.json file.
 -   .devcontainer: add REDIS_PORT to .env.example
 
 #### v0.7.2 (04/10/2025)
