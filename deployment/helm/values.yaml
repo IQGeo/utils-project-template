@@ -1,0 +1,89 @@
+global:
+  domain: iqgeo.localhost
+  platform_host: appserver
+  db_name: iqgeo-prod
+  #TODO should be a secret?
+  postgis_user: iqgeo
+  postgis_password: 9tPTbfwsie
+
+extraImagePullSecret:
+  name: container-registry
+  registry: harbor.delivery.iqgeo.cloud
+  username: 
+  password: 
+
+postgis:
+  enabled: true
+
+keycloak:
+  enabled: true
+
+
+appserver:
+  # Default configuration for all appservers - override common settings here
+  autoscaling:
+    enabled: false
+  replicaCount: 1
+  db:
+    verify_connectivity: false
+  image:
+    repository: iqgeo-myproj-appserver
+  oidc:
+    enabled: true
+    insecure: true
+    # URLs are automatically generated based on global.domain and global.platform_host
+    # Uncomment and set these values only if you need to override the defaults
+    # issuer: ""
+    # services: ["discovery","authorization","access_token","user_info","end_session","refresh_access_token"]
+    # # # Client ID is the client ID of the OIDC provider
+    # clientId: "iqgeo-oidc"
+    # # Client Secret is the client secret of the OIDC provider
+    # clientSecret:
+    #   # Secret name is the name of the secret that contains the client secret
+    #   secretName: "oidc-client-secret"
+    #   # Secret key is the key in the secret that contains the client secret
+    #   secretKey: "oidc-client-secret"
+    # # Response types is the list of response types that the OIDC provider will accept
+    # responseTypes: ["code"]
+    # # Scopes is the list of scopes that the OIDC provider will accept
+    # scopes: ["openid", "profile", "email"]
+
+persistence:
+  # For Minikube/local testing, you can need to use the standard storage class.
+  storageClass: "standard"
+
+# default image for workers and cronjobs
+image:
+  repository: iqgeo-myproj-tools
+  tag: latest
+  pullPolicy: IfNotPresent
+
+
+appservers:
+  - name: default-appserver
+    replicaCount: 1
+
+  - name: custom-appserver
+    path: /modules/custom
+
+
+workers:
+  - name: default-worker
+
+  # Second worker - processes Commsof integration tasks
+  - name: replication-worker
+    taskQueues: ['platform_extracts']
+    replicaCount: 1
+    taskWorkers: 1
+    taskTimeout: 18000
+    resources:
+      limits:
+        cpu: 2
+        memory: 6Gi
+      requests:
+        cpu: 1
+        memory: 4Gi
+    autoscaling:
+      enabled: false
+    livenessProbe:
+      terminationGracePeriodSeconds: 600

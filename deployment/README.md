@@ -18,7 +18,11 @@ docker login harbor.delivery.iqgeo.cloud
 To use the docker CLI to login, you will need to obtain your CLI secret (password) from your user profile found in harbor:
 https://harbor.delivery.iqgeo.cloud
 
-## Running the containers locally
+## Deploying in Kubernetes
+
+To deploy follow ./helm/README.md instructions.
+
+## Running the containers locally with docker-compose
 
 This folder includes an example docker-compose that allows running the containers locally, there are two steps: build an intermediate image and execute a docker compose up.
 
