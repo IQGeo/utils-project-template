@@ -1,0 +1,72 @@
+---
+## Global
+global:
+    app_name: local-nmt
+    namespace: iqgeo
+    domain: localhost
+    postgis_user: iqgeo
+    postgis_password: iqgeo
+
+## Application
+app_image:
+    name: iqgeo-myproj-appserver
+    repo:
+    tag: latest
+env:
+    APP_PORT: '85'
+
+    ## should be hidden away
+    BEAKER_SESSION_TYPE: 'ext:redis'
+    BEAKER_SESSION_URL: 'redis://:iqgeo@{{ .Values.global.app_name }}-redis.{{ .Values.global.namespace }}.svc.cluster.local:6379/0'
+
+    DB_PORT: '5432'
+    DB_USERNAME: 'iqgeo'
+    DEBUG: 'false'
+
+    # should not be needed
+    IQG_COMMS_DEV_DB: 'myw-{{ .Values.global.app_name }}'
+
+    MYW_DB_HOST: '{{ .Values.global.app_name }}-postgis.{{ .Values.global.namespace }}.svc.cluster.local'
+    MYW_DB_NAME: 'myw-{{ .Values.global.app_name }}'
+    MYW_DB_PORT: '5432'
+    MYW_DB_USERNAME: 'iqgeo'
+    MYW_DB_PASSWORD: 'iqgeo'
+    PGHOST: '{{ .Values.global.app_name }}-postgis.{{ .Values.global.namespace }}.svc.cluster.local'
+    PGPORT: '5432'
+    PGUSER: 'iqgeo'
+    PGPASSWORD: 'iqgeo'
+    WSGI_PROCESSES: '2'
+    WSGI_THREADS: '4'
+    MYW_EXT_BASE_URL: 'https://{{ .Values.global.app_name }}.{{ .Values.global.namespace }}.{{ .Values.global.domain }}'
+    IQGEO_HOST: '{{ .Values.global.app_name }}.{{ .Values.global.namespace }}.{{ .Values.global.domain }}'
+
+    #can be derived?
+    KEYCLOAK_URL: 'https://{{ .Values.global.app_name }}-keycloak.{{ .Values.global.namespace }}.{{ .Values.global.domain }}'
+
+    # OIDC_CONFIGURE_FROM_ENV: 'true'
+    # OIDC_ISSUER: http://local-nmt-keycloak.iqgeo.localhost/realms/iqgeo
+    # OIDC_CLIENT_SECRET: qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6
+    # OIDC_REDIRECT_URIS: http://local-nmt.iqgeo.localhost/auth,http://local-nmt.iqgeo.localhost/auth?redirect_to=index,http://local-nmt.iqgeo.localhost/auth?redirect_to=index
+    # OIDC_POST_LOGOUT_REDIRECT_URLS: http://local-nmt.iqgeo.localhost
+
+# secrets:
+#   - name: SECRET_TOKEN
+#     valueFrom:
+#       secretKeyRef:
+#         name: my-secret
+#         key: token
+#   - name: CONFIG_SETTING
+#     valueFrom:
+#       configMapKeyRef:
+#         name: my-config
+#         key: setting
+
+## Subcharts
+postgis:
+    enabled: true
+
+redis:
+    enabled: true
+
+keycloak:
+    enabled: true
