@@ -1,5 +1,9 @@
 # Changelog
 
+#### v0.9.0 (Unreleased)
+
+-   PLAT-11587: docker: update docker compose to include env variables for OIDC instead of using the oidc/conf.json file.
+
 #### v0.8.0 (Unreleased)
 
 **Fixes:**
