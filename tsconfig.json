@@ -2,6 +2,7 @@
     "extends": "./tsconfig.core.json",
     "compilerOptions": {
         "paths": {
+            "myWorld/*": ["../core/client/*"],
             "myWorld-base": ["../core/client/myWorld-client-namespace.js"],
             "myWorld-client": ["../core/client/myWorld-client-namespace.js"],
             "myWorld-client/react": ["../core/client/uiComponents/react"],

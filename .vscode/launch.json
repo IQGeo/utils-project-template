@@ -163,6 +163,29 @@
                 "group": "tests",
                 "order": 4
             }
+        },
+        {
+            "name": "Launch Electron",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "bash",
+            "runtimeArgs": [
+                "-c",
+                "open -a 'IQGeo' --args --debug-mode --no-writable-public --inspect=5858"
+            ],
+            "env": {
+                "MYW_ELECTRON_CLIENT_ROOT": "${workspaceFolder}/native",
+                "ELECTRON_IS_DEV": "1"
+            }
+        },
+        {
+            "name": "Python: attach to myw_task worker",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5677
+            }
         }
     ],
     "presentation": [
