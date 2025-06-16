@@ -26,6 +26,10 @@ RUN pip install cryptojwt
 COPY --from=comms / ${MODULES}/
 # END SECTION
 
+# find and replace apache port configurations to env variable
+ARG APACHE_PORT_OVERRIDE=8080
+RUN sed -i "s|:8080|:${APACHE_PORT_OVERRIDE}|g" /etc/apache2/sites-enabled/iqgeo.apache.conf
+RUN sed -i "s|Listen 8080|Listen ${APACHE_PORT_OVERRIDE}|g" /etc/apache2/ports.conf
 
 # START CUSTOM SECTION - root user
 # END CUSTOM SECTION
