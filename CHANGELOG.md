@@ -14,6 +14,7 @@
 -   PLAT-10597: enable debugging of LRT tasks
 -   PLAT-11630: improvements for anywhere development with running dev container.
 -   .devcontainer: add REDIS_PORT to .env.example
+-   .devcontainer: Removed the `910_start_worker.sh` entrypoint script as this is now provided by the platform denenv image.
 
 #### v0.7.2 (04/10/2025)
 
