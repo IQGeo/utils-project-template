@@ -68,3 +68,10 @@ redis:
 
 keycloak:
     enabled: true
+
+kafka:
+    enabled: true
+    # Add any kafka-specific values here
+
+debezium:
+    enabled: true
