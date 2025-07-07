@@ -56,6 +56,10 @@ COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/
 
 COPY --chown=www-data:www-data devserver_config/ /opt/iqgeo/config/
 
+RUN mkdir /opt/iqgeo/anywhere
+RUN chown -R www-data:www-data /opt/iqgeo/anywhere
+RUN chmod -R g+w /opt/iqgeo/anywhere
+
 # ensure entrypoint files are executable
 RUN chmod +x entrypoint.d/*
 
