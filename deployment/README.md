@@ -25,7 +25,7 @@ This folder includes an example docker-compose that allows running the container
 From the parent folder run the following commands:
 
 ```
-docker build . -f deployment/dockerfile.build -t iqgeo-myproj-build
+docker build . -f deployment/dockerfile.build -t iqgeo-wfm-nmtcfi-poc-build --build-arg=PRODUCT_REGISTRY=iqgeoproddev.azurecr.io/engineering/
 docker compose -f deployment/docker-compose.yml up -d --build
 ```
 
@@ -52,5 +52,5 @@ If you'd like to rebuild the database you can:
 To create an image to run tools commands
 
 ```
-docker build . -f dockerfile.tools -t iqgeo-myproj-tools
+docker build . -f dockerfile.tools -t iqgeo-wfm-nmtcfi-poc-tools
 ```

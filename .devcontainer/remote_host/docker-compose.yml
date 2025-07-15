@@ -3,7 +3,7 @@ services:
         extends:
             file: ../docker-compose.yml
             service: iqgeo-common
-        container_name: iqgeo_${PROJ_PREFIX:-myproj}
+        container_name: iqgeo_${PROJ_PREFIX:-wfm-nmtcfi-poc}
         environment:
             APACHE_ERROR_LOG: ""
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KEYCLOAK_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8081}
@@ -16,7 +16,7 @@ services:
 
 volumes:
     js_bundles:
-        name: ${PROJ_PREFIX:-myproj}_js_bundles
+        name: ${PROJ_PREFIX:-wfm-nmtcfi-poc}_js_bundles
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 

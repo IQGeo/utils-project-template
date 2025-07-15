@@ -13,7 +13,14 @@
             "config-shared": ["../core/config/shared"],
             "config-settings": ["../core/config/config-settings.js"],
             "modules/custom/*": ["./custom/public/*"],
-            "modules/comms/*": ["./comms/public/*"]
+            "modules/comms/*": ["./comms/public/*"],
+            "modules/comsof/*": ["./comsof/public/*"],
+            "modules/workflow_manager/*": ["./workflow_manager/public/*"],
+            "modules/wfm_nmt/*": ["./wfm_nmt/public/*"],
+            "modules/comms_dev_db/*": ["./comms_dev_db/public/*"],
+            "modules/comsof_dev_db/*": ["./comsof_dev_db/public/*"],
+            "modules/workflow_manager_dev_db/*": ["./workflow_manager_dev_db/public/*"],
+            "modules/comms_cloud/*": ["./comms_cloud/public/*"]
         }
     }
 }

@@ -1,6 +1,6 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
-FROM iqgeo-myproj-build AS iqgeo_builder
+FROM iqgeo-wfm-nmtcfi-poc-build AS iqgeo_builder
 
 # START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 
@@ -28,6 +28,13 @@ COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/External
 # START SECTION Copy modules  - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES}/custom/
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}/comms/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms_cloud/ ${MODULES}/comms_cloud/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comsof/ ${MODULES}/comsof/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/workflow_manager/ ${MODULES}/workflow_manager/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/wfm_nmt/ ${MODULES}/wfm_nmt/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms_dev_db/ ${MODULES}/comms_dev_db/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comsof_dev_db/ ${MODULES}/comsof_dev_db/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/workflow_manager_dev_db/ ${MODULES}/workflow_manager_dev_db/
 # END SECTION
 
 # START CUSTOM SECTION

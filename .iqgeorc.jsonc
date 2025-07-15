@@ -3,9 +3,9 @@
     // Dev Container display name
     "display_name": "Project for customer MyProject",
     // Prefix to use in container names and Docker compose
-    "prefix": "myproj",
+    "prefix": "wfm-nmtcfi-poc",
     // The name of the database to use. (Should be different from "iqgeo" so myw_db can drop it - uses iqgeo user for connection)
-    "db_name": "myproj",
+    "db_name": "wfm-nmtcfi-poc",
     "platform": {
         // The version of the IQGeo platform to use. Options are 7.0, and above
         "version": "7.3",
@@ -37,7 +37,38 @@
         },
         {
             "name": "comms",
-            "version": "3.3"
+            "version": "3.4"
+        },
+        {
+            "name": "comms_cloud",
+            "version": "1.8.0"
+        },
+        {
+            "name": "comsof",
+            "version": "2.1"
+        },
+        {
+            "name": "workflow_manager",
+            "version": "4.1"
+        },
+        {
+            "name": "wfm_nmt",
+            "version": "4.1"
+        },
+        {
+            "name": "comms_dev_db",
+            "version": "3.4",
+            "dbInit": false
+        },
+        {
+            "name": "comsof_dev_db",
+            "version": "2.1",
+            "dbInit": false
+        },
+        {
+            "name": "workflow_manager_dev_db",
+            "version": "4.1",
+            "dbInit": false
         }
     ],
 

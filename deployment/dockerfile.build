@@ -1,6 +1,13 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 # START SECTION Aliases for Injector images
-FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms:3.4 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms_cloud:1.8.0 AS comms_cloud
+FROM ${PRODUCT_REGISTRY}comsof/comsof:2.1 AS comsof
+FROM ${PRODUCT_REGISTRY}workflow_manager/workflow_manager:4.1 AS workflow_manager
+FROM ${PRODUCT_REGISTRY}workflow_manager/wfm_nmt:4.1 AS wfm_nmt
+FROM ${PRODUCT_REGISTRY}comms/comms_dev_db:3.4 AS comms_dev_db
+FROM ${PRODUCT_REGISTRY}comsof/comsof_dev_db:2.1 AS comsof_dev_db
+FROM ${PRODUCT_REGISTRY}workflow_manager/workflow_manager_dev_db:4.1 AS workflow_manager_dev_db
 # END SECTION
 
 # Create container for building the project
@@ -9,9 +16,17 @@ FROM ${PRODUCT_REGISTRY}platform/platform-build:7.3
 # START SECTION Copy the modules - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --link custom ${MODULES}/custom
 COPY --from=comms / ${MODULES}/
+COPY --from=comms_cloud / ${MODULES}/
+COPY --from=comsof / ${MODULES}/
+COPY --from=workflow_manager / ${MODULES}/
+COPY --from=wfm_nmt / ${MODULES}/
+COPY --from=comms_dev_db / ${MODULES}/
+COPY --from=comsof_dev_db / ${MODULES}/
+COPY --from=workflow_manager_dev_db / ${MODULES}/
 # END SECTION
 
 # START CUSTOM SECTION
+RUN sed -i "s|pytest==8.3.3|pytest==8.3.4|g" $MODULES/workflow_manager_dev_db/requirements.txt
 # END CUSTOM SECTION
 
 # Give www-data user ownership of the modules
@@ -21,7 +36,7 @@ RUN chown -R www-data:www-data ${MODULES}
 # --include options are: memcached, redis, ldap, oidc, saml
 RUN myw_product fetch pip_packages 
 
-# Fetch node_modules and build all
+# # Fetch node_modules and build all
 RUN myw_product fetch node_modules
-RUN myw_product build all 
+RUN myw_product build all --debug
 

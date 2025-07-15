@@ -53,9 +53,9 @@ services:
 
 volumes:
     pgdata:
-        name: ${PROJ_PREFIX:-myproj}_pgdata
+        name: ${PROJ_PREFIX:-wfm-nmtcfi-poc}_pgdata
     pgadmin-data:
-        name: ${PROJ_PREFIX:-myproj}_pgadmin_data
+        name: ${PROJ_PREFIX:-wfm-nmtcfi-poc}_pgadmin_data
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 

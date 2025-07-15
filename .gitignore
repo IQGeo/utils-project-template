@@ -13,6 +13,13 @@ node_modules
 
 # START SECTION Product modules
 /comms
+/comms_cloud
+/comsof
+/workflow_manager
+/wfm_nmt
+/comms_dev_db
+/comsof_dev_db
+/workflow_manager_dev_db
 /dev_tools
 # END SECTION
 
