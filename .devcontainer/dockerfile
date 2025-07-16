@@ -26,6 +26,10 @@ RUN pip install cryptojwt
 COPY --from=comms / ${MODULES}/
 # END SECTION
 
+# find and replace apache port configurations to env variable
+ARG APACHE_PORT_OVERRIDE=8080
+RUN sed -i "s|:8080|:${APACHE_PORT_OVERRIDE}|g" /etc/apache2/sites-enabled/iqgeo.apache.conf
+RUN sed -i "s|Listen 8080|Listen ${APACHE_PORT_OVERRIDE}|g" /etc/apache2/ports.conf
 
 # START CUSTOM SECTION - root user
 # END CUSTOM SECTION
@@ -55,6 +59,10 @@ RUN chown -R iqgeo:iqgeo /run/myw_task
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/
 
 COPY --chown=www-data:www-data devserver_config/ /opt/iqgeo/config/
+
+RUN mkdir /opt/iqgeo/anywhere
+RUN chown -R www-data:www-data /opt/iqgeo/anywhere
+RUN chmod -R g+w /opt/iqgeo/anywhere
 
 # ensure entrypoint files are executable
 RUN chmod +x entrypoint.d/*
