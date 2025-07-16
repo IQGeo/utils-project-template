@@ -1,9 +1,9 @@
 # Changelog
 
-#### v0.8.1 (unreleased)
+#### v0.8.1 (07/16/2025)
 
 -   .devcontainer: fixed permission issues with anywhere script.
--   .devcotnainer: added SSL_REQUIRED environment variable to keycloak service to fix HTTPs required issue.
+-   .devcontainer: added SSL_REQUIRED environment variable to keycloak service to fix HTTPs required issue.
 -   .devcontainer: Added support for developers to override the Apache port used inside the container via configuration.
 
 #### v0.8.0 (06/16/2025)
