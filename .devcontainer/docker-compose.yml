@@ -65,7 +65,7 @@ services:
             OIDC_POST_LOGOUT_REDIRECT_URLS: ${OIDC_POST_LOGOUT_REDIRECT_URLS:-http://${IQGEO_HOST:-localhost:${APP_PORT:-80}}}
             OIDC_RESPONSE_TYPES: ${OIDC_RESPONSE_TYPES:-code}
             OIDC_SCOPES: ${OIDC_SCOPES:-openid,profile,roles}
-            OIDC_SERVICES: ${OIDC_SERVICES
+            OIDC_SERVICES: ${OIDC_SERVICES:-discovery,authorization,access_token,user_info,end_session,refresh_access_token}
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
