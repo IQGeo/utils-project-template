@@ -15,7 +15,7 @@ services:
             context: ./
             dockerfile: dockerfile.tools
             args:
-                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-iqgeoproddev.azurecr.io/engineering/}
         image: iqgeo-${PROJ_PREFIX:-myproj}-tools:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_worker
         restart: always
@@ -44,7 +44,7 @@ services:
             context: ./
             dockerfile: dockerfile.appserver
             args:
-                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
+                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-iqgeoproddev.azurecr.io/engineering/}
         image: iqgeo-${PROJ_PREFIX:-myproj}-appserver:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_appserver
         restart: always
@@ -86,6 +86,7 @@ services:
             KC_HTTP_PORT: ${KEYCLOAK_PORT:-8080}
             KEYCLOAK_ADMIN: admin
             KEYCLOAK_ADMIN_PASSWORD: _mywWorld_
+            SSL_REQUIRED: none
             KC_PROXY: edge
             IQGEO_DOMAIN: http://${SERVER_NAME-localhost}:${APPSERVER_PORT:-80}
             IQGEO_CLIENT_SECRET: qpyu1mCm8zvvKTXRnKxwap1A6xMChuY6

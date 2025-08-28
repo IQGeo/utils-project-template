@@ -1,4 +1,4 @@
-ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+ARG PRODUCT_REGISTRY=iqgeoproddev.azurecr.io/engineering/ 
 
 FROM iqgeo-myproj-build AS iqgeo_builder
 

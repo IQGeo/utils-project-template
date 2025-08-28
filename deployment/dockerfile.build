@@ -1,4 +1,4 @@
-ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+ARG PRODUCT_REGISTRY=iqgeoproddev.azurecr.io/engineering/ 
 # START SECTION Aliases for Injector images
 FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
 # END SECTION
