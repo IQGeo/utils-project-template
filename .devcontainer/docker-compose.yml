@@ -46,6 +46,7 @@ services:
             MYW_DB_PORT: 5432
             MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
+            MYW_WEB_SESSION_TIMEOUT_HOURS: ${MYW_WEB_SESSION_TIMEOUT_HOURS:-}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:redis}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-redis://:password@redis:6379/0}
             RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
