@@ -10,10 +10,11 @@
         // The version of the IQGeo platform to use. Options are 7.0, and above
         "version": "7.3",
 
-        // Dependency Options: ["memcached", "redis", "ldap", "saml", "oidc", "jwt"]
+        // Dependency Options: ["memcached", "redis", "ldap", "saml", "oidc"]
         // Please refer to the platform `Install & Configuration Guide` for more information regarding these dependencies.
         // Default: ["redis", "oidc"] both for Keycloak authentication over OIDC and Redis for session management and Task Queue
         // Note that you always need to have either memcached or redis - the docker-compose is pre-configured to use memcached but you may want to switch to redis if that is what will be used in production
+        // On platform <= 7.2, "jwt" is also an option, but must be removed when you upgrade to >= 7.3 (where it is always installed).
 
         // Dev environment optional dependencies
         "devenv": ["redis", "oidc"],
