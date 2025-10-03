@@ -8,7 +8,7 @@
     "db_name": "myproj",
     "platform": {
         // The version of the IQGeo platform to use. Options are 7.0, and above
-        "version": "7.3",
+        "version": "7.4",
 
         // Dependency Options: ["memcached", "redis", "ldap", "saml", "oidc"]
         // Please refer to the platform `Install & Configuration Guide` for more information regarding these dependencies.
