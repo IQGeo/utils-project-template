@@ -1,6 +1,5 @@
 #!/bin/bash
 
 # START SECTION db upgrade - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-myw_db $MYW_DB_NAME upgrade custom
-myw_db $MYW_DB_NAME upgrade comms
+if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then myw_db $MYW_DB_NAME upgrade comms; fi
 # END SECTION
