@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.8.2 (10/08/2025)
+
+-   iqgeorc.jsonc updated default to platform 7.4
+-   PLAT-12000: Added RQ_REDIS_URL to deployments app server setup to match worker/tools setup
+
 #### v0.8.1 (07/16/2025)
 
 -   .devcontainer: fixed permission issues with anywhere script.

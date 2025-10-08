@@ -46,5 +46,5 @@
     // e.g. [".devcontainer/remote_host"]
     "exclude_file_paths": [],
 
-    "version": "0.8.1"
+    "version": "0.8.2"
 }
