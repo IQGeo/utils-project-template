@@ -71,6 +71,7 @@ services:
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KEYCLOAK_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
+            MYW_DB_UPGRADE: ${MYW_DB_UPGRADE:-NO} # Default to NO to prevent accidental DB upgrade on appserver start
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:

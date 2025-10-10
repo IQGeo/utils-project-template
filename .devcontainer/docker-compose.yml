@@ -58,6 +58,7 @@ services:
             MYW_WEBDRIVER_URL: http://selenium-chrome:4444 # run UI tests in selenium container
             APACHE_ERROR_LOG: /var/log/apache2/error.log
             ROPC_ENABLE: ${ROPC_ENABLE:-true}
+            MYW_DB_UPGRADE: ${MYW_DB_UPGRADE:-YES} # Set to YES to run DB upgrade scripts on container start
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
