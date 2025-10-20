@@ -4,6 +4,7 @@
 
 -   iqgeorc.jsonc updated default to platform 7.4
 -   PLAT-12000: Added RQ_REDIS_URL to deployments app server setup to match worker/tools setup
+-   PLAT-12007: Added 610_upgrade_db.sh to include module upgrade commands.
 
 #### v0.8.1 (07/16/2025)
 
