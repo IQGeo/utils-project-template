@@ -4,7 +4,7 @@ FROM ${PRODUCT_REGISTRY}comms/comms:pre-release AS comms
 # END SECTION
 
 # Create container for building the project
-FROM ${PRODUCT_REGISTRY}platform/platform-build:7.4
+FROM ${PRODUCT_REGISTRY}platform/platform-build:pre-release
 
 # START SECTION Copy the modules - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --link custom ${MODULES}/custom

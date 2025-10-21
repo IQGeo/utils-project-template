@@ -14,7 +14,7 @@ RUN rm -rf ${MODULES}/*/node_modules \
     && rm -rf ${MODULES}/*/native
 
 ############################################## project appserver image
-FROM ${PRODUCT_REGISTRY}platform/platform-appserver:7.4
+FROM ${PRODUCT_REGISTRY}platform/platform-appserver:pre-release
 
 USER root
 
