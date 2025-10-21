@@ -9,7 +9,7 @@ set -e  # Exit on any error
 
 # Configuration - Look for .iqgeorc.jsonc in parent directory
 IQGEORC_FILE="../.iqgeorc.jsonc"
-BACKUP_FILE="../.iqgeorc.jsonc.backup"
+TEMP_BACKUP_FILE=""
 VERSION_LINE_NUMBER=11
 
 # Color codes for output
@@ -100,31 +100,30 @@ check_dependencies() {
     fi
 }
 
-# Function to create backup of original file
-create_backup() {
+# Function to create temporary backup of original file
+create_temp_backup() {
     local file="$1"
-    local backup="$2"
     
-    if [[ ! -f "$backup" ]]; then
-        print_status "Creating backup of original .iqgeorc.jsonc file..."
-        if cp "$file" "$backup"; then
-            print_success "Backup created: $backup"
-        else
-            print_error "Failed to create backup file!"
-            exit 1
-        fi
+    # Create temporary backup file
+    TEMP_BACKUP_FILE=$(mktemp "/tmp/iqgeorc_backup.XXXXXX")
+    
+    print_status "Creating temporary backup of original .iqgeorc.jsonc file..."
+    if cp "$file" "$TEMP_BACKUP_FILE"; then
+        print_success "Temporary backup created: $TEMP_BACKUP_FILE"
     else
-        print_status "Backup file already exists: $backup"
+        print_error "Failed to create temporary backup file!"
+        exit 1
     fi
 }
 
-# Function to restore from backup
-restore_from_backup() {
+# Function to restore from temporary backup
+restore_from_temp_backup() {
     local file="$1"
     local backup="$2"
+    local cleanup_backup="$3"  # whether to remove backup after restore
     
     if [[ -f "$backup" ]]; then
-        print_status "Restoring original .iqgeorc.jsonc from backup..."
+        print_status "Restoring original .iqgeorc.jsonc from temporary backup..."
         if cp "$backup" "$file"; then
             print_success "File restored from backup successfully!"
             
@@ -144,14 +143,28 @@ restore_from_backup() {
                 print_status "You may need to run 'npx project-update' manually to apply the restored configuration."
                 exit 1
             fi
+            
+            # Clean up backup file if requested
+            if [[ "$cleanup_backup" == "true" ]]; then
+                rm -f "$backup"
+                print_status "Temporary backup file removed."
+            fi
         else
             print_error "Failed to restore from backup!"
             exit 1
         fi
     else
-        print_error "Backup file not found: $backup"
+        print_error "Temporary backup file not found: $backup"
         print_error "Cannot restore original file."
         exit 1
+    fi
+}
+
+# Function to cleanup temporary files
+cleanup_temp_files() {
+    if [[ -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+        print_status "Cleaning up temporary backup file: $TEMP_BACKUP_FILE"
+        rm -f "$TEMP_BACKUP_FILE"
     fi
 }
 
@@ -486,7 +499,6 @@ show_legacy_test_info() {
 # Main function
 main() {
     local file="$IQGEORC_FILE"
-    local backup="$BACKUP_FILE"
     local skip_update_flag=false
     local skip_build_flag=false
     local skip_verify_flag=false
@@ -500,7 +512,6 @@ main() {
         case $1 in
             -f|--file)
                 file="$2"
-                backup="${file}.backup"
                 shift 2
                 ;;
             -r|--restore)
@@ -557,7 +568,10 @@ main() {
     
     # Handle restore mode
     if [[ "$restore_flag" == true ]]; then
-        check_file_exists "$backup"
+        # Create temporary backup if not exists
+        if [[ -z "$TEMP_BACKUP_FILE" ]]; then
+            create_temp_backup "$file"
+        fi
         
         # Check if npx is available for project update
         if ! command -v npx &> /dev/null; then
@@ -566,7 +580,7 @@ main() {
             exit 1
         fi
         
-        restore_from_backup "$file" "$backup"
+        restore_from_temp_backup "$file" "$TEMP_BACKUP_FILE" true
         exit 0
     fi
     
@@ -634,8 +648,8 @@ main() {
     # Show what will be changed
     show_version_comparison "$file" "$current_version" "$new_version"
     
-    # Create backup of original file
-    create_backup "$file" "$backup"
+    # Create temporary backup of original file
+    create_temp_backup "$file"
     
     # Update the platform version
     print_status "Updating platform version in $file..."
@@ -735,9 +749,14 @@ main() {
     
     echo ""
     print_success "Platform version update workflow completed!"
-    print_status "Backup available at: $backup"
-    print_status "To restore original version, run: $0 --restore"
+    if [[ -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+        print_status "Temporary backup available at: $TEMP_BACKUP_FILE"
+        print_status "Original version can be restored using temporary backup system"
+    fi
 }
+
+# Cleanup function to run on exit
+trap cleanup_temp_files EXIT
 
 # Run main function with all arguments
 main "$@"

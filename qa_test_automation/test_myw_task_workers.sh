@@ -126,15 +126,27 @@ authenticate_azure() {
 
 # Function to build and start development environment
 build_and_start_container() {
+    local worker_count="$1"  # Accept worker count as parameter
     print_info "Building and starting development environment"
     
     docker compose -f "$DOCKER_COMPOSE_FILE" --profile iqgeo up -d --build
     
     if [ $? -eq 0 ]; then
         print_success "Container build and start successful"
-        # Wait longer for the container to be fully ready and workers to start
-        print_info "Waiting 30 seconds for container and workers to fully initialize..."
-        sleep 30
+        
+        # Determine wait time based on worker count
+        local wait_time=30  # Default wait time
+        if [ "$worker_count" = "5" ]; then
+            wait_time=60  # 60 seconds for 5 workers
+            print_info "Detected 5 workers - using extended wait time for worker initialization"
+        elif [ "$worker_count" = "10" ]; then
+            wait_time=60  # 60 seconds for 10 workers
+            print_info "Detected 10 workers - using extended wait time for worker initialization"
+        fi
+        
+        # Wait for the container to be fully ready and workers to start
+        print_info "Waiting $wait_time seconds for container and workers to fully initialize..."
+        sleep $wait_time
         
         # Verify the environment variable is set correctly in the container
         print_info "Verifying MYW_TASK_WORKERS environment variable in container..."
@@ -321,8 +333,8 @@ execute_test_cycle() {
         return 1
     fi
     
-    # Step 3: Build and start container
-    if ! build_and_start_container; then
+    # Step 3: Build and start container (pass worker_value for timing)
+    if ! build_and_start_container "$worker_value"; then
         print_error "$test_name failed: Container build/start failed"
         return 1
     fi
@@ -357,8 +369,8 @@ execute_default_test() {
         return 1
     fi
     
-    # Step 3: Build and start container
-    if ! build_and_start_container; then
+    # Step 3: Build and start container (use default timing for no workers)
+    if ! build_and_start_container "0"; then
         print_error "Default test failed: Container build/start failed"
         return 1
     fi

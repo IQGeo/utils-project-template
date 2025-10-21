@@ -9,11 +9,12 @@ set -e  # Exit on any error
 
 # Configuration
 IQGEORC_FILE="../.iqgeorc.jsonc"
-BACKUP_FILE="../.iqgeorc.jsonc.backup"
 
 # Global variables to store absolute paths
 ABSOLUTE_IQGEORC_FILE=""
-ABSOLUTE_BACKUP_FILE=""
+
+# Global variable for temporary backup file
+TEMP_BACKUP_FILE=""
 
 # Global variables to track success criteria for auto-restore
 MODULE_UPDATE_SUCCESS=false
@@ -61,8 +62,7 @@ show_usage() {
     echo "  -s, --skip-update       Skip running 'npx project-update' after modifications"
     echo "  -b, --skip-build        Skip building and starting the development environment"
     echo "  -v, --skip-verify       Skip module version verification in container"
-    echo "  --no-auto-restore       Skip automatic restoration and final rebuild"
-    echo "  --skip-final-rebuild    Skip final container rebuild (but still restore file)"
+    echo "  --no-auto-restore       Skip automatic restoration"
     echo "  -h, --help              Show this help message"
     echo ""
     echo "Examples:"
@@ -74,18 +74,16 @@ show_usage() {
     echo "  $0 --skip-build groups 1.0 analytics 2.1.5          # Add modules without building containers"
     echo "  $0 --skip-verify custom 1.0 reporting 3.0           # Add modules and build but skip verification"
     echo "  $0 --no-auto-restore workflow_manager 4.0           # Test without automatic restoration"
-    echo "  $0 --skip-final-rebuild groups 1.0                  # Test with restore but no final rebuild"
     echo ""
-    echo "Default Behavior: Add modules → Test → Verify → Auto-restore → Final rebuild"
+    echo "Default Behavior: Add modules → Test → Verify → Auto-restore"
     echo "Auto-Restore: Automatically restores original configuration after testing completes"
 }
 
 # Function to set absolute paths for files
 set_absolute_paths() {
     local file="$1"
-    local backup="$2"
     
-    # Convert to absolute paths before we start changing directories
+    # Convert to absolute path before we start changing directories
     if [[ "$file" == /* ]]; then
         # Already absolute path
         ABSOLUTE_IQGEORC_FILE="$file"
@@ -94,16 +92,7 @@ set_absolute_paths() {
         ABSOLUTE_IQGEORC_FILE="$(realpath "$file")"
     fi
     
-    if [[ "$backup" == /* ]]; then
-        # Already absolute path
-        ABSOLUTE_BACKUP_FILE="$backup"
-    else
-        # Convert relative path to absolute
-        ABSOLUTE_BACKUP_FILE="$(realpath "$backup" 2>/dev/null || echo "$(dirname "$(realpath "$file")")/.iqgeorc.jsonc.backup")"
-    fi
-    
     print_status "Absolute .iqgeorc.jsonc file path: $ABSOLUTE_IQGEORC_FILE"
-    print_status "Absolute backup file path: $ABSOLUTE_BACKUP_FILE"
 }
 
 # Function to check if file exists
@@ -143,31 +132,31 @@ check_dependencies() {
     fi
 }
 
-# Function to create backup of original file
-create_backup() {
+# Function to create temporary backup of original file
+create_temp_backup() {
     local file="$1"
-    local backup="$2"
     
-    if [[ ! -f "$backup" ]]; then
-        print_status "Creating backup of original .iqgeorc.jsonc file..."
-        if cp "$file" "$backup"; then
-            print_success "Backup created: $backup"
-        else
-            print_error "Failed to create backup file!"
-            exit 1
-        fi
+    # Create temporary backup file in /tmp to avoid project interference
+    TEMP_BACKUP_FILE=$(mktemp "/tmp/iqgeorc_backup.XXXXXX")
+    
+    print_status "Creating temporary backup of original .iqgeorc.jsonc file..."
+    if cp "$file" "$TEMP_BACKUP_FILE"; then
+        print_success "Temporary backup created: $TEMP_BACKUP_FILE"
     else
-        print_status "Backup file already exists: $backup"
+        print_error "Failed to create temporary backup file!"
+        exit 1
     fi
 }
 
-# Function to restore from backup
-restore_from_backup() {
+# Function to restore from temporary backup
+restore_from_temp_backup() {
     local file="$1"
     local backup="$2"
+    local cleanup_backup="$3"  # whether to remove backup after restore
     
     if [[ -f "$backup" ]]; then
-        print_status "Restoring original .iqgeorc.jsonc from backup..."
+        print_status "Restoring original .iqgeorc.jsonc from temporary backup..."
+        
         if cp "$backup" "$file"; then
             print_success "File restored from backup successfully!"
             
@@ -187,12 +176,18 @@ restore_from_backup() {
                 print_status "You may need to run 'npx project-update' manually to apply the restored configuration."
                 exit 1
             fi
+            
+            # Clean up backup file if requested
+            if [[ "$cleanup_backup" == "true" ]]; then
+                rm -f "$backup"
+                print_status "Temporary backup file removed."
+            fi
         else
             print_error "Failed to restore from backup!"
             exit 1
         fi
     else
-        print_error "Backup file not found: $backup"
+        print_error "Temporary backup file not found: $backup"
         print_error "Cannot restore original file."
         exit 1
     fi
@@ -780,7 +775,6 @@ verify_modules_in_container() {
 
 # Function to perform auto-restoration workflow
 auto_restore_workflow() {
-    local skip_final_rebuild="$1"
     
     echo ""
     print_status "=========================================="
@@ -790,13 +784,17 @@ auto_restore_workflow() {
     print_status "Starting automatic restoration process..."
     print_status "Current working directory: $(pwd)"
     print_status "File to restore: $ABSOLUTE_IQGEORC_FILE"
-    print_status "Backup file: $ABSOLUTE_BACKUP_FILE"
+    print_status "Temporary backup file: $TEMP_BACKUP_FILE"
     
-    # Restore from backup using absolute paths
-    if [[ -f "$ABSOLUTE_BACKUP_FILE" ]]; then
-        print_status "Restoring original .iqgeorc.jsonc from backup..."
-        if cp "$ABSOLUTE_BACKUP_FILE" "$ABSOLUTE_IQGEORC_FILE"; then
+    # Restore from temporary backup
+    if [[ -f "$TEMP_BACKUP_FILE" ]]; then
+        print_status "Restoring original .iqgeorc.jsonc from temporary backup..."
+        if cp "$TEMP_BACKUP_FILE" "$ABSOLUTE_IQGEORC_FILE"; then
             print_success "File restored from backup successfully!"
+            
+            # Clean up temporary backup file
+            rm -f "$TEMP_BACKUP_FILE"
+            print_status "Temporary backup file removed."
             
             # Run project update after restore
             echo ""
@@ -808,56 +806,14 @@ auto_restore_workflow() {
             if npx project-update; then
                 print_success "Project update completed successfully after restoration!"
                 
-                # Rebuild with original configuration unless skipped
-                if [[ "$skip_final_rebuild" != true ]]; then
-                    echo ""
-                    print_status "Rebuilding development environment with original configuration..."
-                    
-                    # Azure authentication
-                    if az acr login --name iqgeoproddev >/dev/null 2>&1; then
-                        # Stop existing containers
-                        print_status "Stopping existing containers..."
-                        docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo down --remove-orphans || true
-                        
-                        # Build with original configuration
-                        print_status "Starting Docker Compose build with original configuration..."
-                        if docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build; then
-                            print_success "Development environment rebuilt with original configuration!"
-                            
-                            # Wait for containers to start
-                            print_status "Waiting for containers to start (15 seconds)..."
-                            sleep 15
-                            
-                            echo ""
-                            print_success "🎉 Auto-restoration completed successfully!"
-                            print_success "✓ Added modules have been removed from configuration"
-                            print_success "✓ Original .iqgeorc.jsonc has been restored"
-                            print_success "✓ Project update completed with original configuration"
-                            print_success "✓ Development environment rebuilt with original configuration"
-                            print_success "✓ Your environment has been returned to its original state"
-                            # Track successful restoration for pass/fail criteria
-                            RESTORATION_SUCCESS=true
-                        else
-                            print_error "Auto-restoration failed during final rebuild!"
-                            print_error "The configuration has been restored and project-update completed, but the container rebuild failed."
-                            exit 1
-                        fi
-                    else
-                        print_error "Azure authentication failed during auto-restoration!"
-                        print_error "The configuration has been restored but container rebuild cannot proceed."
-                        exit 1
-                    fi
-                else
-                    echo ""
-                    print_warning "Skipped final container rebuild"
-                    print_success "Auto-restoration of configuration completed successfully!"
-                    print_success "✓ Added modules have been removed from configuration"
-                    print_success "✓ Original .iqgeorc.jsonc has been restored"
-                    print_success "✓ Project update completed with original configuration"
-                    print_warning "Note: Containers are still running with the modified configuration"
-                    # Track restoration success even when skipping rebuild for pass/fail criteria
-                    RESTORATION_SUCCESS=true
-                fi
+                echo ""
+                print_success "🎉 Auto-restoration completed successfully!"
+                print_success "✓ Added modules have been removed from configuration"
+                print_success "✓ Original .iqgeorc.jsonc has been restored"
+                print_success "✓ Project update completed with original configuration"
+                print_success "✓ Your environment has been returned to its original state"
+                # Track successful restoration for pass/fail criteria
+                RESTORATION_SUCCESS=true
             else
                 print_error "Project update failed after restoration!"
                 print_error "The file was restored but the project-update command failed."
@@ -868,7 +824,7 @@ auto_restore_workflow() {
             exit 1
         fi
     else
-        print_error "Backup file not found: $ABSOLUTE_BACKUP_FILE"
+        print_error "Temporary backup file not found: $TEMP_BACKUP_FILE"
         print_error "Cannot perform auto-restoration."
         exit 1
     fi
@@ -1003,13 +959,12 @@ evaluate_final_result() {
 # Main function
 main() {
     local file="$IQGEORC_FILE"
-    local backup="$BACKUP_FILE"
     local restore_flag=false
     local skip_update_flag=false
     local skip_build_flag=false
     local skip_verify_flag=false
     local no_auto_restore_flag=false
-    local skip_final_rebuild_flag=false
+
     local module_args=()
     local modules=()
     
@@ -1018,7 +973,6 @@ main() {
         case $1 in
             -f|--file)
                 file="$2"
-                backup="${file}.backup"
                 shift 2
                 ;;
             -r|--restore)
@@ -1041,10 +995,7 @@ main() {
                 no_auto_restore_flag=true
                 shift
                 ;;
-            --skip-final-rebuild)
-                skip_final_rebuild_flag=true
-                shift
-                ;;
+
             -h|--help)
                 show_usage
                 exit 0
@@ -1067,7 +1018,10 @@ main() {
     
     # Handle restore mode
     if [[ "$restore_flag" == true ]]; then
-        check_file_exists "$backup"
+        # Create temporary backup if not exists
+        if [[ -z "$TEMP_BACKUP_FILE" ]]; then
+            create_temp_backup "$file"
+        fi
         
         # Check if npx is available for project update
         if ! command -v npx &> /dev/null; then
@@ -1076,7 +1030,7 @@ main() {
             exit 1
         fi
         
-        restore_from_backup "$file" "$backup"
+        restore_from_temp_backup "$file" "$TEMP_BACKUP_FILE" true
         exit 0
     fi
     
@@ -1099,8 +1053,6 @@ main() {
     # Show auto-restore behavior
     if [[ "$no_auto_restore_flag" == true ]]; then
         print_warning "Auto-restoration is disabled - changes will persist after testing"
-    elif [[ "$skip_final_rebuild_flag" == true ]]; then
-        print_status "Auto-restoration enabled (restoration only - no final rebuild)"
     else
         print_status "Auto-restoration enabled - configuration will be restored after testing"
     fi
@@ -1110,7 +1062,7 @@ main() {
     check_file_exists "$file"
     
     # Set absolute paths early to avoid directory navigation issues
-    set_absolute_paths "$file" "$backup"
+    set_absolute_paths "$file"
     
     # Check dependencies based on what we're going to do
     local check_build_deps=false
@@ -1128,8 +1080,8 @@ main() {
     # Check if modules already exist
     check_modules_exist "$file" modules
     
-    # Create backup of original file
-    create_backup "$ABSOLUTE_IQGEORC_FILE" "$ABSOLUTE_BACKUP_FILE"
+    # Create temporary backup of original file
+    create_temp_backup "$ABSOLUTE_IQGEORC_FILE"
     
     # Add the modules
     if add_modules "$file" modules; then
@@ -1146,7 +1098,7 @@ main() {
                 if [[ "$no_auto_restore_flag" != true ]]; then
                     echo ""
                     print_status "Attempting to restore configuration due to project-update failure..."
-                    auto_restore_workflow "$skip_final_rebuild_flag"
+                    auto_restore_workflow
                 fi
                 exit 1
             fi
@@ -1177,7 +1129,7 @@ main() {
                             
                             # Auto-restore workflow unless disabled
                             if [[ "$no_auto_restore_flag" != true ]]; then
-                                auto_restore_workflow "$skip_final_rebuild_flag"
+                                auto_restore_workflow
                             else
                                 echo ""
                                 print_warning "Auto-restoration was skipped - changes will persist"
@@ -1191,7 +1143,7 @@ main() {
                             
                             # Auto-restore workflow unless disabled
                             if [[ "$no_auto_restore_flag" != true ]]; then
-                                auto_restore_workflow "$skip_final_rebuild_flag"
+                                auto_restore_workflow
                             else
                                 echo ""
                                 print_warning "Auto-restoration was skipped - changes will persist"
@@ -1204,7 +1156,7 @@ main() {
                         if [[ "$no_auto_restore_flag" != true ]]; then
                             echo ""
                             print_status "Attempting to restore configuration due to build failure..."
-                            auto_restore_workflow "$skip_final_rebuild_flag"
+                            auto_restore_workflow
                         fi
                         exit 1
                     fi
@@ -1214,7 +1166,7 @@ main() {
                     if [[ "$no_auto_restore_flag" != true ]]; then
                         echo ""
                         print_status "Attempting to restore configuration due to authentication failure..."
-                        auto_restore_workflow "$skip_final_rebuild_flag"
+                        auto_restore_workflow
                     fi
                     exit 1
                 fi
@@ -1228,7 +1180,7 @@ main() {
                 if [[ "$no_auto_restore_flag" != true ]]; then
                     echo ""
                     print_status "Auto-restoring configuration (build was skipped)..."
-                    auto_restore_workflow "$skip_final_rebuild_flag"
+                    auto_restore_workflow
                 fi
             fi
         else
@@ -1243,16 +1195,16 @@ main() {
             if [[ "$no_auto_restore_flag" != true ]]; then
                 echo ""
                 print_status "Auto-restoring configuration (project-update was skipped)..."
-                auto_restore_workflow "$skip_final_rebuild_flag"
+                auto_restore_workflow
             fi
         fi
     else
         print_error "Failed to add modules."
         # Still try to restore if auto-restore is enabled and backup exists
-        if [[ "$no_auto_restore_flag" != true && -f "$ABSOLUTE_BACKUP_FILE" ]]; then
+        if [[ "$no_auto_restore_flag" != true && -f "$TEMP_BACKUP_FILE" ]]; then
             echo ""
             print_status "Attempting to restore configuration due to module addition failure..."
-            auto_restore_workflow "$skip_final_rebuild_flag"
+            auto_restore_workflow
         fi
         exit 1
     fi
@@ -1264,8 +1216,10 @@ main() {
     
     echo ""
     print_success "Add module workflow completed!"
-    print_status "Backup available at: $backup"
-    print_status "To restore original configuration manually, run: $0 --restore"
+    if [[ -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+        print_status "Temporary backup available at: $TEMP_BACKUP_FILE"
+        print_status "Original configuration can be restored using auto-restore functionality"
+    fi
     
     # Exit with appropriate code based on final evaluation
     exit $final_result

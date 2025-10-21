@@ -10,7 +10,7 @@ FROM ${PRODUCT_REGISTRY}comms/comms:pre-release AS comms
 # END SECTION
 
 
-FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.5.alpha3
+FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.4
 
 USER root
 

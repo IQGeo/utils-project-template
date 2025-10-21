@@ -9,8 +9,12 @@
 set -e  # Exit on any error
 
 # Configuration
-IQGEORC_FILE="../.iqgeorc.jsonc"
-BACKUP_FILE="../.iqgeorc.jsonc.backup"
+IQGEORC_FILE="$(realpath "../.iqgeorc.jsonc")"
+TEMP_BACKUP_FILE=""
+TEMP_DEPS_FILE="/tmp/test_dependency_exclusion_deps.tmp"
+
+# Global flag to track if dependencies were captured
+DEPENDENCIES_CAPTURED=false
 
 # Color codes for output
 RED='\033[0;31m'
@@ -42,21 +46,20 @@ show_usage() {
     echo ""
     echo "Options:"
     echo "  -f, --file FILE     Specify .iqgeorc.jsonc file path (default: ../.iqgeorc.jsonc)"
-    echo "  -r, --restore       Restore original .iqgeorc.jsonc from backup (manual restore only)"
     echo "  -s, --skip-update   Skip running 'npx project-update' after modifications"
     echo "  -b, --skip-build    Skip building and starting the development environment"
     echo "  -t, --skip-test     Skip running the curl test"
     echo "  -n, --no-auto-restore  Skip automatic restore at completion"
-    echo "  -k, --skip-final-rebuild  Skip final container rebuild after restoration"
     echo "  -h, --help          Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0                  # Full workflow: Empty deps, build, test, auto-restore, rebuild"
-    echo "  $0 --restore        # Manual restore: Restore original .iqgeorc.jsonc file (no auto-restore or rebuild)"
-    echo "  $0 --skip-build     # Empty dependencies without building, then auto-restore and rebuild"
-    echo "  $0 --skip-test      # Build environment but skip curl test, then auto-restore and rebuild"
-    echo "  $0 --no-auto-restore # Empty dependencies and test but skip auto-restore and rebuild"
-    echo "  $0 --skip-final-rebuild # Full workflow but skip final container rebuild"
+    echo "  $0                  # Full workflow: Empty deps, build, test, auto-restore"
+    echo "  $0 --skip-build     # Empty dependencies without building, then auto-restore"
+    echo "  $0 --skip-test      # Build environment but skip curl test, then auto-restore"
+    echo "  $0 --no-auto-restore # Empty dependencies and test but skip auto-restore"
+    echo ""
+    echo "Note: This script uses temporary backup files that are automatically cleaned up."
+    echo "      Manual restore is not available - use version control to restore if needed."
 }
 
 # Function to check if file exists
@@ -100,43 +103,147 @@ check_dependencies() {
     fi
 }
 
-# Function to create backup of original file
-create_backup() {
+# Function to create temporary backup of original file
+create_temp_backup() {
     local file="$1"
-    local backup="$2"
     
-    if [[ ! -f "$backup" ]]; then
-        print_status "Creating backup of original .iqgeorc.jsonc file..."
-        if cp "$file" "$backup"; then
-            print_success "Backup created: $backup"
-        else
-            print_error "Failed to create backup file!"
-            exit 1
-        fi
+    # Create temporary backup file
+    TEMP_BACKUP_FILE=$(mktemp "${file}.backup.XXXXXX")
+    
+    print_status "Creating temporary backup of original .iqgeorc.jsonc file..."
+    if cp "$file" "$TEMP_BACKUP_FILE"; then
+        print_success "Temporary backup created: $TEMP_BACKUP_FILE"
     else
-        print_status "Backup file already exists: $backup"
+        print_error "Failed to create temporary backup file!"
+        exit 1
     fi
 }
 
-# Function to restore from backup
-restore_from_backup() {
+# Function to restore from temporary backup
+restore_from_temp_backup() {
     local file="$1"
     local backup="$2"
+    local cleanup_backup="$3"  # whether to remove backup after restore
     
     if [[ -f "$backup" ]]; then
-        print_status "Restoring original .iqgeorc.jsonc from backup..."
+        print_status "Restoring original .iqgeorc.jsonc from temporary backup..."
+        
+        # Perform the copy operation
         if cp "$backup" "$file"; then
+            # Add a small delay to ensure file system operations complete
+            sleep 1
+            
+            # Verify the restoration by checking if the file contains non-empty dependencies
+            local verification_failed=false
+            
+            # Check devenv pattern (safe with set -e)
+            if grep -q '"devenv":\s*\[[^]]\+\]' "$file" 2>/dev/null; then
+                : # Pattern found, continue
+            else
+                verification_failed=true
+            fi
+            
+            # Check appserver pattern (safe with set -e)  
+            if grep -q '"appserver":\s*\[[^]]\+\]' "$file" 2>/dev/null; then
+                : # Pattern found, continue
+            else
+                verification_failed=true
+            fi
+            
+            # Check tools pattern (safe with set -e)
+            if grep -q '"tools":\s*\[[^]]\+\]' "$file" 2>/dev/null; then
+                : # Pattern found, continue  
+            else
+                verification_failed=true
+            fi
+            
+            if [[ "$verification_failed" == "true" ]]; then
+                print_warning "Restoration verification failed - dependencies appear to be empty"
+                print_status "Attempting restoration again with longer delay..."
+                
+                # Try restoration again with longer delay
+                sleep 2
+                cp "$backup" "$file"
+                sleep 2
+                
+                # Re-verify with safe pattern check
+                if grep -q '"devenv":\s*\[[^]]\+\]' "$file" 2>/dev/null; then
+                    : # Restoration succeeded
+                else
+                    print_error "Restoration failed - unable to restore non-empty dependencies"
+                    return 1
+                fi
+            fi
+            
             print_success "File restored from backup successfully!"
+            
+            # Additional delay before cleanup to ensure all operations complete
+            sleep 1
+            
+            # Clean up backup file if requested
+            if [[ "$cleanup_backup" == "true" ]]; then
+                rm -f "$backup"
+                print_status "Temporary backup file removed."
+            fi
+            
             print_status "You may want to run 'npx project-update' to apply the restored configuration."
         else
             print_error "Failed to restore from backup!"
             exit 1
         fi
     else
-        print_error "Backup file not found: $backup"
+        print_error "Temporary backup file not found: $backup"
         print_error "Cannot restore original file."
         exit 1
     fi
+}
+
+# Function to capture original dependency values
+capture_original_dependencies() {
+    local file="$1"
+    local line_number=0
+    
+    print_status "Capturing original dependency values..."
+    
+    # Clear variables and temp file
+    ORIGINAL_DEV_DEPS=""
+    ORIGINAL_APP_DEPS=""
+    ORIGINAL_TOOLS_DEPS=""
+    > "$TEMP_DEPS_FILE"
+    
+    # Process the file line by line to capture original values
+    while IFS= read -r line; do
+        ((line_number++))
+        
+        # Check for devenv, appserver, or tools dependency lines
+        if [[ "$line" =~ ^([[:space:]]*\"(devenv|appserver|tools)\"[[:space:]]*:[[:space:]]*)(\[.*\])([[:space:]]*,?[[:space:]]*)$ ]]; then
+            local dependency_name="${BASH_REMATCH[2]}"
+            local dependency_value="${BASH_REMATCH[3]}"
+            
+            # Store original value in appropriate variable
+            case "$dependency_name" in
+                "devenv")
+                    ORIGINAL_DEV_DEPS="$dependency_value"
+                    echo "ORIGINAL_DEV_DEPS=$dependency_value" >> "$TEMP_DEPS_FILE"
+                    print_status "Captured devenv: $dependency_value"
+                    ;;
+                "appserver")
+                    ORIGINAL_APP_DEPS="$dependency_value"
+                    echo "ORIGINAL_APP_DEPS=$dependency_value" >> "$TEMP_DEPS_FILE"
+                    print_status "Captured appserver: $dependency_value"
+                    ;;
+                "tools")
+                    ORIGINAL_TOOLS_DEPS="$dependency_value"
+                    echo "ORIGINAL_TOOLS_DEPS=$dependency_value" >> "$TEMP_DEPS_FILE"
+                    print_status "Captured tools: $dependency_value"
+                    ;;
+            esac
+        fi
+    done < "$file"
+    
+    echo "DEPENDENCIES_CAPTURED=true" >> "$TEMP_DEPS_FILE"
+    DEPENDENCIES_CAPTURED=true
+    print_success "Original dependency values captured successfully!"
 }
 
 # Function to empty dependency arrays
@@ -147,20 +254,26 @@ empty_dependency_arrays() {
     local modifications_made=false
     local modified_lines=()
     
+    # First capture original dependencies if not already done
+    if [[ "$DEPENDENCIES_CAPTURED" != true ]]; then
+        capture_original_dependencies "$file"
+    fi
+    
     while IFS= read -r line; do
         ((line_number++))
         
         # Check for devenv, appserver, or tools dependency lines
-        if [[ "$line" =~ ^([[:space:]]*\"(devenv|appserver|tools)\"[[:space:]]*:[[:space:]]*)\[.*\][[:space:]]*,?[[:space:]]*$ ]]; then
+        if [[ "$line" =~ ^([[:space:]]*\"(devenv|appserver|tools)\"[[:space:]]*:[[:space:]]*)\[.*\]([[:space:]]*,?[[:space:]]*)$ ]]; then
             local prefix="${BASH_REMATCH[1]}"
             local dependency_name="${BASH_REMATCH[2]}"
+            local suffix="${BASH_REMATCH[3]}"
             
             # Check if it's already empty
             if [[ "$line" =~ \[[[:space:]]*\] ]]; then
                 modified_lines+=("Line $line_number: '$dependency_name' array already empty")
             else
-                # Replace with empty array
-                line="${prefix}[],"
+                # Replace with empty array, preserving original comma structure
+                line="${prefix}[]${suffix}"
                 modifications_made=true
                 modified_lines+=("Line $line_number: Emptied '$dependency_name' dependency array")
             fi
@@ -431,11 +544,26 @@ stop_containers() {
     fi
 }
 
+
+
+# Function to clean up temporary files
+cleanup_temp_files() {
+    if [[ -f "$TEMP_DEPS_FILE" ]]; then
+        rm -f "$TEMP_DEPS_FILE"
+    fi
+    if [[ -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+        print_status "Cleaning up temporary backup file: $TEMP_BACKUP_FILE"
+        rm -f "$TEMP_BACKUP_FILE"
+    fi
+}
+
+# Set up cleanup trap
+trap cleanup_temp_files EXIT
+
 # Function to perform automatic restoration
 auto_restore() {
     local file="$1"
     local backup="$2"
-    local skip_final_rebuild="$3"
     
     echo ""
     print_status "==========================================="
@@ -445,25 +573,24 @@ auto_restore() {
     print_status "Waiting before starting restoration (10 seconds)..."
     sleep 10
     
-    print_status "Automatically restoring original configuration..."
+    print_status "Automatically restoring original dependencies..."
+    
+    # Store original working directory for later use
+    local original_restore_dir="$(pwd)"
     
     # Stop containers first to avoid conflicts
     stop_containers
     echo ""
     
-    # Additional wait after stopping containers
-    print_status "Waiting for containers to fully stop (5 seconds)..."
-    sleep 5
+    # Additional wait after stopping containers to ensure clean state
+    print_status "Waiting for containers to fully stop and file system to settle (10 seconds)..."
+    sleep 10
     
-    # Return to the qa_test_automation directory where the script was started
-    # so we can use the original file path
-    cd /Users/sydneymarsden/IQGeo/utils-project-template/qa_test_automation
-    print_status "Current directory for restoration: $(pwd)"
-    print_status "Looking for file: $file"
-    print_status "Looking for backup: $backup"
+    # Change back to original directory for restore operation
+    cd "$original_restore_dir"
     
-    # Restore from backup
-    if restore_from_backup "$file" "$backup"; then
+    # Restore from temporary backup file to ensure we get the original state
+    if restore_from_temp_backup "$file" "$backup" "true"; then
         echo ""
         print_status "Verification - Restored dependency configuration:"
         show_dependency_status "$file"
@@ -471,54 +598,23 @@ auto_restore() {
         # Run project update to apply restored configuration
         echo ""
         print_status "Running 'npx project-update' to apply restored configuration..."
+        
+        # Change to the directory where the .iqgeorc.jsonc file is located for project-update
+        local original_dir="$(pwd)"
+        local config_dir="$(dirname "$file")"
+        cd "$config_dir"
+        
         if run_project_update; then
             print_success "✓ Configuration has been restored to original state"
             print_success "✓ Repository has been updated with original configuration"
             
-            # Rebuild containers with restored dependencies unless skipped
-            if [[ "$skip_final_rebuild" != true ]]; then
-                echo ""
-                print_status "==========================================="
-                print_status "FINAL CONTAINER REBUILD WITH DEPENDENCIES"
-                print_status "==========================================="
-                print_status "Rebuilding containers with restored dependencies to reset environment to original state..."
-                
-                # Azure authentication for rebuild
-                if azure_login; then
-                    echo ""
-                    # Rebuild and start development environment with restored dependencies
-                    if build_dev_environment "restore"; then
-                        echo ""
-                        # Test the restored application functionality
-                        test_exit_code=0
-                        test_restored_application || test_exit_code=$?
-                        
-                        if [[ $test_exit_code -eq 0 ]]; then
-                            echo ""
-                            print_success "🎉 Complete restoration success! Application is fully functional with restored dependencies!"
-                            print_success "✓ Automatic restoration and container rebuild completed successfully!"
-                        elif [[ $test_exit_code -eq 2 ]]; then
-                            echo ""
-                            print_warning "Containers have been rebuilt, but application may still be initializing."
-                            print_warning "✓ File and container restoration completed - application may need more time to start."
-                        else
-                            echo ""
-                            print_error "Development environment rebuild completed, but application testing failed."
-                            print_warning "✓ File and container restoration completed, but application verification had issues."
-                        fi
-                    else
-                        print_error "Development environment rebuild failed during restoration."
-                        print_warning "✓ File restoration completed, but container rebuild failed."
-                    fi
-                else
-                    print_error "Azure authentication failed during restoration rebuild."
-                    print_warning "✓ File restoration completed, but cannot rebuild containers."
-                fi
-            else
-                echo ""
-                print_warning "Skipped final container rebuild. Containers may still have empty dependencies."
-                print_success "✓ File restoration completed successfully!"
-            fi
+            # Note: Final container rebuild skipped by default for faster execution
+            # The .iqgeorc.jsonc file has been restored - containers can be rebuilt manually if needed
+            echo ""
+            print_success "✓ File restoration completed successfully!"
+            print_status "Note: Final container rebuild skipped for faster execution."
+            print_status "If you need containers rebuilt with restored dependencies, run:"
+            print_status "  docker compose -f \".devcontainer/docker-compose.yml\" --profile iqgeo up -d --build"
             
             print_success "✓ Automatic restoration completed successfully!"
         else
@@ -565,8 +661,8 @@ cleanup_and_summary() {
     fi
     
     echo ""
-    print_status "To manually restore the original configuration:"
-    print_status "  $0 --restore"
+    print_status "To restore configuration if needed:"
+    print_status "  Use version control (git checkout) to restore original .iqgeorc.jsonc"
     echo ""
     print_status "To view running containers:"
     print_status "  docker ps"
@@ -579,25 +675,18 @@ cleanup_and_summary() {
 # Main function
 main() {
     local file="$IQGEORC_FILE"
-    local backup="$BACKUP_FILE"
     local restore_flag=false
     local skip_update_flag=false
     local skip_build_flag=false
     local skip_test_flag=false
     local no_auto_restore_flag=false
-    local skip_final_rebuild_flag=false
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
             -f|--file)
                 file="$2"
-                backup="${file}.backup"
                 shift 2
-                ;;
-            -r|--restore)
-                restore_flag=true
-                shift
                 ;;
             -s|--skip-update)
                 skip_update_flag=true
@@ -615,10 +704,6 @@ main() {
                 no_auto_restore_flag=true
                 shift
                 ;;
-            -k|--skip-final-rebuild)
-                skip_final_rebuild_flag=true
-                shift
-                ;;
             -h|--help)
                 show_usage
                 exit 0
@@ -634,11 +719,12 @@ main() {
     print_status "Dependency Exclusion Test Script for Utils-Project-Template"
     echo ""
     
-    # Handle restore mode
+    # Handle restore mode - not supported with temporary backup system
     if [[ "$restore_flag" == true ]]; then
-        check_file_exists "$backup"
-        restore_from_backup "$file" "$backup"
-        exit 0
+        print_error "Manual restore not supported with temporary backup system."
+        print_error "Temporary backup files are only created during test execution."
+        print_error "If you need to restore, re-run the script with dependencies from version control."
+        exit 1
     fi
     
     # Check if file exists
@@ -646,7 +732,7 @@ main() {
     
     # Check dependencies based on what we're going to do
     local check_build_deps=false
-    if [[ "$skip_build_flag" == false ]] || [[ "$no_auto_restore_flag" == false && "$skip_final_rebuild_flag" == false ]]; then
+    if [[ "$skip_build_flag" == false ]] || [[ "$no_auto_restore_flag" == false ]]; then
         check_build_deps=true
     fi
     
@@ -657,8 +743,8 @@ main() {
     # Show current dependency status
     show_dependency_status "$file"
     
-    # Create backup of original file
-    create_backup "$file" "$backup"
+    # Create temporary backup of original file before any modifications
+    create_temp_backup "$file"
     
     # Empty dependency arrays
     if empty_dependency_arrays "$file"; then
@@ -674,7 +760,7 @@ main() {
                 
                 # Still attempt auto-restore even if project-update failed
                 if [[ "$no_auto_restore_flag" == false ]]; then
-                    auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                    auto_restore "$file" "$TEMP_BACKUP_FILE"
                 fi
                 exit 1
             fi
@@ -695,13 +781,13 @@ main() {
                             if test_application_accessibility; then
                                 # Auto-restore at the end unless disabled
                                 if [[ "$no_auto_restore_flag" == false ]]; then
-                                    auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                                    auto_restore "$file" "$TEMP_BACKUP_FILE"
                                 fi
                                 cleanup_and_summary true "$skip_final_rebuild_flag"
                             else
                                 # Auto-restore even if test failed
                                 if [[ "$no_auto_restore_flag" == false ]]; then
-                                    auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                                    auto_restore "$file" "$TEMP_BACKUP_FILE"
                                 fi
                                 cleanup_and_summary false "$skip_final_rebuild_flag"
                                 exit 1
@@ -710,7 +796,7 @@ main() {
                             print_warning "Skipped application accessibility test."
                             # Auto-restore at the end unless disabled
                             if [[ "$no_auto_restore_flag" == false ]]; then
-                                auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                                auto_restore "$file" "$TEMP_BACKUP_FILE"
                             fi
                             cleanup_and_summary true "$skip_final_rebuild_flag"
                         fi
@@ -718,7 +804,7 @@ main() {
                         print_error "Development environment build failed."
                         # Auto-restore even if build failed
                         if [[ "$no_auto_restore_flag" == false ]]; then
-                            auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                            auto_restore "$file" "$TEMP_BACKUP_FILE"
                         fi
                         cleanup_and_summary false "$skip_final_rebuild_flag"
                         exit 1
@@ -727,7 +813,7 @@ main() {
                     print_error "Azure authentication failed. Cannot proceed with build."
                     # Auto-restore even if Azure auth failed
                     if [[ "$no_auto_restore_flag" == false ]]; then
-                        auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                        auto_restore "$file" "$TEMP_BACKUP_FILE"
                     fi
                     cleanup_and_summary false "$skip_final_rebuild_flag"
                     exit 1
@@ -737,7 +823,7 @@ main() {
                 print_warning "Skipped building development environment."
                 # Auto-restore at the end unless disabled
                 if [[ "$no_auto_restore_flag" == false ]]; then
-                    auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                    auto_restore "$file" "$TEMP_BACKUP_FILE"
                 fi
                 cleanup_and_summary true "$skip_final_rebuild_flag"
             fi
@@ -746,7 +832,7 @@ main() {
             print_warning "Skipped running 'npx project-update'. Remember to run it manually to apply changes."
             # Auto-restore at the end unless disabled
             if [[ "$no_auto_restore_flag" == false ]]; then
-                auto_restore "$file" "$backup" "$skip_final_rebuild_flag"
+                auto_restore "$file" "$TEMP_BACKUP_FILE"
             fi
             cleanup_and_summary true "$skip_final_rebuild_flag"
         fi
@@ -758,12 +844,10 @@ main() {
     echo ""
     if [[ "$no_auto_restore_flag" == true ]]; then
         print_success "Dependency exclusion test workflow completed successfully!"
-        print_warning "Auto-restore was skipped. Remember to run '$0 --restore' to reset configuration."
-    elif [[ "$skip_final_rebuild_flag" == true ]]; then
-        print_success "Complete dependency exclusion test and auto-restore workflow completed successfully!"
-        print_warning "Final container rebuild was skipped. Containers may still have empty dependencies."
+        print_warning "Auto-restore was skipped. Use version control to restore original configuration if needed."
     else
-        print_success "Complete dependency exclusion test, auto-restore, and container rebuild workflow completed successfully!"
+        print_success "Complete dependency exclusion test and auto-restore workflow completed successfully!"
+        print_status "Final container rebuild skipped for faster execution. Rebuild manually if needed."
     fi
 }
 

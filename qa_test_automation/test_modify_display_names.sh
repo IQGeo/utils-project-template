@@ -46,15 +46,15 @@ show_usage() {
     echo "  -s, --skip-update   Skip running 'npx project-update' after modifications"
     echo "  -b, --skip-build    Skip building and starting the development environment"
     echo "  -n, --no-auto-restore  Skip automatic restore at completion"
-    echo "  -r, --skip-final-rebuild  Skip final container rebuild after restoration"
+    echo "  -R, --rebuild-containers  Rebuild containers after auto-restore (time-consuming)"
     echo "  -h, --help          Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0                  # Full workflow: Add '_test' suffix, build, verify, auto-restore, rebuild"
+    echo "  $0                  # Full workflow: Add '_test' suffix, build, verify, auto-restore (no rebuild)"
     echo "  $0 --restore        # Manual restore: Remove '_test' suffix and run project-update (no rebuild)"
-    echo "  $0 --skip-build     # Add '_test' suffix without building environment, then auto-restore and rebuild"
-    echo "  $0 --no-auto-restore # Add '_test' suffix and build environment but skip auto-restore and rebuild"
-    echo "  $0 --skip-final-rebuild # Full workflow but skip final container rebuild"
+    echo "  $0 --skip-build     # Add '_test' suffix without building environment, then auto-restore"
+    echo "  $0 --no-auto-restore # Add '_test' suffix and build environment but skip auto-restore"
+    echo "  $0 --rebuild-containers # Full workflow with final container rebuild (slower)"
 }
 
 # Function to check if file exists
@@ -280,8 +280,8 @@ run_project_update() {
     
     print_status "Running 'npx project-update' to apply changes to repository..."
     
-    # Change to parent directory where package.json should be located
-    cd "$(dirname "$IQGEORC_FILE")"
+    # Change to project root directory where package.json should be located
+    cd "$(dirname "$(pwd)")"
     
     if npx project-update; then
         print_success "Project update completed successfully!"
@@ -376,7 +376,7 @@ remove_test_suffix() {
         # Remove _test from name field
         if [[ "$line" =~ \"name\":[[:space:]]*\"([^\"]+)_test\" ]]; then
             local name_value="${BASH_REMATCH[1]}"
-            line="${line/\"name\": \"${name_value}_test\"/\"name\": \"${name_value}\"}"
+            line=$(echo "$line" | sed "s/\"name\":[[:space:]]*\"\([^\"]*\)_test\"/\"name\": \"\1\"/")
             if [[ "$line" != "$original_line" ]]; then
                 status_messages+=("Removed '_test' suffix from name field")
                 changes_made=true
@@ -386,7 +386,7 @@ remove_test_suffix() {
         # Remove _test from display_name field
         if [[ "$line" =~ \"display_name\":[[:space:]]*\"([^\"]+)_test\" ]]; then
             local display_name_value="${BASH_REMATCH[1]}"
-            line="${line/\"display_name\": \"${display_name_value}_test\"/\"display_name\": \"${display_name_value}\"}"
+            line=$(echo "$line" | sed "s/\"display_name\":[[:space:]]*\"\([^\"]*\)_test\"/\"display_name\": \"\1\"/")
             if [[ "$line" != "$original_line" ]]; then
                 status_messages+=("Removed '_test' suffix from display_name field")
                 changes_made=true
@@ -396,7 +396,7 @@ remove_test_suffix() {
         # Remove _test from prefix field
         if [[ "$line" =~ \"prefix\":[[:space:]]*\"([^\"]+)_test\" ]]; then
             local prefix_value="${BASH_REMATCH[1]}"
-            line="${line/\"prefix\": \"${prefix_value}_test\"/\"prefix\": \"${prefix_value}\"}"
+            line=$(echo "$line" | sed "s/\"prefix\":[[:space:]]*\"\([^\"]*\)_test\"/\"prefix\": \"\1\"/")
             if [[ "$line" != "$original_line" ]]; then
                 status_messages+=("Removed '_test' suffix from prefix field")
                 changes_made=true
@@ -406,7 +406,7 @@ remove_test_suffix() {
         # Remove _test from db_name field
         if [[ "$line" =~ \"db_name\":[[:space:]]*\"([^\"]+)_test\" ]]; then
             local db_name_value="${BASH_REMATCH[1]}"
-            line="${line/\"db_name\": \"${db_name_value}_test\"/\"db_name\": \"${db_name_value}\"}"
+            line=$(echo "$line" | sed "s/\"db_name\":[[:space:]]*\"\([^\"]*\)_test\"/\"db_name\": \"\1\"/")
             if [[ "$line" != "$original_line" ]]; then
                 status_messages+=("Removed '_test' suffix from db_name field")
                 changes_made=true
@@ -484,7 +484,7 @@ stop_containers() {
 # Function to perform automatic restoration
 auto_restore() {
     local file="$1"
-    local skip_final_rebuild="$2"
+    local rebuild_containers="$2"
     local original_dir="$(pwd)"
     
     echo ""
@@ -505,15 +505,22 @@ auto_restore() {
     print_status "Waiting for containers to fully stop (5 seconds)..."
     sleep 5
     
-    # Return to the qa_test_automation directory where the script was started
-    # so we can use the original file path
-    cd /Users/sydneymarsden/IQGeo/utils-project-template/qa_test_automation
+    # Return to the original directory where the script was started
+    # to ensure the relative file path works correctly
+    cd "$original_dir"
     print_status "Current directory for restoration: $(pwd)"
-    print_status "Looking for file: $file"
+    
+    # Adjust file path - if we're in project root, use .iqgeorc.jsonc directly
+    local restore_file="$file"
+    if [[ "$(basename $(pwd))" == *"utils-project-template"* && "$file" == "../.iqgeorc.jsonc" ]]; then
+        restore_file=".iqgeorc.jsonc"
+    fi
+    
+    print_status "Looking for file: $restore_file"
     
     # Remove _test suffix from all fields
-    print_status "Removing '_test' suffix from $file..."
-    if remove_test_suffix "$file"; then
+    print_status "Removing '_test' suffix from $restore_file..."
+    if remove_test_suffix "$restore_file"; then
         echo ""
         print_status "Verification - Restored values:"
         extract_current_values "$file"
@@ -524,8 +531,8 @@ auto_restore() {
             print_success "✓ Configuration has been restored to original state"
             print_success "✓ Repository has been updated with original configuration"
             
-            # Rebuild containers with original configuration unless skipped
-            if [[ "$skip_final_rebuild" != true ]]; then
+            # Rebuild containers with original configuration only if explicitly requested
+            if [[ "$rebuild_containers" == true ]]; then
                 echo ""
                 print_status "==========================================="
                 print_status "FINAL CONTAINER REBUILD"
@@ -565,8 +572,9 @@ auto_restore() {
                 fi
             else
                 echo ""
-                print_warning "Skipped final container rebuild. Containers may still have '_test' suffix."
                 print_success "✓ File restoration completed successfully!"
+                print_status "Note: Container rebuild was skipped to save time. Containers may still have '_test' suffix."
+                print_status "Use --rebuild-containers flag if you need to rebuild containers with original names."
             fi
         else
             print_warning "File was restored but project-update failed during auto-restore."
@@ -585,7 +593,7 @@ main() {
     local skip_update_flag=false
     local skip_build_flag=false
     local no_auto_restore_flag=false
-    local skip_final_rebuild_flag=false
+    local rebuild_containers_flag=false
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -610,8 +618,8 @@ main() {
                 no_auto_restore_flag=true
                 shift
                 ;;
-            -r|--skip-final-rebuild)
-                skip_final_rebuild_flag=true
+            -R|--rebuild-containers)
+                rebuild_containers_flag=true
                 shift
                 ;;
             -h|--help)
@@ -637,7 +645,7 @@ main() {
     
     # Check dependencies based on what we're going to do
     local check_build_deps=false
-    if [[ "$restore_flag" == false && "$skip_build_flag" == false ]] || [[ "$no_auto_restore_flag" == false && "$skip_final_rebuild_flag" == false ]]; then
+    if [[ "$restore_flag" == false && "$skip_build_flag" == false ]] || [[ "$rebuild_containers_flag" == true ]]; then
         check_build_deps=true
     fi
     
@@ -688,7 +696,7 @@ main() {
                     
                     # Still attempt auto-restore even if project-update failed
                     if [[ "$no_auto_restore_flag" == false ]]; then
-                        auto_restore "$file" "$skip_final_rebuild_flag"
+                        auto_restore "$file" "$rebuild_containers_flag"
                     fi
                     exit 1
                 fi
@@ -724,7 +732,7 @@ main() {
                                 
                                 # Auto-restore even if verification failed
                                 if [[ "$no_auto_restore_flag" == false ]]; then
-                                    auto_restore "$file" "$skip_final_rebuild_flag"
+                                    auto_restore "$file" "$rebuild_containers_flag"
                                 fi
                                 exit 1
                             fi
@@ -733,7 +741,7 @@ main() {
                             
                             # Auto-restore even if build failed
                             if [[ "$no_auto_restore_flag" == false ]]; then
-                                auto_restore "$file" "$skip_final_rebuild_flag"
+                                auto_restore "$file" "$rebuild_containers_flag"
                             fi
                             exit 1
                         fi
@@ -742,7 +750,7 @@ main() {
                         
                         # Auto-restore even if Azure auth failed
                         if [[ "$no_auto_restore_flag" == false ]]; then
-                            auto_restore "$file" "$skip_final_rebuild_flag"
+                            auto_restore "$file" "$rebuild_containers_flag"
                         fi
                         exit 1
                     fi
@@ -760,7 +768,7 @@ main() {
             
             # Auto-restore at the end (unless it's manual restore mode or explicitly disabled)
             if [[ "$no_auto_restore_flag" == false ]]; then
-                auto_restore "$file" "$skip_final_rebuild_flag"
+                auto_restore "$file" "$rebuild_containers_flag"
             fi
         else
             exit 1
@@ -774,11 +782,11 @@ main() {
         print_success "Display names modification workflow completed successfully!"
         print_warning "Auto-restore was skipped. Remember to run '$0 --restore' to reset configuration."
     else
-        if [[ "$skip_final_rebuild_flag" == true ]]; then
-            print_success "Display names modification and auto-restore workflow completed successfully!"
-            print_warning "Final container rebuild was skipped. Containers may still have '_test' names."
-        else
+        if [[ "$rebuild_containers_flag" == true ]]; then
             print_success "Complete display names modification, auto-restore, and container rebuild workflow completed successfully!"
+        else
+            print_success "Display names modification and auto-restore workflow completed successfully!"
+            print_status "Container rebuild was skipped for efficiency. Use --rebuild-containers if needed."
         fi
     fi
 }

@@ -8,9 +8,8 @@
 
 set -e  # Exit on any error
 
-# Configuration
-IQGEORC_FILE="../.iqgeorc.jsonc"
-BACKUP_FILE="../.iqgeorc.jsonc.backup"
+# Configuration  
+IQGEORC_FILE="$(cd .. && pwd)/.iqgeorc.jsonc"
 TARGET_VERSION="7.2"
 EXCLUSION_FILE=".devcontainer/dockerfile"
 EXCLUDED_FILE_CHECK=".devcontainer/dockerfile"
@@ -46,16 +45,19 @@ show_usage() {
     echo "Options:"
     echo "  -f, --file FILE     Specify .iqgeorc.jsonc file path (default: ../.iqgeorc.jsonc)"
     echo "  -v, --version VER   Specify target platform version (default: 7.2)"
-    echo "  -r, --restore       Restore original .iqgeorc.jsonc from backup"
     echo "  -s, --skip-update   Skip running 'npx project-update' after modifications"
     echo "  -g, --skip-git      Skip git status verification"
+    echo "  -n, --no-auto-restore  Skip automatic restore at completion"
     echo "  -h, --help          Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0                  # Reset exclusions, update version to 7.2, set exclusion, and test"
-    echo "  $0 --restore        # Restore original .iqgeorc.jsonc file"
+    echo "  $0                  # Reset exclusions, update version to 7.2, set exclusion, test, and auto-restore"
     echo "  $0 --version 7.3    # Use different platform version"
     echo "  $0 --skip-git       # Skip git status verification"
+    echo "  $0 --no-auto-restore # Test exclusions but skip auto-restore"
+    echo ""
+    echo "Note: This script uses temporary backup files that are automatically cleaned up."
+    echo "      Use version control to restore if needed."
 }
 
 # Function to check if file exists
@@ -88,33 +90,46 @@ check_dependencies() {
     fi
 }
 
-# Function to create backup of original file
-create_backup() {
+# Global variable for temporary backup file
+TEMP_BACKUP_FILE=""
+
+# Function to create temporary backup of original file
+create_temp_backup() {
     local file="$1"
-    local backup="$2"
     
-    if [[ ! -f "$backup" ]]; then
-        print_status "Creating backup of original .iqgeorc.jsonc file..."
-        if cp "$file" "$backup"; then
-            print_success "Backup created: $backup"
-        else
-            print_error "Failed to create backup file!"
-            exit 1
-        fi
+    # Create temporary backup file in /tmp to avoid project interference
+    TEMP_BACKUP_FILE=$(mktemp "/tmp/iqgeorc_backup.XXXXXX")
+    
+    print_status "Creating temporary backup of original .iqgeorc.jsonc file..."
+    if cp "$file" "$TEMP_BACKUP_FILE"; then
+        print_success "Temporary backup created: $TEMP_BACKUP_FILE"
     else
-        print_status "Backup file already exists: $backup"
+        print_error "Failed to create temporary backup file!"
+        exit 1
     fi
 }
 
-# Function to restore from backup
-restore_from_backup() {
+# Function to restore from temporary backup
+restore_from_temp_backup() {
     local file="$1"
     local backup="$2"
+    local cleanup_backup="$3"  # whether to remove backup after restore
     
     if [[ -f "$backup" ]]; then
-        print_status "Restoring original .iqgeorc.jsonc from backup..."
+        print_status "Restoring original .iqgeorc.jsonc from temporary backup..."
+        
+        # Perform the copy operation
         if cp "$backup" "$file"; then
+            # Add a small delay to ensure file system operations complete
+            sleep 1
+            
             print_success "File restored from backup successfully!"
+            
+            # Clean up backup file if requested
+            if [[ "$cleanup_backup" == "true" ]]; then
+                rm -f "$backup"
+                print_status "Temporary backup file removed."
+            fi
             
             # Run project update to apply the restored configuration
             print_status "Running 'npx project-update' to apply restored configuration..."
@@ -132,9 +147,36 @@ restore_from_backup() {
             exit 1
         fi
     else
-        print_error "Backup file not found: $backup"
+        print_error "Temporary backup file not found: $backup"
         print_error "Cannot restore original file."
         exit 1
+    fi
+}
+
+# Function to perform automatic restoration
+auto_restore() {
+    local file="$1"
+    local backup="$2"
+    
+    echo ""
+    print_status "==========================================="
+    print_status "AUTOMATIC RESTORATION PROCESS"
+    print_status "==========================================="
+    
+    print_status "Waiting before starting restoration (5 seconds)..."
+    sleep 5
+    
+    print_status "Automatically restoring original configuration..."
+    
+    # Restore from temporary backup file to ensure we get the original state
+    if restore_from_temp_backup "$file" "$backup" "true"; then
+        echo ""
+        print_success "✓ Configuration has been restored to original state"
+        print_success "✓ File restoration completed successfully!"
+    else
+        print_error "✗ Automatic restoration failed!"
+        print_error "Manual restoration may be required using version control."
+        return 1
     fi
 }
 
@@ -364,7 +406,7 @@ verify_file_exclusion() {
     
     print_status "Running 'git status' to verify file exclusion..."
     
-    # Get git status output
+    # Get git status output (git works from subdirectories)
     local git_output
     if git_output=$(git status --porcelain 2>/dev/null); then
         print_status "Git status completed successfully"
@@ -398,57 +440,66 @@ verify_file_exclusion() {
     fi
 }
 
-# Function to cleanup and show summary
+
+
+# Function to handle cleanup and summary
 cleanup_and_summary() {
     local success="$1"
+    local target_version="$2"
+    local no_auto_restore="$3"
     
     echo ""
     print_status "=========================================="
     print_status "FILE EXCLUSION TEST SUMMARY"
     print_status "=========================================="
     
-    if [[ "$success" == true ]]; then
-        print_success "✓ Test completed successfully!"
-        print_success "✓ exclude_file_paths was reset to empty array"
-        print_success "✓ Platform version was updated to '$TARGET_VERSION'"
-        print_success "✓ File exclusion was set to only include '$EXCLUSION_FILE'"
-        print_success "✓ Project update completed without errors"
-        print_success "✓ File exclusion verification passed - '$EXCLUDED_FILE_CHECK' was properly excluded"
+    if [[ "$success" == "true" ]]; then
+        print_success "✓ File Exclusion Test completed successfully!"
+        print_success "✓ Platform version updated to $target_version"
+        print_success "✓ File exclusion configured for $EXCLUSION_FILE"
+        print_success "✓ File exclusion verified through git status"
     else
-        print_error "✗ Test failed!"
+        print_error "✗ File Exclusion Test failed!"
         print_error "Review the output above for details."
     fi
     
+    # Auto-restore from temporary backup unless disabled
+    if [[ "$no_auto_restore" != "true" && -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+        auto_restore "$IQGEORC_FILE" "$TEMP_BACKUP_FILE"
+    elif [[ "$no_auto_restore" == "true" ]]; then
+        print_status "Skipped automatic restoration as requested."
+        print_status "Temporary backup available at: $TEMP_BACKUP_FILE"
+        print_status "Use version control to restore manually if needed."
+    else
+        # Clean up temporary backup if no restore needed
+        if [[ -n "$TEMP_BACKUP_FILE" && -f "$TEMP_BACKUP_FILE" ]]; then
+            print_status "Cleaning up temporary backup file..."
+            rm -f "$TEMP_BACKUP_FILE"
+        fi
+    fi
+    
     echo ""
-    print_status "To restore the original configuration:"
-    print_status "  $0 --restore"
-    echo ""
+    print_success "File Exclusion Test workflow completed!"
 }
 
 # Main function
 main() {
     local file="$IQGEORC_FILE"
-    local backup="$BACKUP_FILE"
     local target_version="$TARGET_VERSION"
-    local restore_flag=false
     local skip_update_flag=false
     local skip_git_flag=false
+    local no_auto_restore_flag=false
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
             -f|--file)
                 file="$2"
-                backup="${file}.backup"
                 shift 2
                 ;;
             -v|--version)
                 target_version="$2"
                 shift 2
-                ;;
-            -r|--restore)
-                restore_flag=true
-                shift
                 ;;
             -s|--skip-update)
                 skip_update_flag=true
@@ -456,6 +507,10 @@ main() {
                 ;;
             -g|--skip-git)
                 skip_git_flag=true
+                shift
+                ;;
+            -n|--no-auto-restore)
+                no_auto_restore_flag=true
                 shift
                 ;;
             -h|--help)
@@ -473,13 +528,6 @@ main() {
     print_status "File Exclusion Test Script for Utils-Project-Template"
     echo ""
     
-    # Handle restore mode
-    if [[ "$restore_flag" == true ]]; then
-        check_file_exists "$backup"
-        restore_from_backup "$file" "$backup"
-        exit 0
-    fi
-    
     # Check if file exists
     check_file_exists "$file"
     
@@ -496,8 +544,8 @@ main() {
     # Show current configuration
     show_current_config "$file"
     
-    # Create backup of original file
-    create_backup "$file" "$backup"
+    # Create temporary backup of original file
+    create_temp_backup "$file"
     
     # Reset exclude_file_paths to empty array
     if reset_exclude_file_paths "$file"; then
@@ -521,35 +569,38 @@ main() {
                         if [[ "$skip_git_flag" == false ]]; then
                             echo ""
                             if verify_file_exclusion "$EXCLUDED_FILE_CHECK"; then
-                                cleanup_and_summary true
+                                cleanup_and_summary true "$target_version" "$no_auto_restore_flag"
                             else
-                                cleanup_and_summary false
+                                cleanup_and_summary false "$target_version" "$no_auto_restore_flag"
                                 exit 1
                             fi
                         else
                             print_warning "Skipped git status verification."
-                            cleanup_and_summary true
+                            cleanup_and_summary true "$target_version" "$no_auto_restore_flag"
                         fi
                     else
                         print_error "Project update failed."
-                        cleanup_and_summary false
+                        cleanup_and_summary false "$target_version" "$no_auto_restore_flag"
                         exit 1
                     fi
                 else
                     echo ""
                     print_warning "Skipped running 'npx project-update'. Remember to run it manually to apply changes."
-                    cleanup_and_summary true
+                    cleanup_and_summary true "$target_version" "$no_auto_restore_flag"
                 fi
             else
                 print_error "Failed to set file exclusion."
+                cleanup_and_summary false "$target_version" "$no_auto_restore_flag"
                 exit 1
             fi
         else
             print_error "Failed to update platform version."
+            cleanup_and_summary false "$target_version" "$no_auto_restore_flag"
             exit 1
         fi
     else
         print_error "Failed to reset exclude_file_paths."
+        cleanup_and_summary false "$target_version" "$no_auto_restore_flag"
         exit 1
     fi
 }
