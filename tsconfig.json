@@ -13,8 +13,7 @@
             "config-shared": ["../core/config/shared"],
             "config-settings": ["../core/config/config-settings.js"],
             "modules/custom/*": ["./custom/public/*"],
-            "modules/comms/*": ["./comms/public/*"],
-            "modules/electric/*": ["./electric/public/*"]
+            "modules/comms/*": ["./comms/public/*"]
         }
     }
 }

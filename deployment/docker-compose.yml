@@ -33,7 +33,7 @@ services:
             MYW_DB_USERNAME: ${DB_USERNAME:-iqgeo}
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             SQLALCHEMY_URL: postgresql://${DB_USERNAME:-iqgeo}:${DB_PASSWORD:-password}@${DB_HOST:-postgis}:5432/${MYW_DB_NAME:-myproj}
-            RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379}
+            RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
             MYW_TASK_WORKERS: ${MYW_TASK_WORKERS:-1}
             MYW_TASK_QUEUES: ${MYW_TASK_QUEUES:-}
             # START CUSTOM SECTION
@@ -67,9 +67,11 @@ services:
             MYW_DB_PASSWORD: ${DB_PASSWORD:-password}
             BEAKER_SESSION_TYPE: ${BEAKER_SESSION_TYPE:-ext:redis}
             BEAKER_SESSION_URL: ${BEAKER_SESSION_URL:-redis://:password@redis:6379/0}
+            RQ_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
             IQGEO_HOST: ${IQGEO_HOST:-localhost}
             KEYCLOAK_URL: ${KC_PROTOCOL:-http://}${KEYCLOAK_HOST:-keycloak.local}:${KEYCLOAK_PORT:-8080}
             MYW_EXT_BASE_URL: http://${IQGEO_HOST:-localhost} # for access from other devices (e.g. iPad running anywhere)
+            MYW_DB_UPGRADE: ${MYW_DB_UPGRADE:-NO} # Default to NO to prevent accidental DB upgrade on appserver start
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
