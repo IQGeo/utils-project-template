@@ -37,6 +37,11 @@ COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/comms/ ${MODULES}
 # Copy in generated bundles
 COPY --chown=www-data:www-data --from=iqgeo_builder ${WEBAPPS}/myworldapp/public ${WEBAPPS}/myworldapp/public/
 
+# Give www-data user ownership of the shared directory
+ENV SHARED_DIRECTORY=/shared-data
+RUN mkdir -p ${SHARED_DIRECTORY}
+RUN chown -R www-data:www-data ${SHARED_DIRECTORY}
+
 
 USER www-data
 
