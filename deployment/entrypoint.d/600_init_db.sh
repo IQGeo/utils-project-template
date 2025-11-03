@@ -11,7 +11,7 @@ if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | g
 log "Checking for shared-directory..."
 
 if [ -n "${SHARED_DIRECTORY}" ]; then
-    log "Found shared-directory attempting to lock 600_init_db..."
+    log "Found shared-directory, attempting to lock 600_init_db..."
     LOCKFILE="${SHARED_DIRECTORY}/600_init_db.lock"
 
     (
