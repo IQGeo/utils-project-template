@@ -9,7 +9,7 @@ fi
 }
 
 if [ -n "${SHARED_DIRECTORY}" ]; then
-    log "Found shared-directory attempting to lock 610_upgrade_db..."
+    log "Found shared-directory, attempting to lock 610_upgrade_db..."
     LOCKFILE="${SHARED_DIRECTORY}/610_upgrade_db.lock"
     (
     if ! flock -n 200; then
