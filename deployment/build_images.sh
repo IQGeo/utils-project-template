@@ -46,3 +46,5 @@ echo "✓ All images built successfully!"
 echo ""
 echo "Built images:"
 docker images | grep "iqgeo-${PROJECT_NAME}-"
+
+echo "To load images into Minikube, run: minikube_image_load.sh"
