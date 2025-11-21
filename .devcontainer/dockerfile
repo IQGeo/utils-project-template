@@ -6,7 +6,7 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms:3.5 AS comms
 # END SECTION
 
 
