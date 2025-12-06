@@ -1,22 +1,9 @@
 global:
+  isDev: true
   domain: iqgeo.localhost
-  platform_host: appserver
-  db_name: iqgeo-prod
-  #TODO should be a secret?
-  postgis_user: iqgeo
-  postgis_password: 9tPTbfwsie
-
-extraImagePullSecret:
-  name: container-registry
-  registry: harbor.delivery.iqgeo.cloud
-  username: 
-  password: 
-
-postgis:
-  enabled: true
-
-keycloak:
-  enabled: true
+  redis:
+    # TODO: remove URL generation when Platform 7.4 can handle the components of the Redis connection instead (PLAT-12947)
+    generateUrls: true
 
 
 appserver:
@@ -24,15 +11,13 @@ appserver:
   autoscaling:
     enabled: false
   replicaCount: 1
-  db:
-    verify_connectivity: false
   image:
     repository: iqgeo-myproj-appserver
   oidc:
     enabled: true
     insecure: true
-    # URLs are automatically generated based on global.domain and global.platform_host
-    # Uncomment and set these values only if you need to override the defaults
+    # # URLs are automatically generated based on global.domain and global.platform_host
+    # # Uncomment and set these values only if you need to override the defaults
     # issuer: ""
     # services: ["discovery","authorization","access_token","user_info","end_session","refresh_access_token"]
     # # # Client ID is the client ID of the OIDC provider
@@ -63,7 +48,7 @@ appservers:
   - name: default-appserver
     replicaCount: 1
 
-  - name: custom-appserver
+  - name: project-endpoints
     path: /modules/custom
 
 

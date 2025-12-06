@@ -37,20 +37,31 @@ If necessary, create separate `values-<env>.yaml` files for different environmen
 
 ### 3. Required Secrets
 
-**OIDC Authentication Secret:**
-```bash
-kubectl create secret generic oidc-client-secret \
-  --from-literal=oidc-client-secret=<your-oidc-client-secret>
-```
+You'll need to create Kubernetes secrets for:
+- **Container registry access** (`container-registry`) - for pulling images 
+- **Database credentials** (`db-credentials`) - required for database connection
+- **OIDC client secret** (`oidc-client-secret`) - required if OIDC authentication is enabled
 
-**Container Registry Access (if needed):**
+**Quick setup examples:**
 ```bash
-# For Harbor registry (primary registry for deployments)
-kubectl create secret docker-registry harbor-registry-secret \
+# Container registry access
+kubectl create secret docker-registry container-registry \
   --docker-server=harbor.delivery.iqgeo.cloud \
   --docker-username=<username> \
   --docker-password=<password>
+
+# Database credentials
+kubectl create secret generic db-credentials \
+  --from-literal=username=<db-username> \
+  --from-literal=password=<db-password>
+
+# OIDC client secret
+kubectl create secret generic oidc-client-secret \
+  --from-literal=oidc-client-secret=<your-oidc-client-secret>
+
 ```
+
+> **Note**: When using `global.isDev=true`, the chart deploys PostGIS and Keycloak subcharts which auto-generate `db-credentials` and `oidc-client-secret`. See the [helm chart README](https://github.com/IQGeo/cloud-helm-iqgeo-platform/blob/main/README.md) for complete configuration options.
 
 ### 4. Deploy the Application
 
