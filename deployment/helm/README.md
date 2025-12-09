@@ -42,6 +42,8 @@ You'll need to create Kubernetes secrets for:
 - **Database credentials** (`db-credentials`) - required for database connection
 - **OIDC client secret** (`oidc-client-secret`) - required if OIDC authentication is enabled
 
+> **Note**: When using `global.isDev=true`, the chart deploys PostGIS and Keycloak subcharts which auto-generate `db-credentials` and `oidc-client-secret`. See the [helm chart README](https://github.com/IQGeo/cloud-helm-iqgeo-platform/blob/main/README.md) for complete configuration options.
+
 **Quick setup examples:**
 ```bash
 # Container registry access
@@ -61,7 +63,6 @@ kubectl create secret generic oidc-client-secret \
 
 ```
 
-> **Note**: When using `global.isDev=true`, the chart deploys PostGIS and Keycloak subcharts which auto-generate `db-credentials` and `oidc-client-secret`. See the [helm chart README](https://github.com/IQGeo/cloud-helm-iqgeo-platform/blob/main/README.md) for complete configuration options.
 
 ### 4. Deploy the Application
 

@@ -3,7 +3,9 @@
 This folder contains the docker image definitions optimised for deployment.
 Theese images contain only runtime dependencies and are not suitable for development as they do not contain source or build dependencies.
 
-An example docker compose file to start the containers locally is also included
+An example docker compose file to start the containers locally is also included.
+
+> **Deploying to Kubernetes?** See the [Helm deployment guide](helm/README.md) for complete instructions on deploying to Kubernetes clusters using Helm, including Minikube for local testing.
 
 ## Prerequisites
 
@@ -18,22 +20,42 @@ docker login harbor.delivery.iqgeo.cloud
 To use the docker CLI to login, you will need to obtain your CLI secret (password) from your user profile found in harbor:
 https://harbor.delivery.iqgeo.cloud
 
-## Deploying in Kubernetes
+## Deploying to Kubernetes
 
-To deploy follow ./helm/README.md instructions.
+For Kubernetes deployments, see the [Helm deployment guide](helm/README.md).
 
 ## Running the containers locally with docker-compose
 
-This folder includes an example docker-compose that allows running the containers locally, there are two steps: build an intermediate image and execute a docker compose up.
+This folder includes an example docker-compose that allows running the containers locally. There are two steps: build the images and run docker compose up.
 
-From the parent folder run the following commands:
+### Building the images
 
+Use the provided script to build all required images:
+
+```bash
+cd deployment
+./build_images.sh
 ```
-docker build . -f deployment/dockerfile.build -t iqgeo-myproj-build
-docker compose -f deployment/docker-compose.yml up -d --build
+
+Optionally, specify a custom product registry:
+```bash
+./build_images.sh harbor.delivery.iqgeo.cloud/engineering/
 ```
 
-This will download the base images (postgis and platform:7) and built the image with the Comms injector images. It should take a few minutes depending on network connection and caches.
+This will build three images:
+- `iqgeo-myproj-build` (intermediate build image)
+- `iqgeo-myproj-appserver` (web server)
+- `iqgeo-myproj-tools` (workers and cron jobs)
+
+The build downloads base images (postgis and platform) and includes product module injectors. It should take a few minutes depending on network connection and caches.
+
+### Running with docker-compose
+
+Once images are built, start the containers:
+
+```bash
+docker compose -f deployment/docker-compose.yml up -d
+```
 
 Database name, ports and containers names are defined in docker-compose.yml file and can be adjusted via environment variables. Copy the `.env.example` file to `.env` and update the values as required.
 

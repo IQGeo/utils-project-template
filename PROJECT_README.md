@@ -22,7 +22,16 @@ Using host-bound volumes when running linux containers on a windows host comes w
 
 ## Deployment
 
-Check out the [deployment README](deployment/README.md) for instructions on how to build and run the deployment environment.
+**Kubernetes/Helm Deployment:**
+For deploying to Kubernetes clusters (production, staging, or local Minikube), see the [Helm deployment guide](deployment/helm/README.md). This covers:
+- Kubernetes prerequisites and cluster setup
+- Creating required secrets (database, OIDC, container registry)
+- Helm chart installation and configuration
+- Environment-specific values and namespace management
+- Local development with Minikube
+
+**Docker Compose Deployment:**
+For building deployment container images and running locally with Docker Compose, see the [deployment README](deployment/README.md).
 
 ## Container images hierarchy
 
