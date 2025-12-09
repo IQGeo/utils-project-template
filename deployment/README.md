@@ -1,7 +1,7 @@
 # Deployment images
 
 This folder contains the docker image definitions optimised for deployment.
-Theese images contain only runtime dependencies and are not suitable for development as they do not contain source or build dependencies.
+These images contain only runtime dependencies and are not suitable for development as they do not contain source or build dependencies.
 
 An example docker compose file to start the containers locally is also included.
 
@@ -37,17 +37,11 @@ cd deployment
 ./build_images.sh
 ```
 
-Optionally, specify a custom product registry:
-```bash
-./build_images.sh harbor.delivery.iqgeo.cloud/engineering/
-```
+The project name (from `.iqgeorc.jsonc` prefix) is used to tag the images. This builds three images:
+- `iqgeo-<PROJECT_NAME>-build` (intermediate build image)
+- `iqgeo-<PROJECT_NAME>-appserver` (web server)
+- `iqgeo-<PROJECT_NAME>-tools` (workers and cron jobs)
 
-This will build three images:
-- `iqgeo-myproj-build` (intermediate build image)
-- `iqgeo-myproj-appserver` (web server)
-- `iqgeo-myproj-tools` (workers and cron jobs)
-
-The build downloads base images (postgis and platform) and includes product module injectors. It should take a few minutes depending on network connection and caches.
 
 ### Running with docker-compose
 

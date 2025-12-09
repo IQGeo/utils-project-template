@@ -5,15 +5,20 @@
 
 set -e  # Exit on error
 
-# Project name - change this to match your project
+# Project name - this will be set by the project template tool from .iqgeorc.jsonc prefix
 PROJECT_NAME="myproj"
 
 # Get the script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Optional PRODUCT_REGISTRY argument
-PRODUCT_REGISTRY="${1:-}"
+# Source .env file if it exists
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    source "$SCRIPT_DIR/.env"
+fi
+
+# Optional PRODUCT_REGISTRY argument (overrides .env value)
+PRODUCT_REGISTRY="${1:-${PRODUCT_REGISTRY:-}}"
 
 # Build arguments
 BUILD_ARGS=""

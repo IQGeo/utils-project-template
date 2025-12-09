@@ -11,11 +11,6 @@ services:
             - pgdata-example:/opt/iqgeo/data/pgdata
 
     iqgeo-worker:
-        build:
-            context: ./
-            dockerfile: dockerfile.tools
-            args:
-                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
         image: iqgeo-${PROJ_PREFIX:-myproj}-tools:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_worker
         restart: always
@@ -41,11 +36,6 @@ services:
             # END CUSTOM SECTION
 
     iqgeo:
-        build:
-            context: ./
-            dockerfile: dockerfile.appserver
-            args:
-                - PRODUCT_REGISTRY=${PRODUCT_REGISTRY:-harbor.delivery.iqgeo.cloud/releases_}
         image: iqgeo-${PROJ_PREFIX:-myproj}-appserver:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_appserver
         restart: always
