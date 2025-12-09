@@ -34,7 +34,7 @@ appserver:
     # scopes: ["openid", "profile", "email"]
 
 persistence:
-  # For Minikube/local testing, you can need to use the standard storage class.
+  # For Minikube/local testing, you need to use the standard storage class.
   storageClass: "standard"
 
 # default image for workers and cronjobs
