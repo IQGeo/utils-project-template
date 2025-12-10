@@ -107,7 +107,7 @@ If building and testing images locally instead of using registry images:
 
 ```bash
 # Configure Docker to use Minikube's Docker daemon
-# alternatively, after the build step, run ./deployment/minikube_image_load.sh to load images into Minikube
+# alternatively, after the build step, run ./deployment/helm/minikube_image_load.sh to load images into Minikube
 eval $(minikube docker-env)
 
 # Build images locally
