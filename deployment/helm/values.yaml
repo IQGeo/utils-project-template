@@ -1,6 +1,6 @@
 global:
-  # Local Development only! - deploys with dev dependencies like Keycloak and PostGIS for local testing, generates these secrets automatically
-  isDev: true 
+  # Local Development only! - setting to true deploys with dev dependencies like Keycloak and PostGIS for local testing, generates these secrets automatically
+  isDev: false 
   # domain where the IQGeo solution will be hosted
   domain: iqgeo.localhost
   # Project name used in image repository names (e.g., iqgeo-{project}-appserver). Set by project template tool.
