@@ -1,29 +1,40 @@
 #!/bin/bash
 # Script to build all IQGeo project Docker images
-# Usage: ./build_images.sh [PRODUCT_REGISTRY]
-# Example: ./build_images.sh harbor.delivery.iqgeo.cloud/engineering/
+# Usage: ./build_images.sh
+# Configuration: Set PROJ_PREFIX, PRODUCT_REGISTRY, and PROJECT_REGISTRY in .env file
 
 set -e  # Exit on error
-
-# Project name - this will be set by the project template tool from .iqgeorc.jsonc prefix
-PROJECT_NAME="myproj"
 
 # Get the script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Source .env file if it exists
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
+# Source .env file
+if [ ! -f "$SCRIPT_DIR/.env" ]; then
+    echo "ERROR: .env file not found at $SCRIPT_DIR/.env"
+    exit 1
+fi
+source "$SCRIPT_DIR/.env"
+
+# Validate required variables
+if [ -z "$PROJ_PREFIX" ]; then
+    echo "ERROR: PROJ_PREFIX not set in .env file"
+    exit 1
 fi
 
-# Optional PRODUCT_REGISTRY argument (overrides .env value)
-PRODUCT_REGISTRY="${1:-${PRODUCT_REGISTRY:-}}"
+# Warn about optional variables
+if [ -z "$PRODUCT_REGISTRY" ]; then
+    echo "WARNING: PRODUCT_REGISTRY not set in .env (base images will be pulled from Docker Hub)"
+fi
+
+if [ -z "$PROJECT_REGISTRY" ]; then
+    echo "WARNING: PROJECT_REGISTRY not set in .env (built images will not be pushed to registry)"
+fi
 
 # Build arguments
 BUILD_ARGS=""
 if [ -n "$PRODUCT_REGISTRY" ]; then
-    BUILD_ARGS="--build-arg PRODUCT_REGISTRY=$PRODUCT_REGISTRY"
+    BUILD_ARGS="--build-arg PRODUCT_REGISTRY=$PRODUCT_REGISTRY --build-arg PROJECT_REGISTRY=$PROJECT_REGISTRY"
     echo "Using PRODUCT_REGISTRY: $PRODUCT_REGISTRY"
 fi
 
@@ -32,13 +43,20 @@ build_image() {
     local image_type=$1
     local build_context=$2
     local dockerfile=$SCRIPT_DIR/dockerfile.$image_type
-    local image_name="iqgeo-${PROJECT_NAME}-${image_type}"
+    local image_name="iqgeo-${PROJ_PREFIX}-${image_type}"
+    
+    # Determine the full image name (with registry if set)
+    if [ -n "$PROJECT_REGISTRY" ]; then
+        local full_image_name="${PROJECT_REGISTRY}${image_name}"
+    else
+        local full_image_name="$image_name"
+    fi
     
     echo ""
-    echo "Building ${image_name}..."
-    echo "  docker build \"$build_context\" -f \"$dockerfile\" -t \"$image_name\" $BUILD_ARGS"
+    echo "Building ${full_image_name} for linux/amd64..."
+    echo "  docker build --platform linux/amd64 \"$build_context\" -f \"$dockerfile\" -t \"$full_image_name\" $BUILD_ARGS"
     echo ""
-    docker build "$build_context" -f "$dockerfile" -t "$image_name" $BUILD_ARGS
+    docker build --platform linux/amd64 "$build_context" -f "$dockerfile" -t "$full_image_name" $BUILD_ARGS
 }
 
 # Build all images
@@ -50,6 +68,19 @@ echo ""
 echo "✓ All images built successfully!"
 echo ""
 echo "Built images:"
-docker images | grep "iqgeo-${PROJECT_NAME}-"
+docker images | grep "iqgeo-${PROJ_PREFIX}-"
 
-echo "To load images into Minikube, run: minikube_image_load.sh"
+# Push final images if PROJECT_REGISTRY is set and PUSH=true
+if [ -n "$PROJECT_REGISTRY" ] && [ "$PUSH" = "true" ]; then
+    echo ""
+    echo "Pushing images to: ${PROJECT_REGISTRY}"
+    docker push "${PROJECT_REGISTRY}iqgeo-${PROJ_PREFIX}-appserver"
+    docker push "${PROJECT_REGISTRY}iqgeo-${PROJ_PREFIX}-tools"
+    echo "✓ Images pushed successfully!"
+elif [ -n "$PROJECT_REGISTRY" ]; then
+    echo ""
+    echo "To push images to registry, run: PUSH=true ./build_images.sh"
+else
+    echo ""
+    echo "To load images into Minikube, run: minikube_image_load.sh"
+fi

@@ -1,6 +1,7 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+ARG PROJECT_REGISTRY=
 
-FROM iqgeo-myproj-build AS iqgeo_builder
+FROM ${PROJECT_REGISTRY}iqgeo-myproj-build AS iqgeo_builder
 
 # START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 
