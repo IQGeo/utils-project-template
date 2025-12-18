@@ -13,21 +13,37 @@ This guide covers setting up the IQGeo Platform on Minikube for testing deployme
 
 ## Building and Testing Images Locally
 
-If building and testing images locally instead of using registry images:
+Two options for getting locally built images into Minikube:
+
+### Option 1: Build Directly in Minikube (Faster)
 
 ```bash
 # Configure Docker to use Minikube's Docker daemon
 eval $(minikube docker-env)
 
-# Build images locally
-./deployment/build_images.sh
+# Follow the Building Images Locally section in the main deployment guide
+# See: ../../README.md#building-images-locally
 
 # Verify images are available in Minikube
 minikube ssh -- docker images | grep iqgeo
+```
 
-# Alternatively, after the build step, run the image load script
+**Advantages**: Faster, images are immediately available in Minikube  
+**Considerations**: May encounter memory constraints on larger builds
+
+### Option 2: Build Externally and Load
+
+```bash
+# Build images using your local Docker daemon (not Minikube's)
+# Follow the Building Images Locally section in the main deployment guide
+# See: ../../README.md#building-images-locally
+
+# Load the built images into Minikube
 ./deployment/helm/minikube_image_load.sh
 ```
+
+**Advantages**: No memory constraints from Minikube VM  
+**Considerations**: Requires additional image transfer step
 
 ## Deployment
 
@@ -53,13 +69,6 @@ These settings ensure:
 
 **Important**: Do not set `image.projectRegistry` when using locally built images. The chart will use unqualified image names which Minikube will resolve from its local Docker daemon.
 
-**Image Loading**: Use the `minikube_image_load.sh` script in this folder to automatically load your built images into Minikube:
-```bash
-./deployment/helm/minikube_image_load.sh
-```
-- Ingress is configured for local `iqgeo.localhost` domain
-- PostgreSQL and Keycloak subcharts are enabled
-
 ### 2. Namespace Setup
 
 ```bash
@@ -83,7 +92,7 @@ minikube tunnel
 
 The application will be accessible at `https://platform.iqgeo.localhost` or your configured ingress hostname.
 
-### 4. Monitor Deployment
+### 5. Monitor Deployment
 
 ```bash
 # View pod status
