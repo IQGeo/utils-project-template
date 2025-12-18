@@ -42,7 +42,6 @@ You'll need to create Kubernetes secrets for:
 - **Database credentials** (`db-credentials`) - required for database connection
 - **OIDC client secret** (`oidc-client-secret`) - required if OIDC authentication is enabled
 
-> **Note**: When using `global.isDev=true`, the chart deploys PostGIS and Keycloak subcharts which auto-generate `db-credentials` and `oidc-client-secret`. See the [helm chart README](https://github.com/IQGeo/cloud-helm-iqgeo-platform/blob/main/README.md) for complete configuration options.
 
 **Quick setup examples:**
 ```bash
@@ -72,11 +71,11 @@ kubectl create secret generic oidc-client-secret \
 # Login to Harbor
 helm registry login harbor.delivery.iqgeo.cloud
 
-# Deploy stable version
-helm upgrade --install iqgeo oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform -f ./deployment/helm/values.yaml
+# Deploy production version
+helm upgrade --install iqgeo oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform -f ./deployment/helm/values-qa.yaml
 
-# Deploy pre-release/alpha version
-helm upgrade --install iqgeo oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform --devel -f ./deployment/helm/values.yaml
+# Deploy development version. Includes PostgreSQL and Keycloak subcharts for easier local setup and testing.
+helm upgrade --install iqgeo oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform-dev --devel -f ./deployment/helm/values.yaml
 ```
 
 ### 5. Verify Deployment

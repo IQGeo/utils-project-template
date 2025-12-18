@@ -1,15 +1,18 @@
 global:
-  # Local Development only! - setting to true deploys with dev dependencies like Keycloak and PostGIS for local testing, generates these secrets automatically
-  isDev: false 
   # domain where the IQGeo solution will be hosted
   domain: iqgeo.localhost
-  # Project name used in image repository names (e.g., iqgeo-{project}-appserver). Set by project template tool.
+  # Short project name. Used in image repository names (e.g., iqgeo-{prefix}-appserver). Set by project template tool.
   prefix: myproj 
   # Redis client configuration
   redis:
-    # This needs to be set for versions of Platform before 7.4.8, but can be removed when using 7.4.8+
+    # This needs to be set for versions of Platform before 7.4.9, but can be removed when using 7.4.9+
     generateUrls: true
 
+# image:
+#   # Container registry prefix to prepend to project's image repository names
+#   # Examples: "harbor.delivery.iqgeo.cloud/engineering", "myregistry.azurecr.io/myproject"
+#   # Leave empty to use unqualified image names (pulls from default registry)
+#   projectRegistry: "harbor.delivery.iqgeo.cloud/my_project"
 
 appserver:
   # Default configuration for all appservers - override common settings here
