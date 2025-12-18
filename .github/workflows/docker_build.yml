@@ -1,109 +1,243 @@
-name: "Appserver: Build & Push Docker Image"
-run-name: Build & Push appserver/${{ github.base_ref || github.ref_name }}
+name: Build & Push Docker Images
+run-name: Build & Push ${{ github.base_ref || github.ref_name }}
+
 on:
   push:
-    branches: [main]
-defaults:
-  run:
-    shell: bash
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+
+      platform_version:
+        description: 'platform version'
+        required: true
+        default: '7.3'
+
+      push_images:
+        description: 'Y/N push images to container registry'
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+env:
+  PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.3' }}
+  DOCKER_BUILD_SUMMARY: true
+  DOCKER_BUILD_RECORD_UPLOAD: true
+
 jobs:
-  build-and-push:
+
+  build-build-image:
     runs-on: ubuntu-latest
     env:
-      REGISTRY: harbor.delivery.iqgeo.cloud/${{ vars.harbor_project_name }}
-      platform_version: 7.2
+      image_name: ${{ vars.registry }}/${{ vars.repository }}/${{ vars.image_name }}-build
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image-id: ${{ steps.build.outputs.imageid }}
+      metadata: ${{ steps.build.outputs.metadata }}
     steps:
       -
-        name: Checkout code
+        name: checkout
         uses: actions/checkout@v4
         with:
           lfs: true
 
+      ### `cloud-addon-modules` has been officially deprecated.
+      # - name: checkout `cloud-addon-modules`
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: IQGeo/cloud-addon-modules
+      #     path: cloud-addons
+      #     token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT (personal access token)
+      #     lfs: true
+
       -
-        name: Authenticate Docker to Harbor
+        name: setup Docker BuildX
+        uses: docker/setup-buildx-action@v3
+      -
+        name: login to Harbor Registry (for pulling base images)
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ secrets.container_registry_username }}
-          password: ${{ secrets.container_registry_password }}
+          registry: ${{ vars.registry }}
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        name: extract metadata for `build` image
+        id: meta-build
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.image_name }}
+          tags: |
+            type=raw,value=${{ env.PLATFORM_VERSION }}
+            type=raw,value=${{ github.run_number }}
+            type=raw,value=${{ github.base_ref || github.ref_name }}
+            type=sha,prefix={{branch}}-
 
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      -
-        name: "Build: Platform"
-        id: platform
+        name: build and push `build` image
+        id: build
         uses: docker/build-push-action@v6
         with:
-          push: false
-          pull: false
+          platforms: linux/amd64,linux/arm64
           context: .
-          file: deployment/dockerfile.build
+          file: ./deployment/dockerfile.build
+          pull: true
+          push: false
+          tags: ${{ steps.meta-build.outputs.tags }}
+          labels: ${{ steps.meta-build.outputs.labels }}
+          annotations: ${{ steps.meta-build.outputs.annotations }}
           build-args: |
-            CONTAINER_REGISTRY=${{ env.REGISTRY }}
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.REGISTRY }}/platform-build:${{ env.platform_version }}
-            iqgeo-myproj-build
-          cache-to: type=gha,mode=max
-          cache-from: type=gha
+            PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+          cache-from: |
+            type=gha,scope=build-latest
+            type=gha,scope=build-${{ github.sha }}
+            type=registry,ref=${{ env.image_name }}:buildcache
+          cache-to: |
+            type=gha,scope=build-${{ github.sha }},mode=min
+            type=registry,ref=${{ env.image_name }}:buildcache,mode=min
+          provenance: mode=max
+          sbom: true
 
+  build-appserver-image:
+    needs: build-build-image
+    runs-on: ubuntu-latest
+    env:
+      image_name: ${{ vars.registry }}/${{ vars.repository }}/${{ vars.image_name }}-appserver
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image-id: ${{ steps.build.outputs.imageid }}
+      metadata: ${{ steps.build.outputs.metadata }}
+    steps:
       -
-        name: Extract Appserver metadata (tags, labels) for Docker
-        id: meta
+        name: checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      -
+        name: setup Docker BuildX
+        uses: docker/setup-buildx-action@v3
+      -
+        name: login to Harbor Registry (for pulling base images)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.registry }}
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
+      -
+        name: extract metadata for `appserver` image
+        id: meta-appserver
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY }}/platform-appserver
+          images: ${{ env.image_name }}
           tags: |
-            type=raw,value={{branch}}-{{sha}}
-            type=sha,prefix={{branch}}-,enable={{!is_default_branch}}
-            type=raw,value=${{ env.platform_version }},enable={{is_default_branch}}
-
+            type=raw,value=${{ env.PLATFORM_VERSION }}
+            type=raw,value=${{ github.run_number }}
+            type=raw,value=${{ github.base_ref || github.ref_name }}
+            type=sha,prefix={{branch}}-
       -
-        name: "Build: Appserver"
+        name: build and push `appserver` image
+        id: build
         uses: docker/build-push-action@v6
         with:
-          push: true
-          pull: true
-          context: deployment
-          file: deployment/dockerfile.appserver
-          # secret-files: |
-          #   oidc=${{ secrets.oidc_config }}
-          build-args: |
-            CONTAINER_REGISTRY=${{ env.REGISTRY }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
+          context: ./deployment
+          file: ./deployment/dockerfile.appserver
+          pull: true
+          push: ${{ github.event.inputs.push_images != 'false' }}
+          tags: ${{ steps.meta-appserver.outputs.tags }}
+          labels: ${{ steps.meta-appserver.outputs.labels }}
+          annotations: ${{ steps.meta-appserver.outputs.annotations }}
+          build-args: |
+            PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+          cache-from: |
+            type=gha,scope=appserver-latest
+            type=gha,scope=appserver-${{ github.sha }}
+            type=registry,ref=${{ env.image_name }}:buildcache
+          cache-to: |
+            type=gha,scope=appserver-${{ github.sha }},mode=min
+            type=registry,ref=${{ env.image_name }}:buildcache,mode=min
+          provenance: mode=max
+          sbom: true
 
+  build-tools-image:
+    needs: build-build-image
+    runs-on: ubuntu-latest
+    env:
+      image_name: ${{ vars.registry }}/${{ vars.repository }}/${{ vars.image_name }}-tools
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image-id: ${{ steps.build.outputs.imageid }}
+      metadata: ${{ steps.build.outputs.metadata }}
+    steps:
       -
-        name: Extract Appserver Tools metadata (tags, labels) for Docker
-        id: tools_metadata
+        name: checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      -
+        name: setup Docker BuildX
+        uses: docker/setup-buildx-action@v3
+      -
+        name: login to Harbor Registry (for pulling base images)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.registry }}
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
+      -
+        name: extract metadata for `tools` image
+        id: meta-tools
         uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          images: |
-            ${{ env.REGISTRY }}/platform-tools
+          images: ${{ env.image_name }}
           tags: |
-            type=raw,value={{branch}}-{{sha}}
-            type=sha,prefix={{branch}}-,enable={{!is_default_branch}}
-            type=raw,value=${{ env.platform_version }},enable={{is_default_branch}}
-
+            type=raw,value=${{ env.PLATFORM_VERSION }}
+            type=raw,value=${{ github.run_number }}
+            type=raw,value=${{ github.base_ref || github.ref_name }}
+            type=sha,prefix={{branch}}-
       -
-        name: "Build: Appserver Tools"
+        name: build and push `tools` image
+        id: build
         uses: docker/build-push-action@v6
         with:
-          push: true
-          pull: true
-          context: deployment
-          file: deployment/dockerfile.tools
-          build-args: |
-            CONTAINER_REGISTRY=${{ env.REGISTRY }}
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.tools_metadata.outputs.tags }}
-          cache-from: type=gha
+          context: .
+          file: ./deployment/dockerfile.tools
+          pull: true
+          push: ${{ github.event.inputs.push_images != 'false' }}
+          tags: ${{ steps.meta-tools.outputs.tags }}
+          labels: ${{ steps.meta-tools.outputs.labels }}
+          annotations: ${{ steps.meta-tools.outputs.annotations }}
+          build-args: |
+            PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+          cache-from: |
+            type=gha,scope=tools-latest
+            type=gha,scope=tools-${{ github.sha }}
+            type=registry,ref=${{ env.image_name }}:buildcache
+          cache-to: |
+            type=gha,scope=tools-${{ github.sha }},mode=min
+            type=registry,ref=${{ env.image_name }}:buildcache,mode=min
+          provenance: mode=max
+          sbom: true
 
+  cleanup:
+    if: always()
+    needs:
+      - build-build-image
+      - build-appserver-image
+      - build-tools-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: clean-up temporary artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            build-image-metadata
+            appserver-image-metadata
+            tools-image-metadata
+        if: always()
