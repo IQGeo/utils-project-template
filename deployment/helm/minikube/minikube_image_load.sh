@@ -6,8 +6,17 @@
 
 set -e  # Exit on error
 
-# Project name - should match build_images.sh
-PROJECT_NAME="myproj"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../.env"
+
+
+# Set PROJ_PREFIX to default if not set
+if [ -z "$PROJ_PREFIX" ]; then
+    PROJ_PREFIX="myproj"
+    echo "Using default PROJ_PREFIX: $PROJ_PREFIX"
+fi
+
 
 # Determine which images to load
 if [ -n "$1" ]; then
@@ -39,7 +48,7 @@ fi
 # Function to load an image
 load_image() {
     local image_type=$1
-    local image_name="iqgeo-${PROJECT_NAME}-${image_type}"
+    local image_name="iqgeo-${PROJ_PREFIX}-${image_type}"
     local image_tag="${image_name}:latest"
     
     echo "Checking if ${image_tag} exists locally..."
@@ -92,7 +101,7 @@ fi
 echo "✓ All images loaded successfully into Minikube!"
 echo ""
 echo "Verifying images in Minikube:"
-minikube ssh docker images | grep "iqgeo-${PROJECT_NAME}-"
+minikube ssh docker images | grep "iqgeo-${PROJ_PREFIX}-"
 
 echo ""
 echo "Images are ready to use in Minikube deployments"

@@ -9,33 +9,38 @@ set -e  # Exit on error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Source .env file
-if [ ! -f "$SCRIPT_DIR/.env" ]; then
-    echo "ERROR: .env file not found at $SCRIPT_DIR/.env"
-    exit 1
+# Source .env file if it exists, otherwise use defaults
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    source "$SCRIPT_DIR/.env"
+    echo "Using configuration from .env file"
+else
+    echo "No .env file found, using default configuration"
 fi
-source "$SCRIPT_DIR/.env"
 
-# Validate required variables
+# Set PROJ_PREFIX to default if not set
 if [ -z "$PROJ_PREFIX" ]; then
-    echo "ERROR: PROJ_PREFIX not set in .env file"
-    exit 1
+    PROJ_PREFIX="myproj"
+    echo "Using default PROJ_PREFIX: $PROJ_PREFIX"
 fi
 
-# Warn about optional variables
-if [ -z "$PRODUCT_REGISTRY" ]; then
-    echo "WARNING: PRODUCT_REGISTRY not set in .env (base images will be pulled from Docker Hub)"
-fi
 
 if [ -z "$PROJECT_REGISTRY" ]; then
-    echo "WARNING: PROJECT_REGISTRY not set in .env (built images will not be pushed to registry)"
+    PROJECT_REGISTRY=""
+    
+    if [ -z "$PROJECT_REGISTRY" ]; then
+        echo "PROJECT_REGISTRY not set (built images will not be pushed to registry)"
+    fi
 fi
 
 # Build arguments
 BUILD_ARGS=""
 if [ -n "$PRODUCT_REGISTRY" ]; then
-    BUILD_ARGS="--build-arg PRODUCT_REGISTRY=$PRODUCT_REGISTRY --build-arg PROJECT_REGISTRY=$PROJECT_REGISTRY"
+    BUILD_ARGS="--build-arg PRODUCT_REGISTRY=$PRODUCT_REGISTRY"
     echo "Using PRODUCT_REGISTRY: $PRODUCT_REGISTRY"
+fi
+if [ -n "$PROJECT_REGISTRY" ]; then
+    BUILD_ARGS="$BUILD_ARGS --build-arg PROJECT_REGISTRY=$PROJECT_REGISTRY"
+    echo "Using PROJECT_REGISTRY: $PROJECT_REGISTRY"
 fi
 
 # Function to build an image

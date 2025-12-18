@@ -46,5 +46,10 @@
     // e.g. [".devcontainer/remote_host"]
     "exclude_file_paths": [],
 
+    "deployment": {
+        // The IQGeo project registry to use. Leave empty for the public IQGeo registry.
+        "project_registry": ""
+    },
+
     "version": "0.8.2"
 }

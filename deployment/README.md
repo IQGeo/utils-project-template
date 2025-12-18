@@ -6,7 +6,7 @@ This folder contains Docker image definitions optimized for deployment and local
 
 Choose your deployment approach:
 
-- **[Kubernetes/Helm](helm/README.md)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
+- **[Kubernetes/Helm](https://github.com/IQGeo/utils-project-template/wiki/IQGeo-Platform-Helm-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
 - **[Docker Compose](#running-locally-with-docker-compose)** (this guide) - Simple local development/testing without Kubernetes
 
 ## Building Images Locally
