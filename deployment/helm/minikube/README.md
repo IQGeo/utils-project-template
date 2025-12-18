@@ -50,6 +50,13 @@ keycloak:
 These settings ensure:
 - Ingress is configured for local `iqgeo.localhost` domain
 - PostgreSQL and Keycloak subcharts are enabled for integrated testing
+
+**Important**: Do not set `image.projectRegistry` when using locally built images. The chart will use unqualified image names which Minikube will resolve from its local Docker daemon.
+
+**Image Loading**: Use the `minikube_image_load.sh` script in this folder to automatically load your built images into Minikube:
+```bash
+./deployment/helm/minikube_image_load.sh
+```
 - Ingress is configured for local `iqgeo.localhost` domain
 - PostgreSQL and Keycloak subcharts are enabled
 
