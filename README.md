@@ -19,7 +19,6 @@ It includes the following:
     - [Apply this template to an existing repository](#apply-this-template-to-an-existing-repository)
   - [Configuring the project](#configuring-the-project)
     - [Notes on Product modules](#notes-on-product-modules)
-      - [comsof:](#comsof)
       - [comms\_dev\_db:](#comms_dev_db)
     - [Updating the project files using the IQGeo VSCode extension](#updating-the-project-files-using-the-iqgeo-vscode-extension)
     - [Testing the configuration](#testing-the-configuration)
@@ -169,6 +168,8 @@ Once you have followed the instructions above, you can edit this file so it beco
 ## Container images hierarchy
 
 The following diagram illustrates the container images generated generate and used by their dependencies. Images in blue are provided by Engineering. Images in red are to be used in the deployment of the project.
+
+The appserver image provides the runtime environment for application services, while the tools image serves as a container for executing command line instructions and also for hosting workers for long-running tasks.
 
 ```mermaid
 flowchart TD

@@ -24,6 +24,16 @@
             }
         },
         {
+            "label": "Electron Watch",
+            "type": "shell",
+            "command": "while inotifywait -r -e close_write /opt/iqgeo/platform/WebApps/myworldapp/public/bundles; do cp -r /opt/iqgeo/platform/WebApps/myworldapp/public/bundles/* /opt/iqgeo/anywhere/bundles/; done",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
             "label": "Build code package & export",
             "type": "shell",
             "command": "myw_product build code_package && myw_db $MYW_DB_NAME export --include_code"

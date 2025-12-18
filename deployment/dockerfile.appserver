@@ -1,14 +1,12 @@
-ARG CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-harbor.delivery.iqgeo.cloud/releases}
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 FROM iqgeo-myproj-build AS iqgeo_builder
 
 # START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached-dev \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
-RUN myw_product fetch pip_packages --include memcached redis oidc
+RUN myw_product fetch pip_packages --include redis oidc
 
 # remove unneeded files for appserver
 RUN rm -rf ${MODULES}/*/node_modules \
@@ -16,14 +14,12 @@ RUN rm -rf ${MODULES}/*/node_modules \
     && rm -rf ${MODULES}/*/native
 
 ############################################## project appserver image
-FROM ${CONTAINER_REGISTRY}/platform-appserver:7.2
+FROM ${PRODUCT_REGISTRY}platform/platform-appserver:7.4
 
 USER root
 
 # START SECTION optional dependencies (runtime) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached11 \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
 # Copy pip packages including modules' pip dependencies
