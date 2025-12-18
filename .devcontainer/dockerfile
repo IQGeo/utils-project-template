@@ -3,23 +3,21 @@
 # IQGeo Platform. It is based on the platform-devenv image and optionally
 # adds additional modules to the image. The modules are copied from the injector images
 #
-ARG CONTAINER_REGISTRY=harbor.delivery.iqgeo.cloud/releases/
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${CONTAINER_REGISTRY}comms:3.2 AS comms
+FROM ${PRODUCT_REGISTRY}comms/comms:3.3 AS comms
 # END SECTION
 
 
-FROM ${CONTAINER_REGISTRY}platform-devenv-2:7.2
+FROM ${PRODUCT_REGISTRY}platform/platform-devenv-2:7.4
 
 USER root
 
 RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION optional dependencies (dev) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
-RUN apt-get update && \
-    apt-get install -y libmemcached-dev libmemcached11 \
-    && apt-get autoremove && apt-get clean
+
 # END SECTION
 
 RUN pip install cryptojwt
@@ -28,6 +26,10 @@ RUN pip install cryptojwt
 COPY --from=comms / ${MODULES}/
 # END SECTION
 
+# find and replace apache port configurations to env variable
+ARG APACHE_PORT_OVERRIDE=8080
+RUN sed -i "s|:8080|:${APACHE_PORT_OVERRIDE}|g" /etc/apache2/sites-enabled/iqgeo.apache.conf
+RUN sed -i "s|Listen 8080|Listen ${APACHE_PORT_OVERRIDE}|g" /etc/apache2/ports.conf
 
 # START CUSTOM SECTION - root user
 # END CUSTOM SECTION
@@ -57,6 +59,10 @@ RUN chown -R iqgeo:iqgeo /run/myw_task
 COPY --chown=www-data:www-data entrypoint.d/* /entrypoint.d/
 
 COPY --chown=www-data:www-data devserver_config/ /opt/iqgeo/config/
+
+RUN mkdir /opt/iqgeo/anywhere
+RUN chown -R www-data:www-data /opt/iqgeo/anywhere
+RUN chmod -R g+w /opt/iqgeo/anywhere
 
 # ensure entrypoint files are executable
 RUN chmod +x entrypoint.d/*
