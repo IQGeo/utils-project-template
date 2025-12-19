@@ -10,6 +10,8 @@ This guide covers building Docker images for the IQGeo Platform and deploying th
 
 ## Building Images Locally
 
+> **Note**: This section covers manual image building for local testing. Your project may have CI/CD pipelines set up to build and publish images automatically.
+
 Required for both Docker Compose and Minikube deployments when testing local code changes.
 
 ### Harbor Authentication
