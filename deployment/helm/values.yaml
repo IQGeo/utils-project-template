@@ -8,7 +8,7 @@ global:
     host: mydb.abcdefghijkl.us-west-2.rds.amazonaws.com
     port: 5432
   # Redis client configuration
-  redis:
+  redisClient:
     # This needs to be set for versions of Platform before 7.4.9, but can be removed when using 7.4.9+
     generateUrls: true
 
