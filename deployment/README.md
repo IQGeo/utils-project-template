@@ -1,13 +1,12 @@
 # Deployment Guide
 
-This folder contains Docker image definitions optimized for deployment and local testing with docker-compose.
+This guide covers building Docker images for the IQGeo Platform and deploying them using either Docker Compose (for local testing) or Kubernetes/Helm (for production and test environments).
 
-## Deployment Options
-
-Choose your deployment approach:
-
-- **[Kubernetes/Helm](https://github.com/IQGeo/utils-project-template/wiki/IQGeo-Platform-Helm-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
-- **[Docker Compose](#running-locally-with-docker-compose)** (this guide) - Simple local development/testing without Kubernetes
+**What's in this folder:**
+- Docker image definitions for production deployments (dockerfiles for appserver and tools images)
+- Example docker-compose.yml for local testing of the deployment images
+- Helm chart deployment configurations (in `helm/` subdirectory)
+- Build and deployment scripts
 
 ## Building Images Locally
 
@@ -25,14 +24,17 @@ To get your CLI credentials, visit your Harbor user profile: https://harbor.deli
 
 ### Configure Environment
 
-Copy `.env.example` to `.env` in the deployment folder and configure required values:
+If `.env` doesn't exist in the deployment folder, copy it from the example:
 
 ```bash
 cp deployment/.env.example deployment/.env
 ```
 
-Edit the `.env` file to set:
-- Project prefix and registry settings (required for build)
+Review the `.env` file to ensure these build variables are set:
+- `PROJ_PREFIX` - Your project prefix (defaults to value set in the script if not set)
+- `PROJECT_REGISTRY` - Registry for pushing built images (not required if using docker-compose or Minikube)
+
+Additional variables (for docker-compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
@@ -50,6 +52,15 @@ This uses your project prefix (from `.iqgeorc.jsonc` and `.env`) to build three 
 - `iqgeo-{prefix}-tools` - Workers and cron jobs
 
 **Example**: If your prefix is `myproj`, images will be tagged as `iqgeo-myproj-appserver`, etc.
+
+---
+
+## Deployment Options
+
+Once images are built, follow the steps for your deployment situation:
+
+- **[Kubernetes/Helm](https://github.com/IQGeo/utils-project-template/wiki/IQGeo-Platform-Helm-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
+- **[Docker Compose](#running-locally-with-docker-compose)** (below) - Simple local development/testing without Kubernetes
 
 ## Running Locally with Docker Compose
 
