@@ -61,7 +61,7 @@ This uses your project prefix (from `.iqgeorc.jsonc` and `.env`) to build three 
 
 Once images are built, follow the steps for your deployment situation:
 
-- **[Kubernetes/Helm](https://github.com/IQGeo/utils-project-template/wiki/IQGeo-Platform-Helm-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
+- **[Kubernetes](https://github.com/IQGeo/utils-project-template/wiki/Kubernetes-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
 - **[Docker Compose](#running-locally-with-docker-compose)** (below) - Simple local development/testing without Kubernetes
 
 ## Running Locally with Docker Compose
