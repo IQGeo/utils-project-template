@@ -4,11 +4,12 @@ This template provides a starting point for creating a new IQGeo project/product
 It includes the following:
 
 -   Development environment
-    -   dev container definitions
-    -   VSCode tasks, settings and recommended extensions.
+    -   Dev container definitions
+    -   VSCode tasks, settings and recommended extensions
 -   Deployment configuration
-    -   container image definitions optimised for deployment
-    -   example docker-compose and instructions to build and run deployment docker containers
+    -   An `.iqgeorc.jsonc` file, which contains project information and other deployment settings 
+    -   Container image definitions optimised for deployment
+    -   Example docker-compose and instructions to build and run deployment docker containers
 
 ## Table of Contents
 
@@ -37,74 +38,74 @@ It includes the following:
 
 ---
 
-## Template Usage
+## Template usage
 
-This template is intended to be used when creating a new repository for an IQGeo project/product/module but can also be applied to existing repositories.
-
-Check the appropriate section below depending on your use case.
+You can use this template to create a new repository for an IQGeo project/product/module, or you can apply the template to an existing repository.
 
 ### Create a new repository from this template
 
 To use this template when creating a new repository, follow these steps:
 
-1. Click the "Use this template" button at the top of the repository page.
+1. Click **Use this template** at the top of the repository page.
+1. Select **Create a new repository**.
 1. Provide a name and description for your new repository.
 1. Clone your new repository to your local machine.
 
     - Alternatively, you can download the repository as a zip file and extract it to your local machine.
 
 1. Create an initial commit.
-1. Skip to section [Configuring the project](#configuring-the-project) to configure the project.
+1. Follow the steps in the section [Configuring the project](#configuring-the-project).
 
 ### Apply this template to an existing repository
 
-The following steps assume the repository has a folder for any IQGeo module, for example `custom`, if not, first make this adjustment to the structure of the repo.
+**Note:** Your repository must have a folder for IQGeo modules, for example `custom`. Set up this structure *before* you apply the template.
 
-To apply this template to an existing repository, follow these steps:
-
-1. Make sure you repository is pushed to a remote repository and you don't have any uncommitted changes.
-1. You probably want to create a new branch to apply the template to.
-2. Apply the template to your repository:
-    - If you have the IQGeo VSCode extension installed, you can use the command "IQGeo Pull and merge files from project-template" to apply the template to your repository.
-    - If you don't have the extension installed, you can download the zip file of this repository and extract it to a temporary location. Then copy the contents from the extracted folder to the root of your repository, with the exception of the `custom` folder (you should already have a folder for the module you're working with).
-1. Review changes. Depending on what you already have, this will overwrite some files in your repository, and it will discard some configuration you might want to keep, but we'll review those in a later step and recover them if necessary using git.
-1. Follow the steps in following section [Configuring the project](#configuring-the-project) to configure the project.
+1. Make sure your repository is pushed to a remote repository and that all changes are committed.
+1. We recommend that you create a new branch to apply the template to.
+1. Install the VS Code extension IQGeo Utils (optional). The extension is available from the Visual Studio Marketplace: [IQGeo Utils extension](https://marketplace.visualstudio.com/items?itemName=iqgeo.utils)
+1. Do you have the IQGeo VSCode extension installed?
+   - If *yes*, use the command "IQGeo Pull and merge files from project-template" to apply the template to your repository.
+   - If *no*, you can download the zip file of the project repository and extract it to a temporary location. Copy the contents from the extracted folder to the root of your repository, *except* the `custom` folder (you should already have a folder for the module you're working with in your existing repository).
+1. Review all changes. Applying the template might overwrite some files in your repository. If there is configuration that you want to keep, you can recover it using git (described in the section [Updating the project files using the IQGeo VSCode extension](#updating-the-project-files-using-the-iqgeo-vscode-extension).
+1. Go to the section [Configuring the project](#configuring-the-project).
 
 
 ## Configuring the project
 
-To configure the project you'll review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. 
-First check the following section for additional requirements for some modules.
+To configure the project, you'll review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. 
+Before you update the file, check the following section for module requirements.
 
 
-### Notes on Product modules
+### Product module requirements
 
-The `.iqgeorc.jsonc` provides a way to specify IQGeo products to be included in the project. This is done by adding entries to the `modules` array. 
+The `.iqgeorc.jsonc` file provides a way to specify the IQGeo products to be included in the project. This is done by adding entries to the `modules` array. 
 
-For a list of product modules, their versions, and the required dependencies, see the following:
+For a list of product modules, their versions, and the required dependencies, see the following topic:
 [Module dependencies](https://github.com/IQGeo/utils-project-template/wiki/Module-dependencies)
 
-Some modules have additional requirements. Refer to the following list for the specific requirements of each module:
+Some modules have additional requirements as described in the following sections.
 
 #### comms_dev_db:
 
-- to be used in dev environments only.  include `"devOnly": true` in the properties for this module in the `.iqgeorc.jsonc` file
-- requires both `comms` and `comsof` modules to be included in the project as well
-- to create the db on startup of the container (if there's no db with NMT schema) replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with the following:
+- For dev environments only.  In the `.iqgeorc.jsonc` file, include `"devOnly": true` in the properties for this module. 
+- You must include both the `comms` and `comsof` modules in the project.
+- If there's no db with an NMT schema, and you want to create the comms_dev_db on startup of the container (following deployment), replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with:
   
       #!/bin/bash
       if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME; fi
 
-### Updating the project files using the IQGeo VSCode extension
+### Update the project files using the IQGeo VSCode extension
 
-1. Ensure you have the [IQGeo VSCode extension](https://marketplace.visualstudio.com/items?itemName=IQGeo.iqgeo-utils-vscode) installed. It's available in the Extensions Marketplace.
-1. Run the IQGeo VSCode extension command "IQGeo Update Project Files". You can right click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
-1. Using a git client, review the changes made to the repository
-    - recover (discard changes) that remove lines required for your specific project, for example, specific environment variables or specific commands in dockerfiles
-    - recover (discard the removal of) additional entrypoint files you still need for you project
-    - try to keep as close to the template as possible, as this will make it easier to update the project in the future
-1. Commit the changes to the repository
-2. Test the changes and make required adjustments  - follow section [Testing the configuration](#testing-the-configuration)
+After you edit the `.iqgeorc.jsonc` file to make it specific to your project, you should run the command to update project files. This automatically updates related files that are used during the deployment process. The automatic update means you don't have to edit multiple files and ensures consistency across your project.
+
+1. If you haven't already, install the VS Code extension IQGeo Utils (optional). The extension is available from the Visual Studio Marketplace: [IQGeo Utils extension](https://marketplace.visualstudio.com/items?itemName=iqgeo.utils)
+1. Run the IQGeo Utils extension command **IQGeo Update Project from iqgeorc.jsonc**. You can right-click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
+1. Using a git client, review the changes made to the repository.
+    - Recover (discard changes) that remove lines required for your specific project, for example, specific environment variables or specific commands in Dockerfiles.
+    - Recover (discard the removal of) additional entrypoint files you still need for your project.
+    - Keep your repository as close to the template as possible. This makes it easier to update the project in the future.
+1. Commit the changes.
+1. Test the changes and adjust them as necessary as described in the section [Testing the configuration](#testing-the-configuration).
    
 
 ### Testing the configuration
