@@ -5,7 +5,7 @@ It includes the following:
 
 -   Development environment
     -   Dev container definitions
-    -   VSCode tasks, settings and recommended extensions
+    -   VS Code tasks, settings and recommended extensions
 -   Deployment configuration
     -   An `.iqgeorc.jsonc` file, which contains project information and other deployment settings 
     -   Container image definitions optimised for deployment
@@ -33,10 +33,10 @@ It includes the following:
       - [Keycloak configuration](#keycloak-configuration)
       - [Harbor authentication](#harbor-authentication)
       - [Launch the development environment containers](#launch-the-development-environment-containers)
-      - [Adjust entrypoints](#adjust-entrypoints)
-      - [Launch the container connected to VS Code](#launch-the-container-connected-to-vscode)
+      - [Adjust entrypoints (optional)](#adjust-entrypoints-optional)
+      - [Launch the container connected to VS Code](#launch-the-container-connected-to-vs-code)
       - [Commit and push changes](#commit-and-push)
-  - [Review additional files](#review-additional-files)
+  - [Review other README files](#review-other-readme-files)
   - [Update this Readme](#update-this-readme)
   - [Container images hierarchy](#container-images-hierarchy)
 
@@ -93,7 +93,7 @@ The comms_dev_db module has additional requirements.
 
 **comms_dev_db**
 
-- For development environments only.  In the `.iqgeorc.jsonc` file, include `"devOnly": true` in the properties for this module. 
+- For development environments only. In the `.iqgeorc.jsonc` file, include `"devOnly": true` in the properties for this module. 
 - You must include both the `comms` and `comsof` modules in the project.
 - If there's no db with an NMT schema, and you want to create the comms_dev_db on startup of the container (following deployment), replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with:
   
@@ -117,7 +117,7 @@ After you edit the `.iqgeorc.jsonc` file to make it specific to your project, ru
 ### Test the configuration
 
 This section describes how to test the configuration using the development environment. 
->**Note:** when using a remote host (development server), follow the [instructions for the development environment on the remote host](.devcontainer/remote_host/README.md). 
+>**Note:** When using a remote host (development server), follow the [instructions for the development environment on the remote host](.devcontainer/remote_host/README.md). 
 
 #### Keycloak configuration
 
@@ -153,41 +153,48 @@ The container runs as the `www-data` user. To run commands, you need to use the 
 
 
 
-#### Adjust entrypoints
+#### Adjust entrypoints (optional)
 
-Add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
+If your custom or product modules require special initialization steps on container startup (like database setup or service configuration), add those commands as scripts to the following directories:
+- `.devcontainer/entrypoint.d`
+- `deployment/entrypoint.d` 
 
-#### Launch the container connected to VSCode
+#### Launch the container connected to VS Code
 
-To launch the container connected to VSCode, open the command palette in VSCode. Then search for and select `Remote-Containers: Reopen in Container`. This will open a new VSCode window connected to the container.
+1. Open the Command Palette (Ctrl+Shift+P or Cmd+Shift+P).
+1. Search for and select `Remote-Containers: Reopen in Container`.
+
+   A new VS Code window opens that's connected to the container.
 
 
-#### Commit and push
+#### Commit and push changes
 
 After successfully testing the configuration, commit and push your changes to the new repository. If this was an existing repository, ask others to review the changes and test the configuration before merging the changes to the main branch.
 
-## Review Additional Files
+## Review other README files
 
-After your initial setup you should review and update the following files to ensure that the project is properly configured for your needs:
+After your initial setup, review and update the following files to ensure that the project is properly configured for your needs.
 
 ### .devcontainer/README.md
 
-1. Within the `.devcontainer/README.md `, Update the module name and database name to match your project's module and database name.
-2. If there are any specific tasks that need to be run to build the database once the development container is running, add them to the `.devcontainer/README.md` file. This will ensure that other developers working on the project know how to build the database.
+1. Within the `.devcontainer/README.md `, change the module name and database name to match your project.
+2. If there are any specific tasks that need to be run to build the database once the development container is running, add them to the `.devcontainer/README.md` file. This ensures that other developers working on the project know how to build the database.
+
+### deployment/README.md
+
+This guide covers building Docker images for IQGeo Platform and deploying them using either Docker Compose (for local testing) or Kubernetes/Helm (for production and test environments).
 
 ## Update this Readme
 
-Once you have followed the instructions above, you can edit this file so it becomes a Readme for your project/module/product:
-
--   update the sections below to describe your project
--   Replace the content of this file with the contents of the `PROJECT_README.md` file in the root of the repository, delete that file and commit the changes.
+Once you have followed all the previous instructions, edit this file so it becomes a Readme for your project/module/product. Replace the content of this file with the contents of the `PROJECT_README.md` file in the root of this repository, then delete that file and commit the changes.
   
 
 ## Container images hierarchy
 
-The following diagram illustrates the container images generated generate and used by their dependencies. Images in blue are provided by Engineering. Images in red are to be used in the deployment of the project.
+The following diagram illustrates the container images generated and used by their dependencies. Images in blue are provided by Engineering. Images in red are used to deploy the project.
 
-The appserver image provides the runtime environment for application services, while the tools image serves as a container for executing command line instructions and also for hosting workers for long-running tasks.
+- The appserver image provides the runtime environment for application services.
+- The tools image serves as a container for executing command line instructions and also for hosting workers for long-running tasks.
 
 ```mermaid
 flowchart TD
