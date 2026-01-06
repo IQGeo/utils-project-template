@@ -11,6 +11,14 @@ It includes the following:
     -   Container image definitions optimised for deployment
     -   Example docker-compose and instructions to build and run deployment docker containers
 
+
+>**Note:** The root folder contains two readme files.
+>- The README.md file in the root folder is intended for the person creating a new project from the template. It explains how to clone the repo and configure the project.
+>- The PROJECT_README.md is meant to replace the initial README once the project is customized. Edit this file to describe your environment and customizations, save it as README.md, and then delete PROJECT_README.md. Use the new README as an onboarding guide for other team members who join the project. It should include:
+>    - Project-specific details (such as included modules and environment settings).
+>    - Links to deployment instructions and customization information.
+>    - Context for ongoing development.
+
 ## Table of Contents
 
 - [Template repo for an IQGeo project/product/module](#template-repo-for-an-iqgeo-projectproductmodule)
