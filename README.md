@@ -14,32 +14,30 @@ It includes the following:
 
 >**Note:** The root folder contains two readme files.
 >- The README.md file in the root folder is intended for the person creating a new project from the template. It explains how to clone the repo and configure the project.
->- The PROJECT_README.md is meant to replace the initial README once the project is customized. Edit this file to describe your environment and customizations, save it as README.md, and then delete PROJECT_README.md. Use the new README as an onboarding guide for other team members who join the project. It should include:
+>- The PROJECT_README.md file is meant to replace the initial README after you customize your project. In the PROJECT_README.md file, describe your environment and customizations, and save it as README.md. Use the new README as an onboarding guide for other team members who join the project. It should include:
 >    - Project-specific details (such as included modules and environment settings).
 >    - Links to deployment instructions and customization information.
 >    - Context for ongoing development.
 
 ## Table of Contents
 
-- [Template repo for an IQGeo project/product/module](#template-repo-for-an-iqgeo-projectproductmodule)
-  - [Table of Contents](#table-of-contents)
+[Template repo for an IQGeo project/product/module](#template-repo-for-an-iqgeo-projectproductmodule)
+  
   - [Template Usage](#template-usage)
     - [Create a new repository from this template](#create-a-new-repository-from-this-template)
     - [Apply this template to an existing repository](#apply-this-template-to-an-existing-repository)
-  - [Configuring the project](#configuring-the-project)
+  - [Configure the project](#configure-the-project)
     - [Notes on Product modules](#notes-on-product-modules)
-      - [comms\_dev\_db:](#comms_dev_db)
-    - [Updating the project files using the IQGeo VSCode extension](#updating-the-project-files-using-the-iqgeo-vscode-extension)
-    - [Testing the configuration](#testing-the-configuration)
+    - [Update the project files using the IQGeo Utils VS Code extension](#update-the-project-files-using-the-iqgeo-utils-vs-code-extension)
+    - [Test the configuration](#test-the-configuration)
       - [Keycloak configuration](#keycloak-configuration)
       - [Harbor authentication](#harbor-authentication)
-      - [Launching the containers of the dev environment](#launching-the-containers-of-the-dev-environment)
+      - [Launch the development environment containers](#launch-the-development-environment-containers)
       - [Adjust entrypoints](#adjust-entrypoints)
-      - [Launching the container connected to VSCode](#launching-the-container-connected-to-vscode)
-      - [Commit and push](#commit-and-push)
-  - [Review Additional Files](#review-additional-files)
-    - [.devcontainer/README.md](#devcontainerreadmemd)
-  - [Updating this Readme](#updating-this-readme)
+      - [Launch the container connected to VS Code](#launch-the-container-connected-to-vscode)
+      - [Commit and push changes](#commit-and-push)
+  - [Review additional files](#review-additional-files)
+  - [Update this Readme](#update-this-readme)
   - [Container images hierarchy](#container-images-hierarchy)
 
 
@@ -48,107 +46,118 @@ It includes the following:
 
 ## Template usage
 
-You can use this template to create a new repository for an IQGeo project/product/module, or you can apply the template to an existing repository.
+You can use this template to:
+- Create a new repository for an IQGeo project/product/module.
+- Apply the template to an existing repository.
 
 ### Create a new repository from this template
-
-To use this template when creating a new repository, follow these steps:
 
 1. Click **Use this template** at the top of the repository page.
 1. Select **Create a new repository**.
 1. Provide a name and description for your new repository.
 1. Clone your new repository to your local machine.
 
-    - Alternatively, you can download the repository as a zip file and extract it to your local machine.
+    Alternatively, download the repository as a zip file and extract it to your local machine.
 
 1. Create an initial commit.
-1. Follow the steps in the section [Configuring the project](#configuring-the-project).
+1. Follow the steps in the section [Configure the project](#configure-the-project).
 
 ### Apply this template to an existing repository
 
-**Note:** Your repository must have a folder for IQGeo modules, for example `custom`. Set up this structure *before* you apply the template.
+>**Note:** Your repository must have a folder for IQGeo modules, for example `custom`. Set up this structure *before* you apply the template.
 
 1. Make sure your repository is pushed to a remote repository and that all changes are committed.
 1. We recommend that you create a new branch to apply the template to.
 1. Install the VS Code extension IQGeo Utils (optional). The extension is available from the Visual Studio Marketplace: [IQGeo Utils extension](https://marketplace.visualstudio.com/items?itemName=iqgeo.utils)
-1. Do you have the IQGeo VSCode extension installed?
-   - If *yes*, use the command "IQGeo Pull and merge files from project-template" to apply the template to your repository.
+1. Do you have the IQGeo Utils VS Code extension installed?
+   - If *yes*, use the command **IQGeo Pull and merge files from project-template** to apply the template to your repository.
    - If *no*, you can download the zip file of the project repository and extract it to a temporary location. Copy the contents from the extracted folder to the root of your repository, *except* the `custom` folder (you should already have a folder for the module you're working with in your existing repository).
-1. Review all changes. Applying the template might overwrite some files in your repository. If there is configuration that you want to keep, you can recover it using git (described in the section [Updating the project files using the IQGeo VSCode extension](#updating-the-project-files-using-the-iqgeo-vscode-extension).
-1. Go to the section [Configuring the project](#configuring-the-project).
+1. Applying the template might overwrite some files in your repository. Review all changes. If there is configuration that you want to keep, you can recover it using git (described in the section [Update the project files using the IQGeo Utils VS Code extension](#update-the-project-files-using-the-iqgeo-utils-vs-code-extension)).
+1. Go to the section [Configure the project](#configure-the-project).
 
 
-## Configuring the project
+## Configure the project
 
-To configure the project, you'll review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. 
+To configure the project, review and update the `.iqgeorc.jsonc` file to match your project settings and dependencies. 
 Before you update the file, check the following section for module requirements.
 
 
 ### Product module requirements
 
-The `.iqgeorc.jsonc` file provides a way to specify the IQGeo products to be included in the project. This is done by adding entries to the `modules` array. 
+The `.iqgeorc.jsonc` file provides a way to specify the IQGeo products to include in the project. To do this, you add entries to the `modules` array. 
 
-For a list of product modules, their versions, and the required dependencies, see the following topic:
-[Module dependencies](https://github.com/IQGeo/utils-project-template/wiki/Module-dependencies)
+For a list of product modules, their versions, and the required dependencies, see the topic:
+[Module dependencies](https://github.com/IQGeo/utils-project-template/wiki/Module-dependencies).
 
-Some modules have additional requirements as described in the following sections.
+The comms_dev_db module has additional requirements.
 
-#### comms_dev_db:
+**comms_dev_db**
 
-- For dev environments only.  In the `.iqgeorc.jsonc` file, include `"devOnly": true` in the properties for this module. 
+- For development environments only.  In the `.iqgeorc.jsonc` file, include `"devOnly": true` in the properties for this module. 
 - You must include both the `comms` and `comsof` modules in the project.
 - If there's no db with an NMT schema, and you want to create the comms_dev_db on startup of the container (following deployment), replace the contents of the file `.devcontainer/entrypoint.d/600_init_db.sh` with:
   
       #!/bin/bash
       if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME; fi
 
-### Update the project files using the IQGeo VSCode extension
+### Update the project files using the IQGeo Utils VS Code extension
 
-After you edit the `.iqgeorc.jsonc` file to make it specific to your project, you should run the command to update project files. This automatically updates related files that are used during the deployment process. The automatic update means you don't have to edit multiple files and ensures consistency across your project.
+After you edit the `.iqgeorc.jsonc` file to make it specific to your project, run the command to update project files. This automatically updates all related deployment files and maintains consistency across your project.
 
 1. If you haven't already, install the VS Code extension IQGeo Utils (optional). The extension is available from the Visual Studio Marketplace: [IQGeo Utils extension](https://marketplace.visualstudio.com/items?itemName=iqgeo.utils)
 1. Run the IQGeo Utils extension command **IQGeo Update Project from iqgeorc.jsonc**. You can right-click the `.iqgeorc.jsonc` file or its contents to get the command in the context menu.
 1. Using a git client, review the changes made to the repository.
     - Recover (discard changes) that remove lines required for your specific project, for example, specific environment variables or specific commands in Dockerfiles.
-    - Recover (discard the removal of) additional entrypoint files you still need for your project.
+    - Recover (discard the removal of) additional entrypoint files you need for your project.
     - Keep your repository as close to the template as possible. This makes it easier to update the project in the future.
 1. Commit the changes.
-1. Test the changes and adjust them as necessary as described in the section [Testing the configuration](#testing-the-configuration).
+1. Test the changes as described in the section [Test the configuration](#test-the-configuration).
    
 
-### Testing the configuration
+### Test the configuration
 
 This section describes how to test the configuration using the development environment. 
-Note: when using a remote host (development server), you'll need to follow the [instructions for the development environment on the remote host](.devcontainer/remote_host/README.md). 
+>**Note:** when using a remote host (development server), follow the [instructions for the development environment on the remote host](.devcontainer/remote_host/README.md). 
 
 #### Keycloak configuration
 
-The dev environment is configured to use Keycloak for authentication. This requires you to add an entry to your hosts file to resolve the Keycloak URL to your local machine. Add the following line to your system's `hosts` file:
-      `127.0.0.1    keycloak.local`
+The dev environment uses Keycloak for authentication. You must add an entry to your hosts file to resolve the Keycloak URL to your local machine.
+
+Add the following line to your system's `hosts` file:
+
+    127.0.0.1    keycloak.local
 
 #### Harbor authentication
 
-Authenticate with docker registry: `docker login harbor.delivery.iqgeo.cloud`
-You will need to obtain your CLI secret (password) from your user profile found in harbor: https://harbor.delivery.iqgeo.cloud
+1. Find your CLI secret in your Harbor user profile at https://harbor.delivery.iqgeo.cloud.
+1. Log in to the Harbor docker registry and enter your CLI secret when prompted:
 
-#### Launching the containers of the dev environment
+```
+docker login harbor.delivery.iqgeo.cloud
+```
 
-To launch the containers of the dev environment run: 
+#### Launch the development environment containers
 
-        `docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build `.
+Run: 
 
-The main process of the container runs as the `www-data` user but to run commands you should use the `iqgeo` user. To do this run: 
+    docker compose -f ".devcontainer/docker-compose.yml" --profile iqgeo up -d --build
 
-        `docker exec -u iqgeo -it <container_name>  bash`
+The container runs as the `www-data` user. To run commands, you need to use the `iqgeo` user:
 
-<container_name> will be `iqgeo_<prefix>` where `<prefix>` is the value of prefix in the `.iqgeorc.jsonc` file. If you haven't updated it, it will be `iqgeo_myproj`
+1. Find the prefix value in your `.iqgeorc.jsonc` file. If you haven't changed the prefix, the default value is `myproj`.
+1. Run the following command, replacing `<prefix>` with the value from your `.iqgeorc.jsonc` file:
+
+    ```
+    docker exec -u iqgeo -it iqgeo_<prefix> bash
+    ```
+
 
 
 #### Adjust entrypoints
 
 Add any necessary entrypoints to `.devcontainer/entrypoint.d` and `deployment/entrypoint.d` for your modules or the product modules
 
-#### Launching the container connected to VSCode
+#### Launch the container connected to VSCode
 
 To launch the container connected to VSCode, open the command palette in VSCode. Then search for and select `Remote-Containers: Reopen in Container`. This will open a new VSCode window connected to the container.
 
@@ -166,7 +175,7 @@ After your initial setup you should review and update the following files to ens
 1. Within the `.devcontainer/README.md `, Update the module name and database name to match your project's module and database name.
 2. If there are any specific tasks that need to be run to build the database once the development container is running, add them to the `.devcontainer/README.md` file. This will ensure that other developers working on the project know how to build the database.
 
-## Updating this Readme
+## Update this Readme
 
 Once you have followed the instructions above, you can edit this file so it becomes a Readme for your project/module/product:
 
