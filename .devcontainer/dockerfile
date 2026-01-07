@@ -20,8 +20,6 @@ RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # END SECTION
 
-RUN pip install cryptojwt
-
 # START SECTION Copy the modules - beware this section is updated by the IQGeo project configuration tool
 COPY --from=comms / ${MODULES}/
 # END SECTION
