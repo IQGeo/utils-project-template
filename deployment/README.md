@@ -109,6 +109,6 @@ docker compose -f deployment/docker-compose.yml up -d
 
 **Rebuilding individual images**: If you need to rebuild just one image:
 ```bash
-docker build deployment -f deployment/dockerfile.appserver -t iqgeo-{prefix}-appserver
-docker build deployment -f deployment/dockerfile.tools -t iqgeo-{prefix}-tools
+docker build deployment -f deployment/dockerfile.appserver -t iqgeo-myproj-appserver
+docker build deployment -f deployment/dockerfile.tools -t iqgeo-myproj-tools
 ```
