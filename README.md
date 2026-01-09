@@ -6,12 +6,11 @@ It includes the following:
 -   Development environment
     -   Dev container definitions
     -   VS Code tasks, settings and recommended extensions
-    - An `.iqgeorc.jsonc` file, which contains project information for setting up development environments
--   Deployment configuration
-    -   The `.iqgeorc.jsonc` file includes deployment configuration settings 
+-   Deployment configuration 
     -   Container image definitions optimised for deployment
     -   Example docker-compose and instructions to build and run deployment docker containers
 
+The  `.iqgeorc.jsonc` file is used to configure both the development environment and the deployment setup.
 
 >**Note:** The root folder contains two readme files.
 >- The README.md file in the root folder is intended for the person creating a new project from the template. It explains how to clone the repo and configure the project.
