@@ -49,8 +49,9 @@ If `.env` doesn't exist in the deployment folder, copy it from the example:
 cp deployment/.env.example deployment/.env
 ```
 
-Review the `.env` file to ensure the following build variables are set:
-- `PROJ_PREFIX`—Your project prefix (defaults to value from `.iqgeorc.jsonc` if not set in `.env`)
+Review the `deployment/.env` file to ensure the following build variables are set to the correct values:
+- `PROJ_PREFIX`—Your project prefix (should be the same in `.iqgeorc.jsonc` and `.env`)
+
 - `PROJECT_REGISTRY`—Registry for pushing built images. The value must be set in `.env` if using a registry—not required for Minikube or Docker Compose.
 
 Additional variables (for Docker Compose):
@@ -67,10 +68,10 @@ From your project root directory, run:
 ./deployment/build_images.sh
 ```
 
-This uses your project prefix (from `.env`) to build three images:
-- `iqgeo-{prefix}-build` - Intermediate build image
-- `iqgeo-{prefix}-appserver` - Web server
-- `iqgeo-{prefix}-tools` - Workers and cron jobs
+This uses your project prefix (from `deployment/.env`) to build three images:
+- `iqgeo-{prefix}-build`—Intermediate build image
+- `iqgeo-{prefix}-appserver`—Web server
+- `iqgeo-{prefix}-tools`—Workers and cron jobs
 
 **Example**: If your prefix is `myproj`, images will be tagged as `iqgeo-myproj-appserver`.
 
@@ -83,7 +84,7 @@ After building the images, choose the deployment method that best fits your envi
 | Method | Use case | Notes |
 |--------|----------|-------|
 | **[Kubernetes/Helm deployments](#kuberneteshelm-deployments)** | Production and test environments | Full production-ready orchestration. Supports multiple nodes and advanced features. Includes [Rancher UI option](#web-based-deployment-with-rancher) for web-based management. |
-| **[Minikube](#local-testing-with-minikube)** | Local Kubernetes testing | Full Kubernetes environment on a single machine. Good for testing Kubernetes configurations locally. See [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments). |
+| **[Minikube](#local-testing-with-minikube)** | Local Kubernetes testing | A lightweight local Kubernetes environment on a single machine. Good for testing Kubernetes configurations locally. See [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments). |
 | **[Docker Compose](#running-locally-with-docker-compose)** | Local development and testing | Simple orchestration for a single machine. No Kubernetes required. Quick to set up. |
 
 ---
@@ -130,7 +131,7 @@ The database will be built automatically on first start (takes a few minutes). O
 ```shell
 127.0.0.1    keycloak.local
 ```
- (see `.devcontainer/README.md` for more details).
+See `.devcontainer/README.md` for more details.
 
 ### Manage the containers
 
@@ -159,7 +160,7 @@ docker compose -f deployment/docker-compose.yml up -d
 
 ### Troubleshooting
 
-**Comms module build failure**—On rare occasions, the Comms database may fail to build on first start. If this occurs, use `myw_db` commands to manually create and install the comms module.
+**Comms module build failure**—If the Comms database fails to build on first start, use `myw_db` commands to manually create and install the comms module. See the [IQGeo Product Documentation](https://docs.iqgeo.com/Applications/comms/3.5/en/Installation/Comms/Installing.htm) for more information.
 
 **Rebuilding individual images**—If you need to rebuild just one image:
 ```bash
