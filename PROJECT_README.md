@@ -1,3 +1,10 @@
+>**Note:** The PROJECT_README.md file is meant to replace the initial README after you customize your project. In the PROJECT_README.md file, describe your environment and customizations, and save it as README.md. Use the new README as an onboarding guide for other team members who join the project. It should include:
+> - Project-specific details (such as included modules and environment settings).
+> - Links to deployment instructions and customization information.
+> - Context for ongoing development.
+
+The following content serves as a template for your own project information.
+
 
 
 # Project Name

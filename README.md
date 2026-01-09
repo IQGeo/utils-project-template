@@ -6,8 +6,9 @@ It includes the following:
 -   Development environment
     -   Dev container definitions
     -   VS Code tasks, settings and recommended extensions
+    - An `.iqgeorc.jsonc` file, which contains project information for setting up development environments
 -   Deployment configuration
-    -   An `.iqgeorc.jsonc` file, which contains project information and other deployment settings 
+    -   The `.iqgeorc.jsonc` file includes deployment configuration settings 
     -   Container image definitions optimised for deployment
     -   Example docker-compose and instructions to build and run deployment docker containers
 
