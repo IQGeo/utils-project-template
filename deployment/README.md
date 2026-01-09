@@ -26,7 +26,22 @@ Then, run:
 docker login harbor.delivery.iqgeo.cloud
 ```
 
-### Step 2: Configure environment
+### Step 2: Run the `.iqgeorc.jsonc` update command
+
+After you customize the `.iqgeorc.jsonc` file (such as changing the project prefix), run the IQGeo Utils command to update project files. This automatically updates related files throughout the project to maintain consistency.
+
+**Files automatically updated:**
+- `.devcontainer/.env.example`—Development environment configuration
+- `.devcontainer/devcontainer.json`—Dev container display name
+- `.devcontainer/docker-compose.yml`—Container names and volume references
+- `.devcontainer/remote_host/docker-compose-shared.yml`—Remote host configuration
+- `.devcontainer/remote_host/docker-compose.yml`—Remote host deployment setup
+- `deployment/.env.example`—Deployment environment configuration
+- `deployment/docker-compose.yml`—Deployment container names and volumes
+
+This automatic synchronization ensures that your configuration changes are consistently applied across all deployment and development environments.
+
+### Step 3: Configure environment
 
 If `.env` doesn't exist in the deployment folder, copy it from the example:
 
@@ -42,7 +57,7 @@ Additional variables (for Docker Compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
-### Step 3: Build the images
+### Step 4: Build the images
 
 > **Note**: This section describes how to manually build images for local testing. Your project may have CI/CD pipelines set up to build and publish images automatically.
 
