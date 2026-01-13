@@ -56,7 +56,7 @@ appservers:
 workers:
   - name: default-worker
 
-  # Second worker - processes Commsof integration tasks
+  # Second worker - processes Extract creation tasks
   - name: replication-worker
     taskQueues: ['platform_extracts']
     replicaCount: 1
