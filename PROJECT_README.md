@@ -40,16 +40,7 @@ This is the most efficient way to work in a Windows environment without the need
 
 ## Deployment
 
-### Kubernetes/Helm deployment
-
-For deploying the IQGeo Platform on Kubernetes:
-
-- [Kubernetes Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Kubernetes-Deployment-Guide)—Main deployment guide with configuration and CLI deployment
-- [Minikube Setup for Testing](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments)—Local testing and development setup
-- [Rancher UI Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Rancher-UI-Deployment-Guide)—Web-based deployment using Rancher interface
-
-### Docker Compose deployment
-For building deployment container images and running locally with Docker Compose, see the [deployment README](deployment/README.md).
+For comprehensive deployment instructions, including Kubernetes/Helm and Docker Compose deployment options, see the [deployment README](deployment/README.md).
 
 ## Container images hierarchy
 
