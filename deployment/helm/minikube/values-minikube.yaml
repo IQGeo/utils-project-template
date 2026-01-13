@@ -43,10 +43,3 @@ workers:
       enabled: false
     livenessProbe:
       terminationGracePeriodSeconds: 600
-
-# Test-only, Non-production sub charts
-postgis:
-  enabled: false
-
-keycloak:
-  enabled: false
