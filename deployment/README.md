@@ -1,30 +1,47 @@
-# Deployment Guide
+# Deployment guide
 
-This guide covers building Docker images for the IQGeo Platform and deploying them using either Docker Compose (for local testing) or Kubernetes/Helm (for production and test environments).
+This guide describes how to build Docker images and choose your deployment method: Kubernetes/Helm (with Rancher UI option) for production and test environments, Minikube for local Kubernetes testing, and Docker Compose for local development and testing.
 
-**What's in this folder:**
-- Docker image definitions for production deployments (dockerfiles for appserver and tools images)
-- Example docker-compose.yml for local testing of the deployment images
-- Helm chart deployment configurations (in `helm/` subdirectory)
+## What's in the depoloyment folder ##
+- Docker image definitions for production deployments (Dockerfiles for appserver and tools images)
+- Example `docker-compose.yml` for local testing of the deployment images
+- Helm chart deployment configurations (in `helm/` and `helm\minikube` subdirectories)
 - Build and deployment scripts
 
-## Building Images Locally
+---
 
-> **Note**: This section covers manual image building for local testing. Your project may have CI/CD pipelines set up to build and publish images automatically.
+## Common steps for all deployments
 
-Required for both Docker Compose and Minikube deployments when testing local code changes.
+These steps are required regardless of your deployment method (Kubernetes, Minikube, or Docker Compose).
 
-### Harbor Authentication
+### Step 1: Authenticate with Harbor
 
-Required to download base images used in the build process:
+Required to download base images used in the build process.
+
+First, get your CLI secret by visiting your Harbor user profile: https://harbor.delivery.iqgeo.cloud
+
+Then, run:
 
 ```shell
 docker login harbor.delivery.iqgeo.cloud
 ```
 
-To get your CLI credentials, visit your Harbor user profile: https://harbor.delivery.iqgeo.cloud
+### Step 2: Run the `.iqgeorc.jsonc` update command
 
-### Configure Environment
+After you customize the `.iqgeorc.jsonc` file (such as changing the project prefix), run the IQGeo Utils command to update project files. This automatically updates related files throughout the project to maintain consistency.
+
+**Files automatically updated:**
+- `.devcontainer/.env.example`—Development environment configuration
+- `.devcontainer/devcontainer.json`—Dev container display name
+- `.devcontainer/docker-compose.yml`—Container names and volume references
+- `.devcontainer/remote_host/docker-compose-shared.yml`—Remote host configuration
+- `.devcontainer/remote_host/docker-compose.yml`—Remote host deployment setup
+- `deployment/.env.example`—Deployment environment configuration
+- `deployment/docker-compose.yml`—Deployment container names and volumes
+
+This automatic synchronization ensures that your configuration changes are consistently applied across all deployment and development environments.
+
+### Step 3: Configure environment
 
 If `.env` doesn't exist in the deployment folder, copy it from the example:
 
@@ -32,15 +49,18 @@ If `.env` doesn't exist in the deployment folder, copy it from the example:
 cp deployment/.env.example deployment/.env
 ```
 
-Review the `.env` file to ensure these build variables are set:
-- `PROJ_PREFIX` - Your project prefix (defaults to value set in the script if not set)
-- `PROJECT_REGISTRY` - Registry for pushing built images (not required if using docker-compose or Minikube)
+Review the `deployment/.env` file to ensure the following build variables are set to the correct values:
+- `PROJ_PREFIX`—Your project prefix (should be the same in `.iqgeorc.jsonc` and `.env`)
 
-Additional variables (for docker-compose):
+- `PROJECT_REGISTRY`—Registry for pushing built images. The value must be set in `.env` if using a registry—not required for Minikube or Docker Compose.
+
+Additional variables (for Docker Compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
-### Build the Images
+### Step 4: Build the images
+
+> **Note**: This section describes how to manually build images for local testing. Your project may have CI/CD pipelines set up to build and publish images automatically.
 
 From your project root directory, run:
 
@@ -48,27 +68,57 @@ From your project root directory, run:
 ./deployment/build_images.sh
 ```
 
-This uses your project prefix (from `.iqgeorc.jsonc` and `.env`) to build three images:
-- `iqgeo-{prefix}-build` - Intermediate build image
-- `iqgeo-{prefix}-appserver` - Web server
-- `iqgeo-{prefix}-tools` - Workers and cron jobs
+This uses your project prefix (from `deployment/.env`) to build three images:
+- `iqgeo-{prefix}-build`—Intermediate build image
+- `iqgeo-{prefix}-appserver`—Web server
+- `iqgeo-{prefix}-tools`—Workers and cron jobs
 
-**Example**: If your prefix is `myproj`, images will be tagged as `iqgeo-myproj-appserver`, etc.
+**Example**: If your prefix is `myproj`, images will be tagged as `iqgeo-myproj-appserver`.
 
 ---
 
-## Deployment Options
+## Choose a deployment method
 
-Once images are built, follow the steps for your deployment situation:
+After building the images, choose the deployment method that best fits your environment:
 
-- **[Kubernetes](https://github.com/IQGeo/utils-project-template/wiki/Kubernetes-Deployment-Guide)** - Production and test deployments to any Kubernetes cluster (EKS, GKE, AKS, Rancher, Minikube)
-- **[Docker Compose](#running-locally-with-docker-compose)** (below) - Simple local development/testing without Kubernetes
+| Method | Use case | Notes |
+|--------|----------|-------|
+| **[Kubernetes/Helm deployments](#kuberneteshelm-deployments)** | Production and test environments | Full production-ready orchestration. Supports multiple nodes and advanced features. Includes [Rancher UI option](#web-based-deployment-with-rancher) for web-based management. |
+| **[Minikube](#local-testing-with-minikube)** | Local Kubernetes testing | A lightweight local Kubernetes environment on a single machine. Good for testing Kubernetes configurations locally. See [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments). |
+| **[Docker Compose](#running-locally-with-docker-compose)** | Local development and testing | Simple orchestration for a single machine. No Kubernetes required. Quick to set up. |
 
-## Running Locally with Docker Compose
+---
 
-This folder includes an example docker-compose configuration for running the platform locally.
+## Kubernetes/Helm deployments
 
-### Start the Containers
+For deploying to Kubernetes clusters (EKS, GKE, AKS, Rancher, or Minikube), follow the deployment guides below:
+
+### Main Kubernetes deployment
+
+[Kubernetes Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Kubernetes-Deployment-Guide)
+- Configuration and CLI deployment instructions
+- Advanced configuration options
+- Production environment setup
+
+### Local testing with Minikube
+
+[Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments)
+- Local development and testing setup
+- Quick start guide for Minikube
+
+### Web-based deployment with Rancher
+
+[Rancher UI Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Rancher-UI-Deployment-Guide)
+- Using the Rancher interface for deployment
+- Web-based configuration options
+
+---
+
+## Running locally with Docker Compose
+
+This folder includes an example Docker Compose configuration file (`docker-compose.yml`) for running the platform locally. This deployment method is suitable for development and testing without Kubernetes.
+
+### Start the containers
 
 ```bash
 docker compose -f deployment/docker-compose.yml up -d
@@ -76,9 +126,14 @@ docker compose -f deployment/docker-compose.yml up -d
 
 The database will be built automatically on first start (takes a few minutes). Once complete, the application will be accessible at http://localhost.
 
-**Authentication**: Uses Keycloak. Ensure you have the proper hosts entry configured (see `.devcontainer/README.md`).
+**Authentication**: Uses Keycloak by default. Ensure you have the proper hosts entry configured:
 
-### Managing the Containers
+```shell
+127.0.0.1    keycloak.local
+```
+See `.devcontainer/README.md` for more details.
+
+### Manage the containers
 
 **Access container shell:**
 ```bash
@@ -105,9 +160,9 @@ docker compose -f deployment/docker-compose.yml up -d
 
 ### Troubleshooting
 
-**Comms module build failure**: On rare occasions, the Comms database may fail to build on first start. If this occurs, use `myw_db` commands to manually create and install the comms module.
+**Comms module build failure**—If the Comms database fails to build on first start, use `myw_db` commands to manually create and install the comms module. See the [IQGeo Product Documentation](https://docs.iqgeo.com/Applications/comms/3.5/en/Installation/Comms/Installing.htm) for more information.
 
-**Rebuilding individual images**: If you need to rebuild just one image:
+**Rebuilding individual images**—If you need to rebuild just one image:
 ```bash
 docker build deployment -f deployment/dockerfile.appserver -t iqgeo-myproj-appserver
 docker build deployment -f deployment/dockerfile.tools -t iqgeo-myproj-tools
