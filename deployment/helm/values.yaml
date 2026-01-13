@@ -9,7 +9,7 @@ global:
     port: 5432
   # Redis client configuration
   redisClient:
-    # This needs to be set for versions of Platform before 7.4.9, but can be removed when using 7.4.9+
+    # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
     generateUrls: true
 
 image:
