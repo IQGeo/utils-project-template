@@ -13,7 +13,7 @@ It includes the following:
 The  `.iqgeorc.jsonc` file is used to configure both the development environment and the deployment setup.
 
 >**Note:** The root folder contains two readme files.
->- The README.md file in the root folder is intended for the person creating a new project from the template. It explains how to clone the repo and configure the project.
+>- The README.md file (this file) is intended for the person creating a new project from the template. It explains how to clone the repo and configure the project.
 >- The PROJECT_README.md file is meant to replace the initial README after you customize your project. In the PROJECT_README.md file, describe your environment and customizations, and save it as README.md. Use the new README as an onboarding guide for other team members who join the project. It should include:
 >    - Project-specific details (such as included modules and environment settings).
 >    - Links to deployment instructions and customization information.
