@@ -48,3 +48,12 @@ workers:
 persistence:
   # For Minikube/local testing, you need to use the standard storage class.
   storageClass: "standard"
+
+
+
+# Test-only, Non-production sub charts
+postgis:
+  enabled: true
+
+keycloak:
+  enabled: true
