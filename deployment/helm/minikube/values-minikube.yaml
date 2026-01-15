@@ -4,7 +4,7 @@ global:
   # Short project name. Used in image repository names (e.g., iqgeo-{prefix}-appserver). Set by project template tool.
   prefix: myproj 
   # Redis client configuration
-  redis:
+  redisClient:
     # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
     generateUrls: true
 
