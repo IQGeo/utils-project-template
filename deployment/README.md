@@ -184,7 +184,7 @@ docker compose -f deployment/docker-compose.yml up -d
 
 ### Troubleshooting
 
-**Comms module build failure**—If the Comms database fails to build on first start, use `myw_db` commands to manually create and install the comms module. See the [IQGeo Product Documentation](https://docs.iqgeo.com/Applications/comms/3.5/en/Installation/Comms/Installing.htm) for more information.
+**Comms module build failure**—If the Comms database fails to build on first start, use `myw_db` commands to manually create and install the Comms module. See the [IQGeo Product Documentation](https://docs.iqgeo.com/Applications/comms/3.5/en/Installation/Comms/Installing.htm) for more information.
 
 **Rebuilding individual images**—If you need to rebuild just one image:
 ```bash
