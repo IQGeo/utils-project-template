@@ -2,10 +2,30 @@
 
 This guide describes how to build Docker images and choose your deployment method: Kubernetes/Helm (with Rancher UI option) for production and test environments, Minikube for local Kubernetes testing, and Docker Compose for local development and testing.
 
-## What's in the depoloyment folder ##
+## Contents
+
+- [What's in the deployment folder](#whats-in-the-deployment-folder)
+- [Common steps for all deployments](#common-steps-for-all-deployments)
+  - [Step 1: Authenticate with Harbor](#step-1-authenticate-with-harbor)
+  - [Step 2: Run the `.iqgeorc.jsonc` update command](#step-2-run-the-iqgeorcjsonc-update-command)
+  - [Step 3: Configure environment](#step-3-configure-environment)
+  - [Step 4: Build the images manually](#step-4-build-the-images-manually)
+- [Choose a deployment method](#choose-a-deployment-method)
+- [Kubernetes/Helm deployments](#kuberneteshelm-deployments)
+  - [Main Kubernetes deployment](#main-kubernetes-deployment)
+  - [Local testing with Minikube](#local-testing-with-minikube)
+  - [Web-based deployment with Rancher](#web-based-deployment-with-rancher)
+- [Running locally with Docker Compose](#running-locally-with-docker-compose)
+  - [Start the containers](#start-the-containers)
+  - [Manage the containers](#manage-the-containers)
+  - [Troubleshooting](#troubleshooting)
+
+---
+
+## What's in the deployment folder ##
 - Docker image definitions for production deployments (Dockerfiles for appserver and tools images)
 - Example `docker-compose.yml` for local testing of the deployment images
-- Helm chart deployment configurations (in `helm/` and `helm\minikube` subdirectories)
+- Helm chart deployment configurations (in `helm/` and `helm/minikube` subdirectories)
 - Build and deployment scripts
 
 ---
@@ -38,6 +58,7 @@ After you customize the `.iqgeorc.jsonc` file (such as changing the project pref
 - `.devcontainer/remote_host/docker-compose.yml`—Remote host deployment setup
 - `deployment/.env.example`—Deployment environment configuration
 - `deployment/docker-compose.yml`—Deployment container names and volumes
+- `deployment/helm/values.yaml`—Helm chart values configuration
 
 This automatic synchronization ensures that your configuration changes are consistently applied across all deployment and development environments.
 
@@ -58,15 +79,18 @@ Additional variables (for Docker Compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
-### Step 4: Build the images
+### Step 4: Build the images manually
 
-> **Note**: This section describes how to manually build images for local testing. Your project may have CI/CD pipelines set up to build and publish images automatically.
+> **Note**: This section describes how to manually build images. Your project may have CI/CD pipelines set up to build and publish images automatically.
+
+For Minikube, skip this step. The topic [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments) describes how to build and test images locally. |
 
 From your project root directory, run:
 
-```bash
-./deployment/build_images.sh
-```
+   ```bash
+   PUSH=true ./deployment/build_images.sh
+   ```
+> **Note**: Omit `PUSH=true` if you don't want to push the images to the registry
 
 This uses your project prefix (from `deployment/.env`) to build three images:
 - `iqgeo-{prefix}-build`—Intermediate build image

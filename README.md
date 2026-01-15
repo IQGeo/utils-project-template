@@ -19,7 +19,7 @@ The  `.iqgeorc.jsonc` file is used to configure both the development environment
 >    - Links to deployment instructions and customization information.
 >    - Context for ongoing development.
 
-## Table of Contents
+## Contents
 
 [Template repo for an IQGeo project/product/module](#template-repo-for-an-iqgeo-projectproductmodule)
   
