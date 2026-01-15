@@ -27,7 +27,7 @@ The  `.iqgeorc.jsonc` file is used to configure both the development environment
     - [Create a new repository from this template](#create-a-new-repository-from-this-template)
     - [Apply this template to an existing repository](#apply-this-template-to-an-existing-repository)
   - [Configure the project](#configure-the-project)
-    - [Notes on Product modules](#notes-on-product-modules)
+    - [Product module requirements](#product-module-requirements)
     - [Update the project files using the IQGeo Utils VS Code extension](#update-the-project-files-using-the-iqgeo-utils-vs-code-extension)
     - [Test the configuration](#test-the-configuration)
       - [Keycloak configuration](#keycloak-configuration)
