@@ -1,16 +1,16 @@
 global:
   # domain where the IQGeo solution will be hosted
-  domain: example.iqgeo.cloud
-  # Short project name. Used in image repository names (e.g., iqgeo-{prefix}-appserver). Set by project template tool.
-  prefix: myproj 
+  dnsZone: example.iqgeo.cloud
+  # Short project name. Used in image repository names (e.g., iqgeo-{imagePrefix}-appserver). Set by project template tool.
+  imagePrefix: myproj 
   db:
     name: iqgeo-uat
     host: mydb.abcdefghijkl.us-west-2.rds.amazonaws.com
     port: 5432
-  # Redis client configuration
-  redisClient:
-    # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
-    generateUrls: true
+  # # Redis client configuration
+  # redisClient:
+  #   # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
+  #   handleOlderPlatformVersions: true
 
 image:
   # Container registry prefix to prepend to project's image repository names
@@ -26,7 +26,7 @@ appserver:
   oidc:
     enabled: true
     insecure: true
-    # # URLs are automatically generated based on global.domain and global.platform_host
+    # # URLs are automatically generated based on global.dnsZone and global.hostname
     # # Uncomment and set these values only if you need to override the defaults
     # issuer: ""
     # services: ["discovery","authorization","access_token","user_info","end_session","refresh_access_token"]
@@ -43,20 +43,10 @@ appserver:
     # # Scopes is the list of scopes that the OIDC provider will accept
     # scopes: ["openid", "profile", "email"]
 
-
-appservers:
-  - name: default-appserver
-    replicaCount: 1
-
-  - name: project-endpoints
-    path: /modules/custom
-
-
-
-workers:
+workerGroups:
   - name: default-worker
 
-  # Second worker - processes Extract creation tasks
+  # Second worker group - processes Extract creation tasks
   - name: replication-worker
     taskQueues: ['platform_extracts']
     replicaCount: 1

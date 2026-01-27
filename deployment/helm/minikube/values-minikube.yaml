@@ -1,12 +1,8 @@
 global:
   # domain where the IQGeo solution will be hosted
-  domain: iqgeo.localhost
-  # Short project name. Used in image repository names (e.g., iqgeo-{prefix}-appserver). Set by project template tool.
-  prefix: myproj 
-  # Redis client configuration
-  redisClient:
-    # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
-    generateUrls: true
+  dnsZone: iqgeo.localhost
+  # Short project name. Used in image repository names (e.g., iqgeo-{imagePrefix}-appserver). Set by project template tool.
+  imagePrefix: myproj 
 
 # image:
 #   # Container registry prefix to prepend to project's image repository names
@@ -23,7 +19,7 @@ appserver:
     enabled: true
     insecure: true
 
-workers:
+workerGroups:
   - name: default-worker
 
   # Second worker - processes extract creation tasks
