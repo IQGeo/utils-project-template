@@ -8,7 +8,7 @@ set -e  # Exit on error
 
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../../.env"
+source "$SCRIPT_DIR/../.env"
 
 
 # Set PROJ_PREFIX to default if not set
