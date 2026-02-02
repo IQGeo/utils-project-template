@@ -1,0 +1,6 @@
+namespace: iqgeo
+helm:
+  chart: oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform-dev
+  version: 3.0.2-beta5
+  valuesFiles:
+    - values.yaml
