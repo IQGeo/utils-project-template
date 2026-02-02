@@ -17,6 +17,7 @@ image:
   # Examples: "harbor.delivery.iqgeo.cloud/engineering", "myregistry.azurecr.io/myproject"
   # Leave empty to use unqualified image names (pulls from default registry)
   projectRegistry: "harbor.delivery.iqgeo.cloud/my_project"
+  tag: "latest"
 
 appserver:
   # Default configuration for all appservers - override common settings here
