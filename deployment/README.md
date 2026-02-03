@@ -58,6 +58,7 @@ After you customize the `.iqgeorc.jsonc` file (such as changing the project pref
 - `.devcontainer/docker-compose.yml`—Container names and volume references
 - `.devcontainer/remote_host/docker-compose-shared.yml`—Remote host configuration
 - `.devcontainer/remote_host/docker-compose.yml`—Remote host deployment setup
+- `.github/workflows/build-deployment-images.yml`—GitHub Actions workflow for building deployment images
 - `deployment/.env.example`—Deployment environment configuration
 - `deployment/docker-compose.yml`—Deployment container names and volumes
 - `deployment/values.yaml`—Helm chart values configuration
