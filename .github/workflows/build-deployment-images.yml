@@ -1,4 +1,4 @@
-name: Build Deployment Images
+name: Build Project Deployment Images
 
 on:
   # Manual trigger only
