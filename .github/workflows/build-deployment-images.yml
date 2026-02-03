@@ -25,7 +25,6 @@ permissions:
 env:
   PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.4' }}
   PRODUCT_REGISTRY: harbor.delivery.iqgeo.cloud/releases_
-  PROJECT_REGISTRY: harbor.delivery.iqgeo.cloud/customer_name/
   DOCKER_BUILD_SUMMARY: true
   DOCKER_BUILD_RECORD_UPLOAD: true
   BUILD_NUMBER: ${{ github.run_number }}
@@ -72,7 +71,7 @@ jobs:
     needs: extract-version
     runs-on: ubuntu-latest
     env:
-      image_name: ${{ env.PROJECT_REGISTRY }}iqgeo-myproj-build
+      image_name: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}/${{ vars.repository }}/iqgeo-myproj-build
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -136,7 +135,7 @@ jobs:
     needs: [extract-version, build-build-image]
     runs-on: ubuntu-latest
     env:
-      image_name: ${{ env.PROJECT_REGISTRY }}iqgeo-myproj-appserver
+      image_name: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}/${{ vars.repository }}/iqgeo-myproj-appserver
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -183,7 +182,7 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             PRODUCT_REGISTRY=${{ env.PRODUCT_REGISTRY }}
-            PROJECT_REGISTRY=${{ env.PROJECT_REGISTRY }}
+            PROJECT_REGISTRY=${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}/${{ vars.repository }}/
             BUILD_IMAGE=${{ needs.build-build-image.outputs.image_uri }}
           cache-from: |
             type=gha,scope=appserver-${{ github.ref_name }}
@@ -202,7 +201,7 @@ jobs:
     needs: [extract-version, build-build-image]
     runs-on: ubuntu-latest
     env:
-      image_name: ${{ env.PROJECT_REGISTRY }}iqgeo-myproj-tools
+      image_name: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}/${{ vars.repository }}/iqgeo-myproj-tools
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -251,7 +250,7 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             PRODUCT_REGISTRY=${{ env.PRODUCT_REGISTRY }}
-            PROJECT_REGISTRY=${{ env.PROJECT_REGISTRY }}
+            PROJECT_REGISTRY=${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}/${{ vars.repository }}/
             BUILD_IMAGE=${{ needs.build-build-image.outputs.image_uri }}
           cache-from: |
             type=gha,scope=tools-${{ github.ref_name }}
