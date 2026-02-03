@@ -27,7 +27,7 @@ This guide describes how to build Docker images and choose your deployment metho
 ## What's in the deployment folder ##
 - Docker image definitions for production deployments (Dockerfiles for appserver and tools images)
 - Example `docker-compose.yml` for local testing of the deployment images
-- Helm chart deployment configurations (in `helm/` and `helm/minikube` subdirectories)
+- Helm chart deployment configurations (in `deployment` and `minikube` subdirectories)
 - Build and deployment scripts
 
 ---
