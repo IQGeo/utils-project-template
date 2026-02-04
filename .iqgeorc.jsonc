@@ -48,9 +48,13 @@
 
     // section for deployment specific settings - affects files in the deployment/ directory
     "deployment": {
-        // The IQGeo project registry to use. Leave empty to use unqualified image names (pulls from default registry)
-        //Examples: "harbor.delivery.iqgeo.cloud/engineering", "myregistry.azurecr.io/myproject"
-        "project_registry": ""
+        // Container registry host and optional namespace (no trailing slash).
+        // Leave empty to use unqualified image names.
+        // Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
+        "project_registry": "",
+        // Repository/namespace within the registry where project images are published.
+        // Example: "myproject" -> harbor.delivery.iqgeo.cloud/myproject/iqgeo-<prefix>-appserver
+        "project_repository": ""
     },
 
     "version": "0.8.2"

@@ -2,13 +2,22 @@ global:
   # domain where the IQGeo solution will be hosted
   dnsZone: iqgeo.localhost
   # Short project name. Used in image repository names (e.g., iqgeo-{imagePrefix}-appserver). Set by project template tool.
-  imagePrefix: myproj 
+  imagePrefix: myproj
+
+  db:
+    name: myproj
 
 # image:
-#   # Container registry prefix to prepend to project's image repository names
-#   # Examples: "harbor.delivery.iqgeo.cloud/engineering", "myregistry.azurecr.io/myproject"
+#   # Container registry host
+#   # Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
 #   # Leave empty to use unqualified image names (pulls from default registry)
-#   projectRegistry: "harbor.delivery.iqgeo.cloud/my_project"
+#   projectRegistry: 
+  
+#   # Repository path within the registry
+#   # Examples: "engineering", "myproject", "production/iqgeo"
+#   # Combined with projectRegistry to form the full image path prefix
+#   # Leave empty if projectRegistry already includes the full path
+#   projectRepository: 
 
 appserver:
   # Default configuration for all appservers - override common settings here

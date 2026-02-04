@@ -1,6 +1,8 @@
-ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud
+ARG PRODUCT_REPOSITORY_PREFIX=releases_
 ARG PROJECT_REGISTRY=
-ARG BUILD_IMAGE=${PROJECT_REGISTRY}iqgeo-myproj-build
+ARG PROJECT_REPOSITORY=
+ARG BUILD_IMAGE=${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/iqgeo-myproj-build
 
 FROM ${BUILD_IMAGE} AS iqgeo_builder
 
@@ -16,7 +18,7 @@ RUN rm -rf ${MODULES}/*/node_modules \
     && rm -rf ${MODULES}/*/native
 
 ############################################## project appserver image
-FROM ${PRODUCT_REGISTRY}platform/platform-appserver:7.4
+FROM ${PRODUCT_REGISTRY}/${PRODUCT_REPOSITORY_PREFIX}platform/platform-appserver:7.4
 
 USER root
 
