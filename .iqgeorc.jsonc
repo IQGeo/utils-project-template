@@ -51,10 +51,10 @@
         // Container registry host and optional namespace (no trailing slash).
         // Leave empty to use unqualified image names.
         // Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
-        "project_registry": "",
+        "project_registry": "harbor.delivery.iqgeo.cloud",
         // Repository/namespace within the registry where project images are published.
         // Example: "myproject" -> harbor.delivery.iqgeo.cloud/myproject/iqgeo-<prefix>-appserver
-        "project_repository": ""
+        "project_repository": "myproject"
     },
 
     "version": "0.8.2"

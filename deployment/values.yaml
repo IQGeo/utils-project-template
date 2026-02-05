@@ -16,12 +16,12 @@ image:
   # Container registry host
   # Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
   # Leave empty to use unqualified image names (pulls from default registry)
-  projectRegistry: 
+  projectRegistry: harbor.delivery.iqgeo.cloud
   # Repository path within the registry
   # Examples: "engineering", "myproject", "production/iqgeo"
   # Combined with projectRegistry to form the full image path prefix
   # Leave empty if projectRegistry already includes the full path
-  projectRepository: 
+  projectRepository: myproject
   
   tag: "latest"
 

@@ -25,14 +25,14 @@ fi
 
 
 if [ -z "$PROJECT_REGISTRY" ]; then
-    PROJECT_REGISTRY=""
+    PROJECT_REGISTRY="harbor.delivery.iqgeo.cloud"
     
     if [ -z "$PROJECT_REGISTRY" ]; then
         echo "PROJECT_REGISTRY not set (built images will not be pushed to registry)"
     fi
 fi
 if [ -z "$PROJECT_REPOSITORY" ]; then
-    PROJECT_REPOSITORY=""
+    PROJECT_REPOSITORY="myproject"
 fi
 
 # Build arguments
