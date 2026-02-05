@@ -1,0 +1,66 @@
+global:
+  # domain where the IQGeo solution will be hosted
+  dnsZone: example.iqgeo.cloud
+  # Short project name. Used in image repository names (e.g., iqgeo-{imagePrefix}-appserver). Set by project template tool.
+  imagePrefix: myproj 
+  db:
+    name: iqgeo-uat
+    host: mydb.abcdefghijkl.us-west-2.rds.amazonaws.com
+    port: 5432
+  # # Redis client configuration
+  # redisClient:
+  #   # This needs to be set for versions of Platform before 7.4.10, but can be removed when using 7.4.10+
+  #   handleOlderPlatformVersions: true
+
+image:
+  # Container registry prefix to prepend to project's image repository names
+  # Examples: "harbor.delivery.iqgeo.cloud/engineering", "myregistry.azurecr.io/myproject"
+  # Leave empty to use unqualified image names (pulls from default registry)
+  projectRegistry: "harbor.delivery.iqgeo.cloud/my_project"
+  tag: "latest"
+
+appserver:
+  # Default configuration for all appservers - override common settings here
+  autoscaling:
+    enabled: false
+  replicaCount: 1
+  oidc:
+    enabled: true
+    insecure: true
+    # # URLs are automatically generated based on global.dnsZone and global.hostname
+    # # Uncomment and set these values only if you need to override the defaults
+    # issuer: ""
+    # services: ["discovery","authorization","access_token","user_info","end_session","refresh_access_token"]
+    # # # Client ID is the client ID of the OIDC provider
+    # clientId: "iqgeo-oidc"
+    # # Client Secret is the client secret of the OIDC provider
+    # clientSecret:
+    #   # Secret name is the name of the secret that contains the client secret
+    #   secretName: "oidc-client-secret"
+    #   # Secret key is the key in the secret that contains the client secret
+    #   secretKey: "oidc-client-secret"
+    # # Response types is the list of response types that the OIDC provider will accept
+    # responseTypes: ["code"]
+    # # Scopes is the list of scopes that the OIDC provider will accept
+    # scopes: ["openid", "profile", "email"]
+
+workerGroups:
+  - name: default-worker
+
+  # Second worker group - processes Extract creation tasks
+  - name: replication-worker
+    taskQueues: ['platform_extracts']
+    replicaCount: 1
+    taskWorkers: 1
+    taskTimeout: 18000
+    resources:
+      limits:
+        cpu: 2
+        memory: 6Gi
+      requests:
+        cpu: 1
+        memory: 4Gi
+    autoscaling:
+      enabled: false
+    livenessProbe:
+      terminationGracePeriodSeconds: 600
