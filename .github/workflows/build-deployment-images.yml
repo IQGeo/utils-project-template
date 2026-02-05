@@ -90,7 +90,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}
+          registry: 
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -154,7 +154,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}
+          registry: 
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -222,7 +222,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.registry || 'harbor.delivery.iqgeo.cloud' }}
+          registry: 
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 
