@@ -11,7 +11,7 @@ This guide describes how to build Docker images and choose your deployment metho
     - [Step 1: Authenticate with Harbor](#step-1-authenticate-with-harbor)
     - [Step 2: Run the `.iqgeorc.jsonc` update command](#step-2-run-the-iqgeorcjsonc-update-command)
     - [Step 3: Configure environment](#step-3-configure-environment)
-    - [Step 4: Build the images manually](#step-4-build-the-images-manually)
+    - [Step 4: Build the images](#step-4-build-the-images)
   - [Choose a deployment method](#choose-a-deployment-method)
   - [Kubernetes/Helm deployments](#kuberneteshelm-deployments)
     - [Main Kubernetes deployment](#main-kubernetes-deployment)
@@ -58,6 +58,7 @@ After you customize the `.iqgeorc.jsonc` file (such as changing the project pref
 - `.devcontainer/docker-compose.yml`—Container names and volume references
 - `.devcontainer/remote_host/docker-compose-shared.yml`—Remote host configuration
 - `.devcontainer/remote_host/docker-compose.yml`—Remote host deployment setup
+- `.github/workflows/build-deployment-images.yml`—GitHub Actions workflow for building deployment images
 - `deployment/.env.example`—Deployment environment configuration
 - `deployment/docker-compose.yml`—Deployment container names and volumes
 - `deployment/values.yaml`—Helm chart values configuration
@@ -81,11 +82,17 @@ Additional variables (for Docker Compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
-### Step 4: Build the images manually
+### Step 4: Build the images
 
-> **Note**: This section describes how to manually build images. Your project may have CI/CD pipelines set up to build and publish images automatically.
+You can build images either locally using the provided build script or as part of an automated pipeline. 
 
-For Minikube, skip this step. The topic [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments) describes how to build and test images locally. |
+**Option A: Using GitHub Actions (Recommended)**
+
+The project includes a GitHub Actions workflow for automated image building. See the [GitHub Actions Image Build Guide](https://github.com/IQGeo/utils-project-template/wiki/GitHub-Actions-Image-Build-Guide) for setup and usage instructions.
+
+**Option B: Build manually**
+
+> **Note**: For Minikube, skip this step. The topic [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments) describes how to build and test images locally.
 
 From your project root directory, run:
 

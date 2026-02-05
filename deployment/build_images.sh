@@ -25,11 +25,14 @@ fi
 
 
 if [ -z "$PROJECT_REGISTRY" ]; then
-    PROJECT_REGISTRY=""
+    PROJECT_REGISTRY="harbor.delivery.iqgeo.cloud"
     
     if [ -z "$PROJECT_REGISTRY" ]; then
         echo "PROJECT_REGISTRY not set (built images will not be pushed to registry)"
     fi
+fi
+if [ -z "$PROJECT_REPOSITORY" ]; then
+    PROJECT_REPOSITORY="myproject"
 fi
 
 # Build arguments
@@ -38,9 +41,17 @@ if [ -n "$PRODUCT_REGISTRY" ]; then
     BUILD_ARGS="--build-arg PRODUCT_REGISTRY=$PRODUCT_REGISTRY"
     echo "Using PRODUCT_REGISTRY: $PRODUCT_REGISTRY"
 fi
+if [ -n "$PRODUCT_REPOSITORY_PREFIX" ]; then
+    BUILD_ARGS="--build-arg PRODUCT_REPOSITORY_PREFIX=$PRODUCT_REPOSITORY_PREFIX"
+    echo "Using PRODUCT_REPOSITORY_PREFIX: $PRODUCT_REPOSITORY_PREFIX"
+fi
 if [ -n "$PROJECT_REGISTRY" ]; then
     BUILD_ARGS="$BUILD_ARGS --build-arg PROJECT_REGISTRY=$PROJECT_REGISTRY"
     echo "Using PROJECT_REGISTRY: $PROJECT_REGISTRY"
+fi
+if [ -n "$PROJECT_REPOSITORY" ]; then
+    BUILD_ARGS="$BUILD_ARGS --build-arg PROJECT_REPOSITORY=$PROJECT_REPOSITORY"
+    echo "Using PROJECT_REPOSITORY: $PROJECT_REPOSITORY"
 fi
 
 # Function to build an image
@@ -52,7 +63,7 @@ build_image() {
     
     # Determine the full image name (with registry if set)
     if [ -n "$PROJECT_REGISTRY" ]; then
-        local full_image_name="${PROJECT_REGISTRY}${image_name}"
+        local full_image_name="${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/${image_name}"
     else
         local full_image_name="$image_name"
     fi
@@ -78,9 +89,9 @@ docker images | grep "iqgeo-${PROJ_PREFIX}-"
 # Push final images if PROJECT_REGISTRY is set and PUSH=true
 if [ -n "$PROJECT_REGISTRY" ] && [ "$PUSH" = "true" ]; then
     echo ""
-    echo "Pushing images to: ${PROJECT_REGISTRY}"
-    docker push "${PROJECT_REGISTRY}iqgeo-${PROJ_PREFIX}-appserver"
-    docker push "${PROJECT_REGISTRY}iqgeo-${PROJ_PREFIX}-tools"
+    echo "Pushing images to: ${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}"
+    docker push "${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/iqgeo-${PROJ_PREFIX}-appserver"
+    docker push "${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/iqgeo-${PROJ_PREFIX}-tools"
     echo "✓ Images pushed successfully!"
 elif [ -n "$PROJECT_REGISTRY" ]; then
     echo ""

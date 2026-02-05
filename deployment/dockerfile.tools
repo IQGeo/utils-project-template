@@ -1,13 +1,15 @@
-ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
-ARG PROJECT_REGISTRY=
-
-FROM ${PROJECT_REGISTRY}iqgeo-myproj-build AS iqgeo_builder
+ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud
+ARG PRODUCT_REPOSITORY_PREFIX=releases_
+ARG PROJECT_REGISTRY=harbor.delivery.iqgeo.cloud
+ARG PROJECT_REPOSITORY=myproject
+ARG BUILD_IMAGE=${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/iqgeo-myproj-build
+FROM ${BUILD_IMAGE} AS iqgeo_builder
 
 # START SECTION optional dependencies (build) - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 
 # END SECTION
 
-FROM ${PRODUCT_REGISTRY}platform/platform-tools:7.4 AS tools_intermediate
+FROM ${PRODUCT_REGISTRY}/${PRODUCT_REPOSITORY_PREFIX}platform/platform-tools:7.4 AS tools_intermediate
 
 USER root
 
