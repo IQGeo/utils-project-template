@@ -17,6 +17,7 @@ This guide describes how to build Docker images and choose your deployment metho
     - [Main Kubernetes deployment](#main-kubernetes-deployment)
     - [Local testing with Minikube](#local-testing-with-minikube)
     - [Web-based deployment with Rancher](#web-based-deployment-with-rancher)
+    - [GitOps deployment with Rancher Fleet](#gitops-deployment-with-rancher-fleet)
   - [Running locally with Docker Compose](#running-locally-with-docker-compose)
     - [Start the containers](#start-the-containers)
     - [Manage the containers](#manage-the-containers)
@@ -116,7 +117,7 @@ After building the images, choose the deployment method that best fits your envi
 
 | Method | Use case | Notes |
 |--------|----------|-------|
-| **[Kubernetes/Helm deployments](#kuberneteshelm-deployments)** | Production and test environments | Full production-ready orchestration. Supports multiple nodes and advanced features. Includes [Rancher UI option](#web-based-deployment-with-rancher) for web-based management. |
+| **[Kubernetes/Helm deployments](#kuberneteshelm-deployments)** | Production and test environments | Full production-ready orchestration. Supports multiple nodes and advanced features. Includes [Rancher UI option](#web-based-deployment-with-rancher) and [Rancher Fleet option](#gitops-deployment-with-rancher-fleet). |
 | **[Minikube](#local-testing-with-minikube)** | Local Kubernetes testing | A lightweight local Kubernetes environment on a single machine. Good for testing Kubernetes configurations locally. See [Minikube Setup for Testing Deployments](https://github.com/IQGeo/utils-project-template/wiki/Minikube-Setup-for-Testing-Deployments). |
 | **[Docker Compose](#running-locally-with-docker-compose)** | Local development and testing | Simple orchestration for a single machine. No Kubernetes required. Quick to set up. |
 
@@ -144,6 +145,12 @@ For deploying to Kubernetes clusters (EKS, GKE, AKS, Rancher, or Minikube), foll
 [Rancher UI Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Rancher-UI-Deployment-Guide)
 - Using the Rancher interface for deployment
 - Web-based configuration options
+
+### GitOps deployment with Rancher Fleet
+
+[Rancher Fleet Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Rancher-Fleet-Deployment-Guide)
+- GitOps/infrastructure-as-code continuous delivery using Rancher Fleet
+- Deploy from Git with environment-specific values
 
 ---
 
