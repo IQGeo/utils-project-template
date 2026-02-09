@@ -7,17 +7,18 @@ global:
   db:
     name: myproj
 
-# image:
-#   # Container registry host
-#   # Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
-#   # Leave empty to use unqualified image names (pulls from default registry)
-#   projectRegistry: harbor.delivery.iqgeo.cloud
+image:
+  # Container registry host
+  # Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
+  # Leave empty to use unqualified image names (pulls from default registry)
+  projectRegistry: harbor.delivery.iqgeo.cloud
+  # Repository path within the registry
+  # Examples: "engineering", "myproject", "production/iqgeo"
+  # Combined with projectRegistry to form the full image path prefix
+  # Leave empty if projectRegistry already includes the full path
+  projectRepository: myproject
   
-#   # Repository path within the registry
-#   # Examples: "engineering", "myproject", "production/iqgeo"
-#   # Combined with projectRegistry to form the full image path prefix
-#   # Leave empty if projectRegistry already includes the full path
-#   projectRepository: myproject
+  tag: "latest"
 
 appserver:
   # Default configuration for all appservers - override common settings here
