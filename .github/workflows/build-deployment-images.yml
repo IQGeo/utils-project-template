@@ -17,6 +17,10 @@ on:
         description: 'Push images to registry'
         type: boolean
         default: true
+      include_arm64:
+        description: 'Include arm64 builds'
+        type: boolean
+        default: false
 
 permissions:
   id-token: write
@@ -111,7 +115,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           context: .
           file: ./deployment/dockerfile.build
           pull: true
@@ -175,7 +179,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           context: ./deployment
           file: ./deployment/dockerfile.appserver
           pull: true
@@ -245,7 +249,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           context: .
           file: ./deployment/dockerfile.tools
           pull: true
