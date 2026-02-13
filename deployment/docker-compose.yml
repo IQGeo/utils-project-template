@@ -11,7 +11,7 @@ services:
             - pgdata-example:/opt/iqgeo/data/pgdata
 
     iqgeo-worker:
-        image: iqgeo-${PROJ_PREFIX:-myproj}-tools:latest
+        image: ${PROJECT_REGISTRY:-harbor.delivery.iqgeo.cloud}/${PROJECT_REPOSITORY:-myproject}/iqgeo-${PROJ_PREFIX:-myproj}-tools:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_worker
         restart: always
         depends_on:
@@ -36,7 +36,7 @@ services:
             # END CUSTOM SECTION
 
     iqgeo:
-        image: iqgeo-${PROJ_PREFIX:-myproj}-appserver:latest
+        image: ${PROJECT_REGISTRY:-harbor.delivery.iqgeo.cloud}/${PROJECT_REPOSITORY:-myproject}/iqgeo-${PROJ_PREFIX:-myproj}-appserver:latest
         container_name: iqgeo_${PROJ_PREFIX:-myproj}_appserver
         restart: always
         depends_on:
