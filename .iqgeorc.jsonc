@@ -38,7 +38,7 @@
         },
         {
             "name": "comms",
-            "version": "3.3"
+            "version": "3.5"
         }
     ],
 
@@ -46,5 +46,16 @@
     // e.g. [".devcontainer/remote_host"]
     "exclude_file_paths": [],
 
-    "version": "0.8.2"
+    // section for deployment specific settings - affects files in the deployment/ directory
+    "deployment": {
+        // Container registry host and optional namespace (no trailing slash).
+        // Leave empty to use unqualified image names.
+        // Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
+        "project_registry": "harbor.delivery.iqgeo.cloud",
+        // Repository/namespace within the registry where project images are published.
+        // Example: "myproject" -> harbor.delivery.iqgeo.cloud/myproject/iqgeo-<prefix>-appserver
+        "project_repository": "myproject"
+    },
+
+    "version": "1.0.0"
 }

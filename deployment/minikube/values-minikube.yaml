@@ -1,0 +1,65 @@
+global:
+  # domain where the IQGeo solution will be hosted
+  dnsZone: iqgeo.localhost
+  # Short project name. Used in image repository names (e.g., iqgeo-{imagePrefix}-appserver). Set by project template tool.
+  imagePrefix: myproj
+
+  db:
+    name: myproj
+
+image:
+  # Container registry host
+  # Examples: "harbor.delivery.iqgeo.cloud", "myregistry.azurecr.io"
+  # Leave empty to use unqualified image names (pulls from default registry)
+  projectRegistry: harbor.delivery.iqgeo.cloud
+  # Repository path within the registry
+  # Examples: "engineering", "myproject", "production/iqgeo"
+  # Combined with projectRegistry to form the full image path prefix
+  # Leave empty if projectRegistry already includes the full path
+  projectRepository: myproject
+  
+  tag: "latest"
+
+appserver:
+  # Default configuration for all appservers - override common settings here
+  autoscaling:
+    enabled: false
+  replicaCount: 2
+  oidc:
+    enabled: true
+    insecure: true
+
+workerGroups:
+  - name: default-worker
+
+  # Second worker - processes extract creation tasks
+  - name: replication-worker
+    taskQueues: ['platform_extracts']
+    replicaCount: 1
+    taskWorkers: 1
+    taskTimeout: 18000
+    resources:
+      limits:
+        cpu: 2
+        memory: 6Gi
+      requests:
+        cpu: 1
+        memory: 4Gi
+    autoscaling:
+      enabled: false
+    livenessProbe:
+      terminationGracePeriodSeconds: 600
+
+
+persistence:
+  # For Minikube/local testing, you need to use the standard storage class.
+  storageClass: "standard"
+
+
+
+# Test-only, Non-production sub charts
+postgis:
+  enabled: true
+
+keycloak:
+  enabled: true

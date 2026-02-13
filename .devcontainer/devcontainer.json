@@ -2,7 +2,7 @@
     "name": "IQGeo Project Template",
     "dockerComposeFile": "docker-compose.yml",
     "service": "iqgeo",
-    "runServices": ["iqgeo", "rq-dashboard"],
+    "runServices": ["iqgeo", "rq-dashboard", "pgadmin"],
     "workspaceFolder": "/opt/iqgeo/platform/WebApps/myworldapp/modules",
     "shutdownAction": "stopCompose",
     "customizations": {
