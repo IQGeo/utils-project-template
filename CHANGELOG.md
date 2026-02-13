@@ -1,6 +1,6 @@
 # Changelog
 
-#### v1.0.0 (02/12/2025)
+#### v1.0.0 (02/13/2026)
 
 - PLAT-11613: deployment: add Kubernetes related files and instructions
 - deployment: added github action to automate image building
