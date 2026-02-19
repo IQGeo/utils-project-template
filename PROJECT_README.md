@@ -16,8 +16,6 @@ Project description
     - [Build and run a development environment](#build-and-run-a-development-environment)
     - [Running a dev environment on Windows](#running-a-dev-environment-on-windows)
   - [Deployment](#deployment)
-    - [Kubernetes/Helm deployment](#kuberneteshelm-deployment)
-    - [Docker Compose deployment](#docker-compose-deployment)
   - [Container images hierarchy](#container-images-hierarchy)
 
 ## Development
