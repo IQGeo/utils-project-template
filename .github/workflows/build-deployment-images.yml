@@ -127,8 +127,6 @@ jobs:
           context: .
           file: ./deployment/dockerfile.build
           pull: true
-          push: ${{ needs.extract-version.outputs.should_push == 'true' }}
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
@@ -140,7 +138,7 @@ jobs:
           cache-to: |
             type=gha,scope=build-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
 
       - name: Export digest
         if: needs.extract-version.outputs.should_push == 'true'
@@ -261,8 +259,6 @@ jobs:
           context: ./deployment
           file: ./deployment/dockerfile.appserver
           pull: true
-          push: ${{ needs.extract-version.outputs.should_push == 'true' }}
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
@@ -277,7 +273,7 @@ jobs:
           cache-to: |
             type=gha,scope=appserver-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
 
       - name: Export digest
         if: needs.extract-version.outputs.should_push == 'true'
@@ -394,8 +390,6 @@ jobs:
           context: .
           file: ./deployment/dockerfile.tools
           pull: true
-          push: ${{ needs.extract-version.outputs.should_push == 'true' }}
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
@@ -410,7 +404,7 @@ jobs:
           cache-to: |
             type=gha,scope=tools-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
 
       - name: Export digest
         if: needs.extract-version.outputs.should_push == 'true'
