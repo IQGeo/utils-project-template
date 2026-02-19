@@ -18,7 +18,7 @@ on:
         type: boolean
         default: true
       include_arm64:
-        description: 'Include arm64 builds'
+        description: 'Include arm64 builds (uses native ARM64 runners)'
         type: boolean
         default: false
 
@@ -44,6 +44,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       is_release: ${{ steps.version.outputs.is_release }}
       should_push: ${{ steps.version.outputs.should_push }}
+      platforms: ${{ steps.version.outputs.platforms }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,28 +66,120 @@ jobs:
           
           SHOULD_PUSH="${{ github.event.inputs.push_images }}"
           
+          # Determine platforms matrix based on include_arm64 input
+          if [[ "${{ github.event.inputs.include_arm64 }}" == "true" ]]; then
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}, {"platform": "linux/arm64", "runner": "ubuntu-24.04-arm", "suffix": "arm64"}]'
+          else
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}]'
+          fi
+          
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "is_release=false" >> $GITHUB_OUTPUT
           echo "should_push=${SHOULD_PUSH}" >> $GITHUB_OUTPUT
+          echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
           
           echo "Version: ${VERSION}"
           echo "Build Number: ${BUILD_NUM}"
           echo "Should Push: ${SHOULD_PUSH}"
+          echo "Platforms: ${PLATFORMS}"
 
-  # Build the base build image
+  # Build the base build image (per-platform)
   build-build-image:
     needs: extract-version
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+    runs-on: ${{ matrix.runner }}
     env:
       image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-build
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Harbor Registry
+        uses: docker/login-action@v3
+        with:
+          registry: harbor.delivery.iqgeo.cloud
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Extract metadata for build image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.image_name }}
+          tags: |
+            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+
+      - name: Build and push build image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ matrix.platform }}
+          context: .
+          file: ./deployment/dockerfile.build
+          pull: true
+          push: ${{ needs.extract-version.outputs.should_push == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          build-args: |
+            PRODUCT_REGISTRY=${{ env.PRODUCT_REGISTRY }}
+            PRODUCT_REPOSITORY_PREFIX=${{ env.PRODUCT_REPOSITORY_PREFIX }}
+          cache-from: |
+            type=gha,scope=build-${{ matrix.suffix }}-${{ github.ref_name }}
+            type=gha,scope=build-${{ matrix.suffix }}-main
+          cache-to: |
+            type=gha,scope=build-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
+          provenance: mode=max
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+
+      - name: Export digest
+        if: needs.extract-version.outputs.should_push == 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/digests/build
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/build/${digest#sha256:}"
+
+      - name: Upload digest
+        if: needs.extract-version.outputs.should_push == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-build-${{ matrix.suffix }}
+          path: ${{ runner.temp }}/digests/build/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Set output
+        id: output
+        run: |
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+
+  # Merge build image manifests
+  merge-build-image:
+    needs: [extract-version, build-build-image]
+    runs-on: ubuntu-latest
+    if: needs.extract-version.outputs.should_push == 'true'
+    env:
+      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-build
+    outputs:
+      digest: ${{ steps.merge.outputs.digest }}
+      image_uri: ${{ steps.output.outputs.image_uri }}
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests/build
+          pattern: digests-build-*
+          merge-multiple: true
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -111,13 +204,62 @@ jobs:
             type=ref,event=pr
             type=sha,prefix={{branch}}-
 
-      - name: Build and push build image
+      - name: Create manifest list and push
+        id: merge
+        working-directory: ${{ runner.temp }}/digests/build
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.image_name }}@sha256:%s ' *)
+          # Get the digest of the manifest list
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+
+      - name: Set output
+        id: output
+        run: |
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+
+  # Build the appserver image (per-platform)
+  build-appserver-image:
+    needs: [extract-version, merge-build-image]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+    runs-on: ${{ matrix.runner }}
+    env:
+      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-appserver
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Harbor Registry
+        uses: docker/login-action@v3
+        with:
+          registry: harbor.delivery.iqgeo.cloud
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Extract metadata for appserver image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.image_name }}
+          tags: |
+            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+
+      - name: Build and push appserver image
         id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
-          context: .
-          file: ./deployment/dockerfile.build
+          platforms: ${{ matrix.platform }}
+          context: ./deployment
+          file: ./deployment/dockerfile.appserver
           pull: true
           push: ${{ needs.extract-version.outputs.should_push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -126,32 +268,50 @@ jobs:
           build-args: |
             PRODUCT_REGISTRY=${{ env.PRODUCT_REGISTRY }}
             PRODUCT_REPOSITORY_PREFIX=${{ env.PRODUCT_REPOSITORY_PREFIX }}
+            PROJECT_REGISTRY=${{ env.PROJECT_REGISTRY }}
+            PROJECT_REPOSITORY=${{ env.PROJECT_REPOSITORY }}
+            BUILD_IMAGE=${{ needs.merge-build-image.outputs.image_uri }}
           cache-from: |
-            type=gha,scope=build-${{ github.ref_name }}
-            type=gha,scope=build-main
+            type=gha,scope=appserver-${{ matrix.suffix }}-${{ github.ref_name }}
+            type=gha,scope=appserver-${{ matrix.suffix }}-main
           cache-to: |
-            type=gha,scope=build-${{ github.ref_name }},mode=max
+            type=gha,scope=appserver-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
 
-      - name: Set output
-        id: output
+      - name: Export digest
+        if: needs.extract-version.outputs.should_push == 'true'
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          mkdir -p ${{ runner.temp }}/digests/appserver
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/appserver/${digest#sha256:}"
 
-  # Build the appserver image
-  build-appserver-image:
-    needs: [extract-version, build-build-image]
+      - name: Upload digest
+        if: needs.extract-version.outputs.should_push == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-appserver-${{ matrix.suffix }}
+          path: ${{ runner.temp }}/digests/appserver/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # Merge appserver image manifests
+  merge-appserver-image:
+    needs: [extract-version, build-appserver-image]
     runs-on: ubuntu-latest
+    if: needs.extract-version.outputs.should_push == 'true'
     env:
       image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-appserver
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
+      digest: ${{ steps.merge.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download digests
+        uses: actions/download-artifact@v4
         with:
-          lfs: true
+          path: ${{ runner.temp }}/digests/appserver
+          pattern: digests-appserver-*
+          merge-multiple: true
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -176,13 +336,63 @@ jobs:
             type=ref,event=pr
             type=sha,prefix={{branch}}-
 
-      - name: Build and push appserver image
+      - name: Create manifest list and push
+        id: merge
+        working-directory: ${{ runner.temp }}/digests/appserver
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.image_name }}@sha256:%s ' *)
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+
+      - name: Set output
+        id: output
+        run: |
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+
+  # Build the tools image (per-platform)
+  build-tools-image:
+    needs: [extract-version, merge-build-image]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+    runs-on: ${{ matrix.runner }}
+    env:
+      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-tools
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Harbor Registry
+        uses: docker/login-action@v3
+        with:
+          registry: harbor.delivery.iqgeo.cloud
+          username: ${{ vars.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Extract metadata for tools image
+        id: meta
+        uses: docker/metadata-action@v5
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: ${{ env.image_name }}
+          tags: |
+            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+
+      - name: Build and push tools image
         id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
-          context: ./deployment
-          file: ./deployment/dockerfile.appserver
+          platforms: ${{ matrix.platform }}
+          context: .
+          file: ./deployment/dockerfile.tools
           pull: true
           push: ${{ needs.extract-version.outputs.should_push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -193,33 +403,48 @@ jobs:
             PRODUCT_REPOSITORY_PREFIX=${{ env.PRODUCT_REPOSITORY_PREFIX }}
             PROJECT_REGISTRY=${{ env.PROJECT_REGISTRY }}
             PROJECT_REPOSITORY=${{ env.PROJECT_REPOSITORY }}
-            BUILD_IMAGE=${{ needs.build-build-image.outputs.image_uri }}
+            BUILD_IMAGE=${{ needs.merge-build-image.outputs.image_uri }}
           cache-from: |
-            type=gha,scope=appserver-${{ github.ref_name }}
-            type=gha,scope=appserver-main
+            type=gha,scope=tools-${{ matrix.suffix }}-${{ github.ref_name }}
+            type=gha,scope=tools-${{ matrix.suffix }}-main
           cache-to: |
-            type=gha,scope=appserver-${{ github.ref_name }},mode=max
+            type=gha,scope=tools-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
 
-      - name: Set output
-        id: output
+      - name: Export digest
+        if: needs.extract-version.outputs.should_push == 'true'
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          mkdir -p ${{ runner.temp }}/digests/tools
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/tools/${digest#sha256:}"
 
-  # Build the tools image
-  build-tools-image:
-    needs: [extract-version, build-build-image]
+      - name: Upload digest
+        if: needs.extract-version.outputs.should_push == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-tools-${{ matrix.suffix }}
+          path: ${{ runner.temp }}/digests/tools/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # Merge tools image manifests
+  merge-tools-image:
+    needs: [extract-version, build-tools-image]
     runs-on: ubuntu-latest
+    if: needs.extract-version.outputs.should_push == 'true'
     env:
       image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-tools
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
+      digest: ${{ steps.merge.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download digests
+        uses: actions/download-artifact@v4
         with:
-          lfs: true
+          path: ${{ runner.temp }}/digests/tools
+          pattern: digests-tools-*
+          merge-multiple: true
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -246,30 +471,14 @@ jobs:
             type=ref,event=pr
             type=sha,prefix={{branch}}-
 
-      - name: Build and push tools image
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          platforms: ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
-          context: .
-          file: ./deployment/dockerfile.tools
-          pull: true
-          push: ${{ needs.extract-version.outputs.should_push == 'true' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
-          build-args: |
-            PRODUCT_REGISTRY=${{ env.PRODUCT_REGISTRY }}
-            PRODUCT_REPOSITORY_PREFIX=${{ env.PRODUCT_REPOSITORY_PREFIX }}
-            PROJECT_REGISTRY=${{ env.PROJECT_REGISTRY }}
-            PROJECT_REPOSITORY=${{ env.PROJECT_REPOSITORY }}
-            BUILD_IMAGE=${{ needs.build-build-image.outputs.image_uri }}
-          cache-from: |
-            type=gha,scope=tools-${{ github.ref_name }}
-            type=gha,scope=tools-main
-          cache-to: |
-            type=gha,scope=tools-${{ github.ref_name }},mode=max
-          provenance: mode=max
+      - name: Create manifest list and push
+        id: merge
+        working-directory: ${{ runner.temp }}/digests/tools
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.image_name }}@sha256:%s ' *)
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Set output
         id: output
@@ -278,7 +487,7 @@ jobs:
 
   # Summary job
   build-summary:
-    needs: [extract-version, build-build-image, build-appserver-image, build-tools-image]
+    needs: [extract-version, merge-build-image, merge-appserver-image, merge-tools-image]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -289,12 +498,13 @@ jobs:
           echo "**Version:** ${{ needs.extract-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Is Release:** ${{ needs.extract-version.outputs.is_release }}" >> $GITHUB_STEP_SUMMARY
           echo "**Images Pushed:** ${{ needs.extract-version.outputs.should_push }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms:** ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64, linux/arm64 (native)' || 'linux/amd64' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Built Images" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build:** \`${{ needs.build-build-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "  - Digest: \`${{ needs.build-build-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Appserver:** \`${{ needs.build-appserver-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "  - Digest: \`${{ needs.build-appserver-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tools:** \`${{ needs.build-tools-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "  - Digest: \`${{ needs.build-tools-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build:** \`${{ needs.merge-build-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "  - Digest: \`${{ needs.merge-build-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Appserver:** \`${{ needs.merge-appserver-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "  - Digest: \`${{ needs.merge-appserver-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tools:** \`${{ needs.merge-tools-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "  - Digest: \`${{ needs.merge-tools-image.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
