@@ -69,10 +69,10 @@ build_image() {
     fi
     
     echo ""
-    echo "Building ${full_image_name} for linux/amd64..."
-    echo "  docker build --platform linux/amd64 \"$build_context\" -f \"$dockerfile\" -t \"$full_image_name\" $BUILD_ARGS"
+    echo "Building ${full_image_name}"
+    echo "  docker build \"$build_context\" -f \"$dockerfile\" -t \"$full_image_name\" $BUILD_ARGS"
     echo ""
-    docker build --platform linux/amd64 "$build_context" -f "$dockerfile" -t "$full_image_name" $BUILD_ARGS
+    docker build "$build_context" -f "$dockerfile" -t "$full_image_name" $BUILD_ARGS
 }
 
 # Build all images
