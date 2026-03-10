@@ -24,6 +24,14 @@ RUN chown -R www-data:www-data ${MODULES}
 RUN myw_product fetch pip_packages 
 
 # Fetch node_modules and build all
-RUN myw_product fetch node_modules
-RUN myw_product build all 
-
+RUN myw_product fetch node_modules \
+    && myw_product build all \
+    # Remove dev dependencies from npm files - not needed for production and entries in package-lock.json can cause false positives in security scans
+    # ignore if this fails since the parameter is not available in 
+    && if myw_product clear --help 2>/dev/null | grep -qE 'npm_manifests'; then \
+    myw_product clear npm_manifests; \
+    fi \
+    # Remove node_modules - save image size since these are not needed at runtime
+    && if myw_product clear --help 2>/dev/null | grep -qE 'node_modules'; then \
+    myw_product clear node_modules; \
+    fi
