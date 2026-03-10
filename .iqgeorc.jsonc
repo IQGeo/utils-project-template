@@ -37,8 +37,8 @@
             "name": "custom"
         },
         {
-            "name": "comms",
-            "version": "3.5"
+            "name": "workflow_manager",
+            "version": "4.2"
         }
     ],
 

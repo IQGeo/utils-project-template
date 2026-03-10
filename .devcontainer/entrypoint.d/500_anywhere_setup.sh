@@ -5,7 +5,7 @@ mkdir -p /opt/iqgeo/anywhere/locales
 mkdir -p /opt/iqgeo/anywhere/bundles
 # START SECTION - make directory for bundles
 mkdir -p /opt/iqgeo/anywhere/modules/custom
-mkdir -p /opt/iqgeo/anywhere/modules/comms
+mkdir -p /opt/iqgeo/anywhere/modules/workflow_manager
 # END SECTION
 
 # Copy files from different locations to /opt/iqgeo/anywhere
@@ -14,5 +14,5 @@ cp -r /opt/iqgeo/platform/WebApps/myworldapp/public/bundles/* /opt/iqgeo/anywher
 cp -r /opt/iqgeo/platform/WebApps/myworldapp/public/locales/* /opt/iqgeo/anywhere/locales/
 # START SECTION - copy bundles to docker volumes
 cp -r /opt/iqgeo/platform/WebApps/myworldapp/modules/custom/public/* /opt/iqgeo/anywhere/modules/custom/
-cp -r /opt/iqgeo/platform/WebApps/myworldapp/modules/comms/public/* /opt/iqgeo/anywhere/modules/comms/
+cp -r /opt/iqgeo/platform/WebApps/myworldapp/modules/workflow_manager/public/* /opt/iqgeo/anywhere/modules/workflow_manager/
 # END SECTION

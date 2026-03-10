@@ -12,7 +12,7 @@ node_modules
 /native/*
 
 # START SECTION Product modules
-/comms
+/workflow_manager
 /dev_tools
 # END SECTION
 
