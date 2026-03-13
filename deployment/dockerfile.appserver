@@ -27,7 +27,7 @@ USER root
 # END SECTION
 
 # Copy pip packages including modules' pip dependencies
-COPY --chown=www-data:www-data --from=iqgeo_builder ${MYW_PYTHON_SITE_DIRS}/site-packages ${MYW_PYTHON_SITE_DIRS}/site-packages
+COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python${PY_VERSION:-3.10}/site-packages /opt/iqgeo/platform/Externals/lib/python${PY_VERSION:-3.10}/site-packages
 
 # START SECTION Copy modules  - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES}/custom/
