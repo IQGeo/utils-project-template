@@ -30,7 +30,7 @@ env:
   PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.4' }}
   PRODUCT_REGISTRY: harbor.delivery.iqgeo.cloud
   PRODUCT_REPOSITORY_PREFIX: releases_
-  PROJECT_REGISTRY: harbor.delivery.iqgeo.cloud
+  PROJECT_REGISTRY: iqgeoproddev.azurecr.io
   PROJECT_REPOSITORY: myproject
   DOCKER_BUILD_SUMMARY: true
   DOCKER_BUILD_RECORD_UPLOAD: true
@@ -78,7 +78,7 @@ jobs:
     needs: extract-version
     runs-on: ubuntu-latest
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-build
+      image_name: iqgeoproddev.azurecr.io/myproject/iqgeo-myproj-build
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -94,7 +94,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
+          registry: iqgeoproddev.azurecr.io
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -142,7 +142,7 @@ jobs:
     needs: [extract-version, build-build-image]
     runs-on: ubuntu-latest
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-appserver
+      image_name: iqgeoproddev.azurecr.io/myproject/iqgeo-myproj-appserver
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -158,7 +158,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
+          registry: iqgeoproddev.azurecr.io
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -210,7 +210,7 @@ jobs:
     needs: [extract-version, build-build-image]
     runs-on: ubuntu-latest
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-tools
+      image_name: iqgeoproddev.azurecr.io/myproject/iqgeo-myproj-tools
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -226,7 +226,7 @@ jobs:
       - name: Login to Harbor Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
+          registry: iqgeoproddev.azurecr.io
           username: ${{ vars.registry_username }}
           password: ${{ secrets.registry_password }}
 

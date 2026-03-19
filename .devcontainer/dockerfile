@@ -6,7 +6,8 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
-FROM ${PRODUCT_REGISTRY}workflow_manager/workflow_manager:4.2 AS workflow_manager
+FROM ${PRODUCT_REGISTRY}workflow_manager/workflow_manager:pre-release AS workflow_manager
+FROM ${PRODUCT_REGISTRY}workflow_manager/workflow_manager_dev_db:pre-release AS workflow_manager_dev_db
 # END SECTION
 
 
@@ -22,6 +23,7 @@ RUN mkdir -p ${MYWORLD_DATA_HOME}/tests
 
 # START SECTION Copy the modules - beware this section is updated by the IQGeo project configuration tool
 COPY --from=workflow_manager / ${MODULES}/
+COPY --from=workflow_manager_dev_db / ${MODULES}/
 # END SECTION
 
 # find and replace apache port configurations to env variable

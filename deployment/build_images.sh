@@ -25,7 +25,7 @@ fi
 
 
 if [ -z "$PROJECT_REGISTRY" ]; then
-    PROJECT_REGISTRY="harbor.delivery.iqgeo.cloud"
+    PROJECT_REGISTRY="iqgeoproddev.azurecr.io"
     
     if [ -z "$PROJECT_REGISTRY" ]; then
         echo "PROJECT_REGISTRY not set (built images will not be pushed to registry)"

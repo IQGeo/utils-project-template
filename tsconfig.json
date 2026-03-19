@@ -14,7 +14,8 @@
             "config-settings": ["../core/config/config-settings.js"],
             "modules/custom/*": ["./custom/public/*"],
             "modules/comms/*": ["./comms/public/*"],
-            "modules/workflow_manager/*": ["./workflow_manager/public/*"]
+            "modules/workflow_manager/*": ["./workflow_manager/public/*"],
+            "modules/workflow_manager_dev_db/*": ["./workflow_manager_dev_db/public/*"]
         }
     }
 }

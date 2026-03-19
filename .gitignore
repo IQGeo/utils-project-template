@@ -13,6 +13,7 @@ node_modules
 
 # START SECTION Product modules
 /workflow_manager
+/workflow_manager_dev_db
 /dev_tools
 # END SECTION
 

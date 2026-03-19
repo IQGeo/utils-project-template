@@ -1,6 +1,6 @@
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud
 ARG PRODUCT_REPOSITORY_PREFIX=releases_
-ARG PROJECT_REGISTRY=harbor.delivery.iqgeo.cloud
+ARG PROJECT_REGISTRY=iqgeoproddev.azurecr.io
 ARG PROJECT_REPOSITORY=myproject
 ARG BUILD_IMAGE=${PROJECT_REGISTRY}/${PROJECT_REPOSITORY}/iqgeo-myproj-build
 
@@ -32,6 +32,7 @@ COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/External
 # START SECTION Copy modules  - if you edit these lines manually note that your change will get lost if you run the IQGeo Project Update tool
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/custom/ ${MODULES}/custom/
 COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/workflow_manager/ ${MODULES}/workflow_manager/
+COPY --chown=www-data:www-data --from=iqgeo_builder ${MODULES}/workflow_manager_dev_db/ ${MODULES}/workflow_manager_dev_db/
 # END SECTION
 
 # START CUSTOM SECTION
