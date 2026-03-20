@@ -18,7 +18,7 @@ USER root
 # END SECTION
 
 # Copy pip packages including modules' pip dependencies
-COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python3.10/site-packages /opt/iqgeo/platform/Externals/lib/python3.10/site-packages
+COPY --chown=www-data:www-data --from=iqgeo_builder /opt/iqgeo/platform/Externals/lib/python${PY_VERSION:-3.10}/site-packages /opt/iqgeo/platform/Externals/lib/python${PY_VERSION:-3.10}/site-packages
 
 
 # Copy modules
