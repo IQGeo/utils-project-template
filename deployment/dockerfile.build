@@ -30,8 +30,6 @@ RUN myw_product fetch node_modules \
     # ignore if this fails since the parameter is not available in 
     && if myw_product clear --help 2>/dev/null | grep -qE 'npm_manifests'; then \
     myw_product clear npm_manifests; \
-    fi \
     # Remove node_modules - save image size since these are not needed at runtime
-    && if myw_product clear --help 2>/dev/null | grep -qE 'node_modules'; then \
     myw_product clear node_modules; \
     fi
