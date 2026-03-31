@@ -73,6 +73,7 @@ services:
             - ../.devcontainer:/opt/iqgeo/platform/WebApps/myworldapp/modules/.devcontainer:delegated
             - ../deployment:/opt/iqgeo/platform/WebApps/myworldapp/modules/deployment:delegated
             - ../.git:/opt/iqgeo/platform/WebApps/myworldapp/modules/.git:delegated
+            - ../.ai:/opt/iqgeo/platform/WebApps/myworldapp/modules/.ai:delegated
             - ../.github:/opt/iqgeo/platform/WebApps/myworldapp/modules/.github:delegated
             - ../.prettierrc:/opt/iqgeo/platform/WebApps/myworldapp/modules/.prettierrc:delegated
             - ../.gitignore:/opt/iqgeo/platform/WebApps/myworldapp/modules/.gitignore:delegated
