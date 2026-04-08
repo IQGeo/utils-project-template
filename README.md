@@ -26,8 +26,9 @@ The  `.iqgeorc.jsonc` file is used to configure both the development environment
   - [Template Usage](#template-usage)
     - [Create a new repository from this template](#create-a-new-repository-from-this-template)
     - [Apply this template to an existing repository](#apply-this-template-to-an-existing-repository)
-  - [Configure the project](#configure-the-project)
-    - [Product module requirements](#product-module-requirements)
+  - [Configure the project](#configure-the-project)      
+    - [Product module requirements](#product-module-requirements) 
+    - [External (cloud) file storage (optional)](#external-cloud-file-storage-optional)
     - [Update the project files using the IQGeo Utils VS Code extension](#update-the-project-files-using-the-iqgeo-utils-vs-code-extension)
     - [Test the configuration](#test-the-configuration)
       - [Keycloak configuration](#keycloak-configuration)
@@ -99,6 +100,11 @@ The comms_dev_db module has additional requirements.
   
       #!/bin/bash
       if ! myw_db $MYW_DB_NAME list versions --layout keys | grep myw_comms_schema | grep version=; then $MODULES/comms_dev_db/utils/comms_build_dev_db --database $MYW_DB_NAME; fi
+
+
+### External (cloud) file storage (optional)
+
+If your deployment uses external cloud storage (S3, Azure, or GCP) for file uploads, you must create a Kubernetes secret for your provider's credentials. See [deployment/README.md](deployment/README.md) for the required secret format for each provider.
 
 ### Update the project files using the IQGeo Utils VS Code extension
 

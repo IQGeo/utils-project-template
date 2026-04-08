@@ -83,6 +83,10 @@ Additional variables (for Docker Compose):
 - Database name, ports, and container names
 - Other environment-specific settings
 
+**Additional secrets for external (cloud) file storage**
+
+For Kubernetes deployments, if your project uses external cloud storage for file uploads, create a Kubernetes secret for your provider before deploying. See the [Kubernetes Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Kubernetes-Deployment-Guide) for more information.
+
 ### Step 4: Build the images
 
 You can build images either locally using the provided build script or as part of an automated pipeline. 

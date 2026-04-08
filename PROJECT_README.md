@@ -40,6 +40,13 @@ This is the most efficient way to work in a Windows environment without the need
 
 For comprehensive deployment instructions, including Kubernetes/Helm and Docker Compose deployment options, see the [deployment README](deployment/README.md).
 
+### External (cloud) file storage
+
+This project uses [provider name — S3 / Azure / GCP] for external cloud storage.
+- Secret name: `[platform-s3-credentials / platform-azure-credentials / platform-gcp-bucket-credentials]`
+- Bucket/container name: `[name]`
+- Additional details (region, account, etc.): `[as applicable]`
+
 ## Container images hierarchy
 
 The following diagram illustrates the container images generated and used by their dependencies. Images in blue are provided by Engineering. Images in red are used to deploy the project.
