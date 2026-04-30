@@ -18,6 +18,7 @@ This guide describes how to build Docker images and choose your deployment metho
     - [Local testing with Minikube](#local-testing-with-minikube)
     - [Web-based deployment with Rancher](#web-based-deployment-with-rancher)
     - [GitOps deployment with Rancher Fleet](#gitops-deployment-with-rancher-fleet)
+    - [WFM Notification Manager with Centrifugo](#wfm-notification-manager-with-centrifugo)
   - [Running locally with Docker Compose](#running-locally-with-docker-compose)
     - [Start the containers](#start-the-containers)
     - [Manage the containers](#manage-the-containers)
@@ -85,7 +86,7 @@ Additional variables (for Docker Compose):
 
 ### Step 4: Build the images
 
-You can build images either locally using the provided build script or as part of an automated pipeline. 
+You can build images either locally using the provided build script or as part of an automated pipeline.
 
 **Option A: Using GitHub Actions (Recommended)**
 
@@ -151,6 +152,35 @@ For deploying to Kubernetes clusters (EKS, GKE, AKS, Rancher, or Minikube), foll
 [Rancher Fleet Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Rancher-Fleet-Deployment-Guide)
 - GitOps/infrastructure-as-code continuous delivery using Rancher Fleet
 - Deploy from Git with environment-specific values
+
+### WFM Notification Manager with Centrifugo
+
+When a project uses WFM Notification Manager, deploy Centrifugo as a separate Helm release from the `cloud-helm-centrifugo` repository and wire the platform appservers with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
+
+Use the overlay together with your project values when deploying `iqgeo-platform`:
+
+```bash
+helm upgrade --install <platform-release-name> \
+        oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform \
+        --namespace <namespace> \
+        -f <platform-base-values>.yaml \
+        -f deployment/iqgeo-platform-centrifugo.yaml
+```
+
+The overlay injects:
+
+- `CENTRIFUGO_API_URL=http://iqgeo-centrifugo:9000/api`
+- `CENTRIFUGO_HTTP_API_KEY` from the `centrifugo-secrets` Kubernetes secret
+
+Create the shared `centrifugo-secrets` secret in the same namespace before deploying the platform or Centrifugo release.
+
+If the public platform hostname should also serve Notification Manager websocket traffic, apply [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml) after editing the host and TLS secret name. That ingress routes `/modules/notification_manager/websocket` to the `iqgeo-centrifugo` Service on port `8000`.
+
+Recommended sequence:
+
+1. Deploy or upgrade the published `iqgeo-centrifugo` chart with a values file that sets `client.allowed_origins` and includes `X-CSRF-Token` in `client.proxy.connect.http_headers`.
+2. Upgrade the platform release with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
+3. Apply [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml).
 
 ---
 
