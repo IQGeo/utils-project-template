@@ -174,13 +174,16 @@ The overlay injects:
 
 Create the shared `centrifugo-secrets` secret in the same namespace before deploying the platform or Centrifugo release.
 
-If the public platform hostname should also serve Notification Manager websocket traffic, apply [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml) after editing the host and TLS secret name. That ingress routes `/modules/notification_manager/websocket` to the `iqgeo-centrifugo` Service on port `8000`.
+If the public platform hostname should also serve Notification Manager websocket traffic and operators need browser access to the Centrifugo admin UI, use [iqgeo-platform-centrifugo-ingress.yaml](iqgeo-platform-centrifugo-ingress.yaml) after editing the websocket host, admin host, and TLS secret names. It contains both ingress resources in one YAML file so they can be applied together while still keeping the websocket and admin routes as separate Kubernetes objects.
+
+If you only need one route, the individual overlays remain available: [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml) routes `/modules/notification_manager/websocket` to the `iqgeo-centrifugo` Service on port `8000`, and [iqgeo-platform-centrifugo-admin-ingress.yaml](iqgeo-platform-centrifugo-admin-ingress.yaml) exposes a separate TLS host for the `iqgeo-centrifugo` Service on port `9000`. The default example admin host is `centrifugo-customer.example.com`. Keep the admin route separate from the websocket path and restrict access to trusted operators.
 
 Recommended sequence:
 
 1. Deploy or upgrade the published `iqgeo-centrifugo` chart with a values file that sets `client.allowed_origins` and includes `X-CSRF-Token` in `client.proxy.connect.http_headers`.
 2. Upgrade the platform release with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
-3. Apply [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml).
+3. Apply `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-ingress.yaml` if you want both the websocket and admin ingress resources together.
+4. If you only need one route, apply `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-websocket-ingress.yaml` or `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-admin-ingress.yaml` instead.
 
 ---
 

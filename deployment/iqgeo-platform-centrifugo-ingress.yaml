@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: iqgeo-centrifugo-websocket
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    cert-manager.io/issuer-kind: ClusterIssuer
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "1200"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "1200"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "1200"
+    nginx.org/client-max-body-size: 100m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - wfm.example.com
+      secretName: wfm.example.com.tls-secret
+  rules:
+    - host: wfm.example.com
+      http:
+        paths:
+          - path: /modules/notification_manager/websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: iqgeo-centrifugo
+                port:
+                  number: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: iqgeo-centrifugo-admin
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    cert-manager.io/issuer-kind: ClusterIssuer
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - centrifugo-customer.example.com
+      secretName: centrifugo-customer.example.com.tls-secret
+  rules:
+    - host: centrifugo-customer.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: iqgeo-centrifugo
+                port:
+                  number: 9000
