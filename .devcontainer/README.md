@@ -50,6 +50,26 @@ The **Visual Studio Code Remote - Containers** extension lets you use a Docker c
 
 Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
 
+### PostGIS Image Version
+
+The default PostGIS image used in `docker-compose.yml` is:
+
+```yaml
+image: ghcr.io/iqgeo/docker-postgis/postgis:15-3.5
+```
+
+This image is hosted by IQGeo specifically to provide compatibility with Mac ARM (Apple Silicon) laptops. To match your production database version, change the `image:` value under the `postgis:` service in `.devcontainer/docker-compose.yml`. The official PostGIS images are available on Docker Hub and use the same tag format (`<postgres_major_version>-<postgis_version>`):
+
+https://hub.docker.com/r/postgis/postgis
+
+For example, to use PostgreSQL 16 with PostGIS 3.4:
+
+```yaml
+image: postgis/postgis:16-3.4
+```
+
+> **Note:** On Mac ARM, IQGeo publishes a limited set of ARM-compatible images under `ghcr.io/iqgeo/docker-postgis/postgis`, primarily covering versions used in active product development. If the version you need is not available there, the official `postgis/postgis` image from Docker Hub can still be used — Docker will run the `amd64` variant via emulation.
+
 ### Connecting To Containers From Host
 
 The APP_PORT and DB_PORT parameters are used to map Apache and PostgreSQL to ports on your local machine (Docker Port Mapping). This allows you to connect to Apache on http://localhost:APP_PORT and PostgreSQL via a PSQL client.

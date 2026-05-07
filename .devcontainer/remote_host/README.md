@@ -42,6 +42,24 @@ APP_PORT=8081
 
 Edit the entries to give each developer unique values.
 
+### PostGIS Image Version
+
+The PostGIS image version is defined in `.devcontainer/docker-compose.yml` (which `docker-compose-shared.yml` inherits) and defaults to:
+
+```yaml
+image: ghcr.io/iqgeo/docker-postgis/postgis:15-3.5
+```
+
+The IQGeo-hosted images under `ghcr.io/iqgeo` are provided for Mac ARM (Apple Silicon) compatibility. On a remote Linux server (x86) there is no such constraint, so it is recommended to use the official PostGIS image from Docker Hub and select the tag that matches your production database:
+
+https://hub.docker.com/r/postgis/postgis
+
+For example, to use PostgreSQL 16 with PostGIS 3.4, change the `image:` under the `postgis:` service in `.devcontainer/docker-compose.yml`:
+
+```yaml
+image: postgis/postgis:16-3.4
+```
+
 ### Open Dev Container in VS Code
 
 You can now run the VS Code command "dev containers: Reopen in Container". (This can be done by clicking the blue button on bottom left corner of the window and chosing that command from the list or by pressing Cmd/Ctrl+P and typing in the command)
