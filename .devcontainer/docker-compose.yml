@@ -59,6 +59,11 @@ services:
             APACHE_ERROR_LOG: /var/log/apache2/error.log
             ROPC_ENABLE: ${ROPC_ENABLE:-true}
             MYW_DB_UPGRADE: ${MYW_DB_UPGRADE:-YES} # Set to YES to run DB upgrade scripts on container start
+            CENTRIFUGO_APACHE_PROXY: 'YES'
+            CENTRIFUGO_HTTP_API_KEY: ${CENTRIFUGO_HTTP_API_KEY:-6b213c49-1baf-43ec-9ffd-28a69edf5514}
+            CENTRIFUGO_API_URL: ${CENTRIFUGO_API_URL:-http://centrifugo:8000/api}
+            OPENBAO_ADDRESS: http://openbao:${OPENBAO_PORT:-8200}
+            OPENBAO_TOKEN: ${OPENBAO_TOKEN:-not_for_production_use}
             # START CUSTOM SECTION
             # END CUSTOM SECTION
         ports:
@@ -142,6 +147,42 @@ services:
             RQ_DASHBOARD_REDIS_URL: ${REDIS_URL:-redis://:password@redis:6379/1}
         depends_on:
             - redis
+
+    openbao:
+        profiles: ['disabled']
+        image: openbao/openbao:latest
+        restart: always
+        container_name: openbao_${PROJ_PREFIX:-myproj}
+        ports:
+            - ${OPENBAO_PORT:-8200}:${OPENBAO_PORT:-8200}
+        environment:
+            OPENBAO_DEV_ROOT_TOKEN_ID: ${OPENBAO_TOKEN:-not_for_production_use}
+            OPENBAO_DEV_LISTEN_ADDRESS: 0.0.0.0:${OPENBAO_PORT:-8200}
+        cap_add:
+            - IPC_LOCK
+        command: server -dev -dev-root-token-id="${OPENBAO_TOKEN:-not_for_production_use}"
+        
+    centrifugo:
+        profiles: ['disabled']
+        image: centrifugo/centrifugo:v6
+        container_name: centrifugo_${PROJ_PREFIX:-myproj}
+        restart: unless-stopped
+        ports:
+            - ${CENTRIFUGO_PORT:-8000}:8000
+        command: centrifugo
+        environment:
+            CENTRIFUGO_ADMIN_PASSWORD: ${CENTRIFUGO_ADMIN_PASSWORD:-not_for_production_use}
+            CENTRIFUGO_HTTP_API_KEY: ${CENTRIFUGO_HTTP_API_KEY:-6b213c49-1baf-43ec-9ffd-28a69edf5514}
+            CENTRIFUGO_ADMIN_SECRET: ${CENTRIFUGO_ADMIN_SECRET:-VJaNwhRxcO6T26Dk5YD}
+            CENTRIFUGO_WEBSOCKET_HANDLER_PREFIX: ${CENTRIFUGO_WEBSOCKET_HANDLER_PREFIX:-/modules/notification_manager/websocket}
+            CENTRIFUGO_CLIENT_ALLOWED_ORIGINS: ${CENTRIFUGO_CLIENT_ALLOWED_ORIGINS:-*}
+            CENTRIFUGO_CLIENT_PROXY_CONNECT_ENABLED: ${CENTRIFUGO_CLIENT_PROXY_CONNECT_ENABLED:-true}
+            CENTRIFUGO_CLIENT_PROXY_CONNECT_ENDPOINT: ${CENTRIFUGO_CLIENT_PROXY_CONNECT_ENDPOINT:-http://iqgeo:8080/modules/notification_manager/api/v1/authorize}
+            CENTRIFUGO_CLIENT_PROXY_CONNECT_HTTP_HEADERS: ${CENTRIFUGO_CLIENT_PROXY_CONNECT_HTTP_HEADERS:-Cookie X-CSRF-Token}
+            CENTRIFUGO_SWAGGER_ENABLED: ${CENTRIFUGO_SWAGGER_ENABLED:-true}
+            CENTRIFUGO_ADMIN_ENABLED: ${CENTRIFUGO_ADMIN_ENABLED:-true}
+            CENTRIFUGO_DEBUG_ENABLED: ${CENTRIFUGO_DEBUG_ENABLED:-true}
+            CENTRIFUGO_LOG_LEVEL: ${CENTRIFUGO_LOG_LEVEL:-trace}
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 

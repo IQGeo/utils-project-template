@@ -48,6 +48,23 @@ services:
         networks:
             - iqgeo-network
 
+
+    openbao:
+        extends:
+            file: ../docker-compose.yml
+            service: openbao
+        container_name: openbao
+        networks:
+            - iqgeo-network
+
+    centrifugo:
+        extends:
+            file: ../docker-compose.yml
+            service: centrifugo
+        container_name: centrifugo
+        networks:
+            - iqgeo-network
+
     # START CUSTOM SECTION
     # END CUSTOM SECTION
 
