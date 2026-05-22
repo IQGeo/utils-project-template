@@ -1,17 +1,20 @@
 # Partial values overlay for wiring IQGeo Platform appservers to an external
-# Centrifugo release used by WFM Notification Manager.
+# Centrifugo release used by Notification Manager.
 #
 # Use this file with your project-specific platform values when deploying the
-# iqgeo-platform chart. The Centrifugo chart itself is deployed separately from
-# the cloud-helm-centrifugo repository.
+# iqgeo-platform chart.  The Centrifugo chart itself is deployed separately
+# from the cloud-helm-centrifugo repository.
+#
+# See the Centrifugo Deployment Guide in the project wiki for full details:
+# https://github.com/IQGeo/utils-project-template/wiki/Centrifugo-Deployment-Guide
 
-extraConfigMap:
-  # Cluster-reachable Centrifugo API endpoint when both releases share a namespace.
-  CENTRIFUGO_API_URL: "http://iqgeo-centrifugo:9000/api"
+global:
+  centrifugoClient:
+    # Cluster-reachable Centrifugo internal API URL.
+    # Assumes the Centrifugo Helm release is named "iqgeo-centrifugo" and shares
+    # the same namespace as the platform.
+    url: "http://iqgeo-centrifugo:9000"
+    apiKeySecret:
+      existingSecret: centrifugo-secrets
+      key: CENTRIFUGO_HTTP_API_KEY
 
-extraPodEnv:
-  - name: CENTRIFUGO_HTTP_API_KEY
-    valueFrom:
-      secretKeyRef:
-        name: centrifugo-secrets
-        key: CENTRIFUGO_HTTP_API_KEY

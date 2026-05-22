@@ -18,7 +18,7 @@ This guide describes how to build Docker images and choose your deployment metho
     - [Local testing with Minikube](#local-testing-with-minikube)
     - [Web-based deployment with Rancher](#web-based-deployment-with-rancher)
     - [GitOps deployment with Rancher Fleet](#gitops-deployment-with-rancher-fleet)
-    - [WFM Notification Manager with Centrifugo](#wfm-notification-manager-with-centrifugo)
+    - [Notification Manager with Centrifugo](#notification-manager-with-centrifugo)
   - [Running locally with Docker Compose](#running-locally-with-docker-compose)
     - [Start the containers](#start-the-containers)
     - [Manage the containers](#manage-the-containers)
@@ -153,37 +153,14 @@ For deploying to Kubernetes clusters (EKS, GKE, AKS, Rancher, or Minikube), foll
 - GitOps/infrastructure-as-code continuous delivery using Rancher Fleet
 - Deploy from Git with environment-specific values
 
-### WFM Notification Manager with Centrifugo
+### Notification Manager with Centrifugo
 
-When a project uses WFM Notification Manager, deploy Centrifugo as a separate Helm release from the `cloud-helm-centrifugo` repository and wire the platform appservers with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
+Projects that use the Notification Manager module require a Centrifugo real-time messaging server. The platform Helm chart supports two deployment modes:
 
-Use the overlay together with your project values when deploying `iqgeo-platform`:
+- **External** (recommended for production) — deploy Centrifugo as a separate Helm release from `cloud-helm-centrifugo` and wire the platform with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
+- **Internal subchart** — set `centrifugo.enabled: true` in your platform values for a single-command deployment (best for dev/staging).
 
-```bash
-helm upgrade --install <platform-release-name> \
-        oci://harbor.delivery.iqgeo.cloud/helm/iqgeo-platform \
-        --namespace <namespace> \
-        -f <platform-base-values>.yaml \
-        -f deployment/iqgeo-platform-centrifugo.yaml
-```
-
-The overlay injects:
-
-- `CENTRIFUGO_API_URL=http://iqgeo-centrifugo:9000/api`
-- `CENTRIFUGO_HTTP_API_KEY` from the `centrifugo-secrets` Kubernetes secret
-
-Create the shared `centrifugo-secrets` secret in the same namespace before deploying the platform or Centrifugo release.
-
-If the public platform hostname should also serve Notification Manager websocket traffic and operators need browser access to the Centrifugo admin UI, use [iqgeo-platform-centrifugo-ingress.yaml](iqgeo-platform-centrifugo-ingress.yaml) after editing the websocket host, admin host, and TLS secret names. It contains both ingress resources in one YAML file so they can be applied together while still keeping the websocket and admin routes as separate Kubernetes objects.
-
-If you only need one route, the individual overlays remain available: [iqgeo-platform-centrifugo-websocket-ingress.yaml](iqgeo-platform-centrifugo-websocket-ingress.yaml) routes `/modules/notification_manager/websocket` to the `iqgeo-centrifugo` Service on port `8000`, and [iqgeo-platform-centrifugo-admin-ingress.yaml](iqgeo-platform-centrifugo-admin-ingress.yaml) exposes a separate TLS host for the `iqgeo-centrifugo` Service on port `9000`. The default example admin host is `centrifugo-customer.example.com`. Keep the admin route separate from the websocket path and restrict access to trusted operators.
-
-Recommended sequence:
-
-1. Deploy or upgrade the published `iqgeo-centrifugo` chart with a values file that sets `client.allowed_origins` and includes `X-CSRF-Token` in `client.proxy.connect.http_headers`.
-2. Upgrade the platform release with [iqgeo-platform-centrifugo.yaml](iqgeo-platform-centrifugo.yaml).
-3. Apply `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-ingress.yaml` if you want both the websocket and admin ingress resources together.
-4. If you only need one route, apply `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-websocket-ingress.yaml` or `kubectl apply -n <namespace> -f deployment/iqgeo-platform-centrifugo-admin-ingress.yaml` instead.
+See the [Centrifugo Deployment Guide](https://github.com/IQGeo/utils-project-template/wiki/Centrifugo-Deployment-Guide) for full instructions, architecture details, and troubleshooting.
 
 ---
 
