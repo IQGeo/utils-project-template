@@ -1,0 +1,29 @@
+# OpenBao standalone mode — points to a separately-deployed OpenBao instance
+# in the same cluster. Deploy OpenBao first using the utils-helm-iqgeo-openbao
+# chart (openbao-server subchart).
+#
+# The deploy script supplies instance-specific values as --set overrides:
+#   openbao.service            — full service URL (https://release.namespace.svc:8200)
+#   openbao.namespace          — OpenBao tenant namespace (logical, inside the vault)
+#   openbao.role               — k8s auth role name (usually same as openbao.namespace)
+#   openbao.keysSecretNamespace — k8s namespace where openbao-keys secret lives
+#
+# See the Standalone Deployment Guide in the project wiki for full details:
+# https://github.com/IQGeo/utils-project-template/wiki/OpenBao-Standalone-Deployment-Guide
+
+openbao:
+  enabled: true
+  authType: "kubernetes"
+  authPath: "auth/kubernetes"
+  tlsSecret: "openbao-ca"
+  secretMountPath: "secret"
+  clientTimeout: "30s"
+  clientMaxRetries: "2"
+  authMinBackoff: "1s"
+  authMaxBackoff: "1m"
+  exitOnErr: "true"
+  revokeOnShutdown: "true"
+
+openbao-server:
+  # OpenBao server is deployed separately, so disable the bundled server in the chart.
+  enabled: false
