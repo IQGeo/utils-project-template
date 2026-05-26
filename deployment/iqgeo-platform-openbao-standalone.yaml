@@ -18,11 +18,11 @@ openbao:
   tlsSecret: "openbao-ca"
   secretMountPath: "secret"
   clientTimeout: "30s"
-  clientMaxRetries: "2"
+  clientMaxRetries: 2
   authMinBackoff: "1s"
   authMaxBackoff: "1m"
-  exitOnErr: "true"
-  revokeOnShutdown: "true"
+  exitOnErr: true
+  revokeOnShutdown: true
 
 openbao-server:
   # OpenBao server is deployed separately, so disable the bundled server in the chart.
