@@ -2,27 +2,39 @@
 # in the same cluster. Deploy OpenBao first using the utils-helm-iqgeo-openbao
 # chart (openbao-server subchart).
 #
-# The deploy script supplies instance-specific values as --set overrides:
-#   openbao.service            — full service URL (https://release.namespace.svc:8200)
-#   openbao.namespace          — OpenBao tenant namespace (logical, inside the vault)
-#   openbao.role               — k8s auth role name (usually same as openbao.namespace)
-#   openbao.keysSecretNamespace — k8s namespace where openbao-keys secret lives
+# The following are derived automatically and only need explicit overrides when
+# the Kubernetes namespace differs from the OpenBao logical namespace/role:
+#   openbao.role      — k8s auth role name; defaults to .Release.Namespace
+#   openbao.namespace — OpenBao tenant namespace (vault-internal logical
+#                       namespace used for the secret path and the
+#                       vault.hashicorp.com/namespace annotation);
+#                       defaults to .Release.Namespace (kubernetes auth mode)
+#
+# Alignment with openbao-server chart / openbao-bootstrap values:
+#   openbao.url   must equal  https://<OPENBAO_RELEASE>.<OPENBAO_NAMESPACE>.svc:8200
+#                             where OPENBAO_RELEASE and OPENBAO_NAMESPACE are the Helm
+#                             release name and k8s namespace of the OpenBao server chart.
+#   openbao.role  must match  openbao-bootstrap.tenant.namespace (the bootstrap creates
+#                             a k8s auth role with this name).
+#   The tenant's k8s namespace (i.e. .Release.Namespace for this chart) must appear in
+#   openbao-bootstrap.tenant.boundNamespaces in the OpenBao server values.
 #
 # See the Standalone Deployment Guide in the project wiki for full details:
 # https://github.com/IQGeo/utils-project-template/wiki/OpenBao-Standalone-Deployment-Guide
 
 openbao:
   enabled: true
+  # Full in-cluster service URL of the standalone OpenBao server.
+  # Constructed as https://<OPENBAO_RELEASE>.<OPENBAO_NAMESPACE>.svc:8200 where
+  # OPENBAO_RELEASE is the Helm release name and OPENBAO_NAMESPACE is the k8s
+  # namespace used when deploying the openbao-server chart.
+  # This value is REQUIRED — the chart will fail to render if omitted.
+  url: "https://openbao-release.openbao-namespace.svc:8200"
   authType: "kubernetes"
   authPath: "auth/kubernetes"
+  # Name of the k8s Secret (in the tenant namespace) containing the OpenBao
+  # CA certificate. Used by the remove-tenant hook to trust the server TLS.
   tlsSecret: "openbao-ca"
-  secretMountPath: "secret"
-  clientTimeout: "30s"
-  clientMaxRetries: 2
-  authMinBackoff: "1s"
-  authMaxBackoff: "1m"
-  exitOnErr: true
-  revokeOnShutdown: true
 
 openbao-server:
   # OpenBao server is deployed separately, so disable the bundled server in the chart.
