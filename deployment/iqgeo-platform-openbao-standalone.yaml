@@ -35,7 +35,3 @@ openbao:
   # Name of the k8s Secret (in the tenant namespace) containing the OpenBao
   # CA certificate. Used by the remove-tenant hook to trust the server TLS.
   tlsSecret: "openbao-ca"
-
-openbao-server:
-  # OpenBao server is deployed separately, so disable the bundled server in the chart.
-  enabled: false
