@@ -106,7 +106,7 @@ services:
 
     openbao:
         profiles: ['disabled']
-        image: openbao/openbao:latest
+        image: openbao/openbao:2.5.4
         restart: always
         container_name: openbao_${PROJ_PREFIX:-myproj}
         ports:
