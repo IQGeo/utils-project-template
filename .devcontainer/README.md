@@ -46,6 +46,12 @@ Note: This section assumes Docker is running locally on your machine. For runnin
 
 The **Visual Studio Code Remote - Containers** extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set. The development container for Network Manager Comms contains Python, NodeJS, IQGeo Platform, and other tools and libraries to facilitate the development of the app.
 
+### Copilot CLI
+
+GitHub Copilot CLI is included in this dev container. It requires a GitHub Personal Access Token to authenticate.
+
+Follow the [Copilot CLI Setup guide](https://github.com/IQGeo/utils-project-template/wiki/Copilot-CLI-Setup) to create a fine-grained PAT and add it to your `.env` file before starting the container.
+
 ### Overriding ENV variables
 
 Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
