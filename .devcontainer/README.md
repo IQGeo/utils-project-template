@@ -88,17 +88,6 @@ GitHub Copilot CLI is included in this dev container. It requires a GitHub Perso
 
 4. Reopen or rebuild the dev container. Copilot CLI will authenticate automatically on startup.
 
-#### Verifying the Setup
-
-Inside the dev container, run:
-```shell
-gh copilot --version
-```
-
-#### Token Rotation
-
-Fine-grained PATs expire. When your token expires, generate a new one following the steps above, update `COPILOT_GITHUB_TOKEN` in `.env`, and rebuild the container.
-
 ### Overriding ENV variables
 
 Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
