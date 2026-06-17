@@ -48,9 +48,56 @@ The **Visual Studio Code Remote - Containers** extension lets you use a Docker c
 
 ### Copilot CLI
 
-GitHub Copilot CLI is included in this dev container. It requires a GitHub Personal Access Token to authenticate.
+GitHub Copilot CLI is included in this dev container. It requires a GitHub Personal Access Token (PAT) to authenticate.
 
-Follow the [Copilot CLI Setup guide](https://github.com/IQGeo/utils-project-template/wiki/Copilot-CLI-Setup) to create a fine-grained PAT and add it to your `.env` file before starting the container.
+**Prerequisites:** A GitHub account with an active [GitHub Copilot](https://github.com/features/copilot) subscription.
+
+#### Creating a Fine-Grained Personal Access Token
+
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**  
+   Direct link: https://github.com/settings/personal-access-tokens/new
+
+2. Fill in the token details:
+   - **Token name**: e.g. `IQGeo Dev Container - Copilot CLI`
+   - **Expiration**: choose a duration appropriate for your team policy (90 days recommended)
+   - **Resource owner**: your personal GitHub account
+
+3. Under **Permissions**, expand **User permissions** and set:
+
+   | Permission | Access |
+   |---|---|
+   | Copilot requests | Read-only |
+
+   > No repository or organisation permissions are needed.
+
+4. Click **Generate token** and copy it — it will not be shown again.
+
+#### Adding the Token to Your Dev Container
+
+1. Copy `.env.example` to `.env` in this folder (if you haven't already):
+   ```shell
+   cp .devcontainer/.env.example .devcontainer/.env
+   ```
+
+2. Set the token in `.env`:
+   ```
+   COPILOT_GITHUB_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxx
+   ```
+
+3. The `.env` file is gitignored — your token will not be committed to the repository.
+
+4. Reopen or rebuild the dev container. Copilot CLI will authenticate automatically on startup.
+
+#### Verifying the Setup
+
+Inside the dev container, run:
+```shell
+gh copilot --version
+```
+
+#### Token Rotation
+
+Fine-grained PATs expire. When your token expires, generate a new one following the steps above, update `COPILOT_GITHUB_TOKEN` in `.env`, and rebuild the container.
 
 ### Overriding ENV variables
 
