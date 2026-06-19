@@ -46,6 +46,48 @@ Note: This section assumes Docker is running locally on your machine. For runnin
 
 The **Visual Studio Code Remote - Containers** extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set. The development container for Network Manager Comms contains Python, NodeJS, IQGeo Platform, and other tools and libraries to facilitate the development of the app.
 
+### Copilot CLI
+
+GitHub Copilot CLI is included in this dev container. It requires a GitHub Personal Access Token (PAT) to authenticate.
+
+**Prerequisites:** A GitHub account with an active [GitHub Copilot](https://github.com/features/copilot) subscription.
+
+#### Creating a Fine-Grained Personal Access Token
+
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**  
+   Direct link: https://github.com/settings/personal-access-tokens/new
+
+2. Fill in the token details:
+   - **Token name**: e.g. `IQGeo Dev Container - Copilot CLI`
+   - **Expiration**: choose a duration appropriate for your team policy (90 days recommended)
+   - **Resource owner**: your personal GitHub account
+
+3. Under **Permissions**, expand **User permissions** and set:
+
+   | Permission | Access |
+   |---|---|
+   | Copilot requests | Read-only |
+
+   > No repository or organisation permissions are needed.
+
+4. Click **Generate token** and copy it — it will not be shown again.
+
+#### Adding the Token to Your Dev Container
+
+1. Copy `.env.example` to `.env` in this folder (if you haven't already):
+   ```shell
+   cp .devcontainer/.env.example .devcontainer/.env
+   ```
+
+2. Set the token in `.env`:
+   ```
+   COPILOT_GITHUB_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxx
+   ```
+
+3. The `.env` file is gitignored — your token will not be committed to the repository.
+
+4. Reopen or rebuild the dev container. Copilot CLI will authenticate automatically on startup.
+
 ### Overriding ENV variables
 
 Overriding of environment variables in the `docker-compose.yml` can be done via `.env` file in this folder. Copy the `.env.example` file to `.env` and modify the values as described in its comments.
