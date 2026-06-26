@@ -1,0 +1,71 @@
+# Codespaces-only Compose override.
+#
+# Merged ON TOP of ../docker-compose.yml (see dockerComposeFile in
+# devcontainer.json). It does NOT replace or edit the base service definitions —
+# it only overrides the environment values that must point at the Codespace's
+# external HTTPS URLs, and adds the keycloak-tls nginx sidecar.
+#
+# Codespaces forwards each published port to:
+#   https://${CODESPACE_NAME}-<port>.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+# Both variables are present in the Codespace environment at `compose up` time.
+#
+# NOTE: intended only for the Codespaces dev container config. Running it locally
+# (where CODESPACE_NAME is empty) would produce broken URLs.
+#
+# ── Keycloak stays PRIVATE (nginx TLS sidecar) ───────────────────────────────
+# Keycloak's forwarded port 8080 is never made Public. Instead:
+#   * The browser reaches Keycloak via the Private forwarded HTTPS URL
+#     (https://${CODESPACE_NAME}-8080.app.github.dev), which Codespaces
+#     authenticates and proxies to keycloak:8080 inside the network.
+#   * The app server's SERVER-SIDE OIDC discovery uses the SAME external URL,
+#     but the keycloak-tls sidecar advertises that hostname as a Docker network
+#     alias — so discovery resolves INTERNALLY to nginx, which TLS-terminates
+#     and proxies to keycloak:8080. No public port is required.
+# This relies on httpc_params.verify=false (devserver_config/oidc/conf.json) so
+# the self-signed cert is accepted, and KC_PROXY=edge (set below).
+
+services:
+    iqgeo:
+        environment:
+            # The app is always reached at its external URL (port 80).
+            IQGEO_HOST: ${CODESPACE_NAME}-80.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
+            MYW_EXT_BASE_URL: https://${CODESPACE_NAME}-80.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
+            # Keycloak back-channel URL the app uses (discovery + token). This is
+            # the external HTTPS URL, but it resolves internally to the
+            # keycloak-tls sidecar via the network alias declared below.
+            KEYCLOAK_URL: https://${CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
+
+    keycloak:
+        environment:
+            # Keycloak advertises its external HTTPS frontend URL. Bare host, no
+            # port (-1), HTTPS forced; edge proxy mode trusts X-Forwarded-* from
+            # the nginx sidecar / Codespaces edge.
+            KC_HOSTNAME: ${CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
+            KC_HOSTNAME_PORT: -1
+            KC_HOSTNAME_STRICT_HTTPS: true
+            KC_PROXY: edge
+            IQGEO_DOMAIN: https://${CODESPACE_NAME}-80.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
+
+    # nginx TLS sidecar that keeps Keycloak PRIVATE. It owns the external
+    # Keycloak hostname as a Docker network alias, so the app server's
+    # server-side OIDC discovery resolves that hostname to nginx (here) instead
+    # of going out to the public internet. nginx terminates TLS with a
+    # self-signed cert and proxies to keycloak:8080.
+    keycloak-tls:
+        image: nginx:alpine
+        restart: always
+        depends_on:
+            - keycloak
+        volumes:
+            - ./nginx-keycloak.conf:/etc/nginx/conf.d/default.conf:ro
+        command:
+            - sh
+            - -c
+            - >
+                openssl req -x509 -nodes -newkey rsa:2048 -days 3650
+                -keyout /tmp/key.pem -out /tmp/cert.pem -subj '/CN=keycloak'
+                && exec nginx -g 'daemon off;'
+        networks:
+            default:
+                aliases:
+                    - ${CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}

@@ -1,0 +1,86 @@
+{
+    // Codespaces-specific dev container.
+    //
+    // This is a SECOND config, separate from ../devcontainer.json (the local
+    // VS Code flow). It reuses the same ../docker-compose.yml stack — it does
+    // NOT modify any service definitions — but tunes hooks, ports, registry
+    // auth, and Keycloak networking for GitHub Codespaces.
+    //
+    // Architecture: Compose-based dev container (no Docker-in-Docker). Codespaces
+    // brings the whole stack up on the host Docker daemon and drops you INTO the
+    // `iqgeo` service to develop, exactly like the local flow. Sibling services
+    // (postgis, keycloak, redis, pgadmin, rq-dashboard, plus the keycloak-tls
+    // nginx sidecar) are started via compose depends_on and the runServices list.
+    //
+    // Keycloak stays PRIVATE: the keycloak-tls nginx sidecar TLS-terminates the
+    // Codespace's forwarded 8080 host internally, so no port is ever made Public.
+    // See README.md for the full explanation.
+    "name": "Project for customer MyProject (Codespaces)",
+
+    // Paths are relative to THIS file. The base compose file's own relative paths
+    // (build context, bind mounts like ../custom) resolve against the compose
+    // file's location (../), so they still point at the repo root. The second
+    // file is a Codespaces-only override that points the app/Keycloak env at the
+    // Codespace's external HTTPS URLs; it does not change any base service body.
+    "dockerComposeFile": ["../docker-compose.yml", "docker-compose.codespaces.yml"],
+    "service": "iqgeo",
+
+    // Same default services as the local config, plus the keycloak-tls sidecar.
+    // depends_on pulls in postgis, keycloak and redis.
+    "runServices": ["iqgeo", "rq-dashboard", "pgadmin", "keycloak-tls"],
+
+    "workspaceFolder": "/opt/iqgeo/platform/WebApps/myworldapp/modules",
+    "shutdownAction": "stopCompose",
+
+    "features": {
+        // Same copilot-cli feature as the local config.
+        "ghcr.io/devcontainers/features/copilot-cli:latest": {},
+        // Docker CLI inside the dev container, talking to the host daemon (NOT
+        // docker-in-docker). Lets you run `docker compose ... ps/logs` against
+        // the running stack from this container for inspection.
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+
+    // Ports published by the compose services. Codespaces forwards these to
+    // HTTPS URLs on *.app.github.dev. Keycloak (8080) stays PRIVATE — see README.
+    "forwardPorts": [80, 8080, 8443, 5432, 6379, 9181, 8090],
+    "portsAttributes": {
+        "80": { "label": "IQGeo App", "onAutoForward": "notify" },
+        "8080": { "label": "Keycloak (OIDC)", "onAutoForward": "silent" },
+        "8443": { "label": "Keycloak (HTTPS)", "onAutoForward": "silent" },
+        "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
+        "6379": { "label": "Redis", "onAutoForward": "silent" },
+        "9181": { "label": "RQ Dashboard", "onAutoForward": "silent" },
+        "8090": { "label": "pgAdmin", "onAutoForward": "silent" }
+    },
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "ms-python.python",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "eamodio.gitlens",
+                "IQGeo.iqgeo-utils-vscode"
+            ]
+        }
+    },
+
+    "remoteUser": "iqgeo",
+    "containerUser": "www-data",
+
+    // onCreateCommand runs during the PREBUILD and is cached in the prebuild
+    // snapshot. Put slow, idempotent, network-bound setup here so a push-time
+    // prebuild absorbs the cost (node_modules fetch).
+    "onCreateCommand": "myw_product fetch node_modules",
+
+    // postStartCommand runs on every start (including resume from prebuild).
+    // Also relax the host docker socket perms so the iqgeo/www-data user can use
+    // the Docker CLI (docker-outside-of-docker) — the socket is recreated each
+    // start, so this belongs here rather than in the image. Best-effort.
+    // We do NOT run `myw_product watch` here: it blocks Codespace startup.
+    "postStartCommand": "git config --global --add safe.directory /opt/iqgeo/platform/WebApps/myworldapp/modules && (sudo chmod 666 /var/run/docker.sock 2>/dev/null || true)"
+}
