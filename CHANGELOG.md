@@ -1,5 +1,10 @@
 # Changelog
 
+#### v1.3.0 (06/29/2026)
+
+- DX-37: devcontainer: add copilot cli with instructions on how to configure it.
+- DX-74: fix PRODUCT_REPOSITORY_PREFIX overwriting PRODUCT_REGISTRY in BUILD_ARGS
+
 #### v1.2.0 (05/28/2026)
 
 - DX-44: deployment: add Kubernetes overlay for standalone OpenBao
