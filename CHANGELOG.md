@@ -4,6 +4,7 @@
 
 - DX-37: devcontainer: add copilot cli with instructions on how to configure it.
 - DX-74: fix PRODUCT_REPOSITORY_PREFIX overwriting PRODUCT_REGISTRY in BUILD_ARGS
+- DX-77: iqgeorc.jsonc updated default to platform 7.5
 
 #### v1.2.0 (05/28/2026)
 
