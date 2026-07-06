@@ -1,10 +1,11 @@
 # Changelog
 
-#### v1.3.0 (06/29/2026)
+#### v1.3.0 (07/06/2026)
 
 - DX-37: devcontainer: add copilot cli with instructions on how to configure it.
 - DX-74: fix PRODUCT_REPOSITORY_PREFIX overwriting PRODUCT_REGISTRY in BUILD_ARGS
 - DX-77: iqgeorc.jsonc updated default to platform 7.5
+- Pin openbao image to version 2.5.4 in docker-compose files for deterministic builds
 
 #### v1.2.0 (05/28/2026)
 
