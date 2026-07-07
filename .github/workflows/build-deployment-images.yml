@@ -21,6 +21,16 @@ on:
         description: 'Include arm64 builds (uses native ARM64 runners)'
         type: boolean
         default: false
+      amd64_runner:
+        description: 'Optional runner label for amd64 jobs'
+        required: false
+        type: string
+        default: ''
+      arm64_runner:
+        description: 'Optional runner label for arm64 jobs'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   id-token: write
@@ -52,6 +62,27 @@ jobs:
       - name: Determine version and tagging strategy
         id: version
         run: |
+          AMD64_RUNNER_INPUT="${{ github.event.inputs.amd64_runner }}"
+          ARM64_RUNNER_INPUT="${{ github.event.inputs.arm64_runner }}"
+          AMD64_RUNNER_VAR="${{ vars.amd64_runner }}"
+          ARM64_RUNNER_VAR="${{ vars.arm64_runner }}"
+
+          if [[ -n "${AMD64_RUNNER_INPUT}" ]]; then
+            AMD64_RUNNER="${AMD64_RUNNER_INPUT}"
+          elif [[ -n "${AMD64_RUNNER_VAR}" ]]; then
+            AMD64_RUNNER="${AMD64_RUNNER_VAR}"
+          else
+            AMD64_RUNNER="ubuntu-latest"
+          fi
+
+          if [[ -n "${ARM64_RUNNER_INPUT}" ]]; then
+            ARM64_RUNNER="${ARM64_RUNNER_INPUT}"
+          elif [[ -n "${ARM64_RUNNER_VAR}" ]]; then
+            ARM64_RUNNER="${ARM64_RUNNER_VAR}"
+          else
+            ARM64_RUNNER="ubuntu-24.04-arm"
+          fi
+
           # Generate CalVer version: YYYY.MM.DD.BUILD
           CURRENT_DATE=$(date -u +"%Y.%m.%d")
           BUILD_NUM="${{ env.BUILD_NUMBER }}"
@@ -68,9 +99,9 @@ jobs:
           
           # Determine platforms matrix based on include_arm64 input
           if [[ "${{ github.event.inputs.include_arm64 }}" == "true" ]]; then
-            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}, {"platform": "linux/arm64", "runner": "ubuntu-24.04-arm", "suffix": "arm64"}]'
+            PLATFORMS="[{\"platform\": \"linux/amd64\", \"runner\": \"${AMD64_RUNNER}\", \"suffix\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"${ARM64_RUNNER}\", \"suffix\": \"arm64\"}]"
           else
-            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}]'
+            PLATFORMS="[{\"platform\": \"linux/amd64\", \"runner\": \"${AMD64_RUNNER}\", \"suffix\": \"amd64\"}]"
           fi
           
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
