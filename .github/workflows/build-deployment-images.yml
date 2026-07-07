@@ -5,32 +5,32 @@ on:
   workflow_dispatch:
     inputs:
       platform_version:
-        description: 'Platform version for base image (e.g., 7.4)'
+        description: "Platform version for base image (e.g., 7.4)"
         required: false
         type: string
-        default: '7.4'
+        default: "7.4"
       custom_version:
-        description: 'Override auto-generated CalVer (YYYY.MM.DD.BUILD format)'
+        description: "Override auto-generated CalVer (YYYY.MM.DD.BUILD format)"
         required: false
         type: string
       push_images:
-        description: 'Push images to registry'
+        description: "Push images to registry"
         type: boolean
         default: true
       include_arm64:
-        description: 'Include arm64 builds (uses native ARM64 runners)'
+        description: "Include arm64 builds (uses native ARM64 runners)"
         type: boolean
         default: false
       amd64_runner:
-        description: 'Optional runner label for amd64 jobs'
+        description: "Optional runner label for amd64 jobs"
         required: false
         type: string
-        default: ''
+        default: ""
       arm64_runner:
-        description: 'Optional runner label for arm64 jobs'
+        description: "Optional runner label for arm64 jobs"
         required: false
         type: string
-        default: ''
+        default: ""
 
 permissions:
   id-token: write
@@ -38,23 +38,31 @@ permissions:
 
 env:
   PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.4' }}
-  PRODUCT_REGISTRY: harbor.delivery.iqgeo.cloud
-  PRODUCT_REPOSITORY_PREFIX: releases_
-  PROJECT_REGISTRY: harbor.delivery.iqgeo.cloud
-  PROJECT_REPOSITORY: myproject
+  PROJECT_IMAGE_PREFIX: ${{ vars.project_image_prefix || 'myproject/iqgeo-myproj' }}
+  PRODUCT_REGISTRY: ${{ vars.product_registry || 'harbor.delivery.iqgeo.cloud' }}
+  PRODUCT_REGISTRY_USERNAME: ${{ vars.product_registry_username || vars.registry_username }}
+  PRODUCT_REGISTRY_PASSWORD: ${{ secrets.product_registry_password || secrets.registry_password }}
+  PRODUCT_REPOSITORY_PREFIX: ${{ vars.product_repository_prefix || 'releases_' }}
+  PROJECT_REGISTRY: ${{ vars.project_registry || 'harbor.delivery.iqgeo.cloud' }}
+  PROJECT_REGISTRY_USERNAME: ${{ vars.project_registry_username || vars.registry_username }}
+  PROJECT_REGISTRY_PASSWORD: ${{ secrets.project_registry_password || secrets.registry_password }}
+  PROJECT_REPOSITORY: ${{ vars.project_repository || 'myproject' }}
   DOCKER_BUILD_SUMMARY: true
   DOCKER_BUILD_RECORD_UPLOAD: true
   BUILD_NUMBER: ${{ github.run_number }}
 
 jobs:
   # Extract version and determine tagging strategy
-  extract-version:
+  extract-variables:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       is_release: ${{ steps.version.outputs.is_release }}
       should_push: ${{ steps.version.outputs.should_push }}
       platforms: ${{ steps.version.outputs.platforms }}
+      product_registry: ${{ steps.version.outputs.product_registry }}
+      project_registry: ${{ steps.version.outputs.project_registry }}
+      project_image_prefix: ${{ steps.version.outputs.project_image_prefix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,28 +95,31 @@ jobs:
           CURRENT_DATE=$(date -u +"%Y.%m.%d")
           BUILD_NUM="${{ env.BUILD_NUMBER }}"
           CALVER="${CURRENT_DATE}.${BUILD_NUM}"
-          
+
           # Use custom version if provided, otherwise use generated CalVer
           if [[ -n "${{ github.event.inputs.custom_version }}" ]]; then
             VERSION="${{ github.event.inputs.custom_version }}"
           else
             VERSION="${CALVER}"
           fi
-          
+
           SHOULD_PUSH="${{ github.event.inputs.push_images }}"
-          
+
           # Determine platforms matrix based on include_arm64 input
           if [[ "${{ github.event.inputs.include_arm64 }}" == "true" ]]; then
-            PLATFORMS="[{\"platform\": \"linux/amd64\", \"runner\": \"${AMD64_RUNNER}\", \"suffix\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"${ARM64_RUNNER}\", \"suffix\": \"arm64\"}]"
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "'"${AMD64_RUNNER}"'", "suffix": "amd64"}, {"platform": "linux/arm64", "runner": "'"${ARM64_RUNNER}"'", "suffix": "arm64"}]'
           else
-            PLATFORMS="[{\"platform\": \"linux/amd64\", \"runner\": \"${AMD64_RUNNER}\", \"suffix\": \"amd64\"}]"
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "'"${AMD64_RUNNER}"'", "suffix": "amd64"}]'
           fi
-          
+
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "is_release=false" >> $GITHUB_OUTPUT
           echo "should_push=${SHOULD_PUSH}" >> $GITHUB_OUTPUT
           echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
-          
+          echo "product_registry=${{ env.PRODUCT_REGISTRY }}" >> $GITHUB_OUTPUT
+          echo "project_registry=${{ env.PROJECT_REGISTRY }}" >> $GITHUB_OUTPUT
+          echo "project_image_prefix=${{ env.PROJECT_IMAGE_PREFIX }}" >> $GITHUB_OUTPUT
+
           echo "Version: ${VERSION}"
           echo "Build Number: ${BUILD_NUM}"
           echo "Should Push: ${SHOULD_PUSH}"
@@ -116,14 +127,14 @@ jobs:
 
   # Build the base build image (per-platform)
   build-build-image:
-    needs: extract-version
+    needs: extract-variables
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+        include: ${{ fromJson(needs.extract-variables.outputs.platforms) }}
     runs-on: ${{ matrix.runner }}
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-build
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-build
     outputs:
       image_uri: ${{ steps.output.outputs.image_uri }}
     steps:
@@ -135,12 +146,19 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Product Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PRODUCT_REGISTRY }}
+          username: ${{ env.PRODUCT_REGISTRY_USERNAME }}
+          password: ${{ env.PRODUCT_REGISTRY_PASSWORD }}
+
+      - name: Login to Project Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for build image
         id: meta
@@ -148,7 +166,7 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}-${{ matrix.suffix }}
 
       - name: Build and push build image
         id: build
@@ -169,17 +187,17 @@ jobs:
           cache-to: |
             type=gha,scope=build-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-variables.outputs.should_push == 'true' }}
 
       - name: Export digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         run: |
           mkdir -p ${{ runner.temp }}/digests/build
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/build/${digest#sha256:}"
 
       - name: Upload digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: digests-build-${{ matrix.suffix }}
@@ -190,15 +208,15 @@ jobs:
       - name: Set output
         id: output
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-variables.outputs.version }}" >> $GITHUB_OUTPUT
 
   # Merge build image manifests
   merge-build-image:
-    needs: [extract-version, build-build-image]
+    needs: [extract-variables, build-build-image]
     runs-on: ubuntu-latest
-    if: needs.extract-version.outputs.should_push == 'true'
+    if: needs.extract-variables.outputs.should_push == 'true'
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-build
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-build
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -213,12 +231,12 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Project Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for build image
         id: meta
@@ -226,8 +244,8 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}
-            type=raw,value=latest,enable=${{ needs.extract-version.outputs.is_release == 'true' }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.extract-variables.outputs.is_release == 'true' }}
             type=raw,value=${{ github.run_number }}
             type=ref,event=branch
             type=ref,event=pr
@@ -240,24 +258,24 @@ jobs:
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.image_name }}@sha256:%s ' *)
           # Get the digest of the manifest list
-          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-variables.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Set output
         id: output
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-variables.outputs.version }}" >> $GITHUB_OUTPUT
 
   # Build the appserver image (per-platform)
   build-appserver-image:
-    needs: [extract-version, merge-build-image]
+    needs: [extract-variables, merge-build-image]
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+        include: ${{ fromJson(needs.extract-variables.outputs.platforms) }}
     runs-on: ${{ matrix.runner }}
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-appserver
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-appserver
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -267,12 +285,19 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Product Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PRODUCT_REGISTRY }}
+          username: ${{ env.PRODUCT_REGISTRY_USERNAME }}
+          password: ${{ env.PRODUCT_REGISTRY_PASSWORD }}
+
+      - name: Login to Project Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for appserver image
         id: meta
@@ -280,7 +305,7 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}-${{ matrix.suffix }}
 
       - name: Build and push appserver image
         id: build
@@ -304,17 +329,17 @@ jobs:
           cache-to: |
             type=gha,scope=appserver-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-variables.outputs.should_push == 'true' }}
 
       - name: Export digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         run: |
           mkdir -p ${{ runner.temp }}/digests/appserver
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/appserver/${digest#sha256:}"
 
       - name: Upload digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: digests-appserver-${{ matrix.suffix }}
@@ -324,11 +349,11 @@ jobs:
 
   # Merge appserver image manifests
   merge-appserver-image:
-    needs: [extract-version, build-appserver-image]
+    needs: [extract-variables, build-appserver-image]
     runs-on: ubuntu-latest
-    if: needs.extract-version.outputs.should_push == 'true'
+    if: needs.extract-variables.outputs.should_push == 'true'
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-appserver
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-appserver
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -343,12 +368,12 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Project Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for appserver image
         id: meta
@@ -356,8 +381,8 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}
-            type=raw,value=latest,enable=${{ needs.extract-version.outputs.is_release == 'true' }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.extract-variables.outputs.is_release == 'true' }}
             type=raw,value=${{ github.run_number }}
             type=ref,event=branch
             type=ref,event=pr
@@ -369,24 +394,24 @@ jobs:
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.image_name }}@sha256:%s ' *)
-          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-variables.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Set output
         id: output
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-variables.outputs.version }}" >> $GITHUB_OUTPUT
 
   # Build the tools image (per-platform)
   build-tools-image:
-    needs: [extract-version, merge-build-image]
+    needs: [extract-variables, merge-build-image]
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.extract-version.outputs.platforms) }}
+        include: ${{ fromJson(needs.extract-variables.outputs.platforms) }}
     runs-on: ${{ matrix.runner }}
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-tools
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -396,12 +421,19 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Product Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PRODUCT_REGISTRY }}
+          username: ${{ env.PRODUCT_REGISTRY_USERNAME }}
+          password: ${{ env.PRODUCT_REGISTRY_PASSWORD }}
+
+      - name: Login to Project Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for tools image
         id: meta
@@ -411,7 +443,7 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}-${{ matrix.suffix }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}-${{ matrix.suffix }}
 
       - name: Build and push tools image
         id: build
@@ -435,17 +467,17 @@ jobs:
           cache-to: |
             type=gha,scope=tools-${{ matrix.suffix }}-${{ github.ref_name }},mode=max
           provenance: mode=max
-          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-version.outputs.should_push == 'true' }}
+          outputs: type=image,name=${{ env.image_name }},push-by-digest=true,name-canonical=true,push=${{ needs.extract-variables.outputs.should_push == 'true' }}
 
       - name: Export digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         run: |
           mkdir -p ${{ runner.temp }}/digests/tools
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/tools/${digest#sha256:}"
 
       - name: Upload digest
-        if: needs.extract-version.outputs.should_push == 'true'
+        if: needs.extract-variables.outputs.should_push == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: digests-tools-${{ matrix.suffix }}
@@ -455,11 +487,11 @@ jobs:
 
   # Merge tools image manifests
   merge-tools-image:
-    needs: [extract-version, build-tools-image]
+    needs: [extract-variables, build-tools-image]
     runs-on: ubuntu-latest
-    if: needs.extract-version.outputs.should_push == 'true'
+    if: needs.extract-variables.outputs.should_push == 'true'
     env:
-      image_name: harbor.delivery.iqgeo.cloud/myproject/iqgeo-myproj-tools
+      image_name: ${{ needs.extract-variables.outputs.project_registry }}/${{ needs.extract-variables.outputs.project_image_prefix }}-tools
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
       image_uri: ${{ steps.output.outputs.image_uri }}
@@ -474,12 +506,12 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Harbor Registry
+      - name: Login to Project Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.delivery.iqgeo.cloud
-          username: ${{ vars.registry_username }}
-          password: ${{ secrets.registry_password }}
+          registry: ${{ env.PROJECT_REGISTRY }}
+          username: ${{ env.PROJECT_REGISTRY_USERNAME }}
+          password: ${{ env.PROJECT_REGISTRY_PASSWORD }}
 
       - name: Extract metadata for tools image
         id: meta
@@ -489,8 +521,8 @@ jobs:
         with:
           images: ${{ env.image_name }}
           tags: |
-            type=raw,value=${{ needs.extract-version.outputs.version }}
-            type=raw,value=latest,enable=${{ needs.extract-version.outputs.is_release == 'true' }}
+            type=raw,value=${{ needs.extract-variables.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.extract-variables.outputs.is_release == 'true' }}
             type=raw,value=${{ github.run_number }}
             type=ref,event=branch
             type=ref,event=pr
@@ -502,17 +534,23 @@ jobs:
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.image_name }}@sha256:%s ' *)
-          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-version.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
+          DIGEST=$(docker buildx imagetools inspect ${{ env.image_name }}:${{ needs.extract-variables.outputs.version }} --format "{{json .Manifest.Digest}}" | tr -d '"')
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Set output
         id: output
         run: |
-          echo "image_uri=${{ env.image_name }}:${{ needs.extract-version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "image_uri=${{ env.image_name }}:${{ needs.extract-variables.outputs.version }}" >> $GITHUB_OUTPUT
 
   # Summary job
   build-summary:
-    needs: [extract-version, merge-build-image, merge-appserver-image, merge-tools-image]
+    needs:
+      [
+        extract-variables,
+        merge-build-image,
+        merge-appserver-image,
+        merge-tools-image,
+      ]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -520,9 +558,9 @@ jobs:
         run: |
           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ needs.extract-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Is Release:** ${{ needs.extract-version.outputs.is_release }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Images Pushed:** ${{ needs.extract-version.outputs.should_push }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.extract-variables.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Is Release:** ${{ needs.extract-variables.outputs.is_release }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Images Pushed:** ${{ needs.extract-variables.outputs.should_push }}" >> $GITHUB_STEP_SUMMARY
           echo "**Platforms:** ${{ github.event.inputs.include_arm64 == 'true' && 'linux/amd64, linux/arm64 (native)' || 'linux/amd64' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Built Images" >> $GITHUB_STEP_SUMMARY
