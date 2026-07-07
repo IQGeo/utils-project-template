@@ -21,6 +21,16 @@ on:
         description: 'Include arm64 builds (uses native ARM64 runners)'
         type: boolean
         default: false
+      amd64_runner:
+        description: 'Optional runner label for amd64 jobs'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      arm64_runner:
+        description: 'Optional runner label for arm64 jobs'
+        required: false
+        type: string
+        default: 'ubuntu-24.04-arm'
 
 permissions:
   id-token: write
@@ -68,9 +78,9 @@ jobs:
           
           # Determine platforms matrix based on include_arm64 input
           if [[ "${{ github.event.inputs.include_arm64 }}" == "true" ]]; then
-            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}, {"platform": "linux/arm64", "runner": "ubuntu-24.04-arm", "suffix": "arm64"}]'
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "${{ github.event.inputs.amd64_runner || 'ubuntu-latest' }}", "suffix": "amd64"}, {"platform": "linux/arm64", "runner": "${{ github.event.inputs.arm64_runner || 'ubuntu-24.04-arm' }}", "suffix": "arm64"}]'
           else
-            PLATFORMS='[{"platform": "linux/amd64", "runner": "ubuntu-latest", "suffix": "amd64"}]'
+            PLATFORMS='[{"platform": "linux/amd64", "runner": "${{ github.event.inputs.amd64_runner || 'ubuntu-latest' }}", "suffix": "amd64"}]'
           fi
           
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
