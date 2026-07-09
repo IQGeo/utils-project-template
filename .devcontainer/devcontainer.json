@@ -5,6 +5,9 @@
     "runServices": ["iqgeo", "rq-dashboard", "pgadmin"],
     "workspaceFolder": "/opt/iqgeo/platform/WebApps/myworldapp/modules",
     "shutdownAction": "stopCompose",
+    "features": {
+        "ghcr.io/devcontainers/features/copilot-cli:latest": {}
+    },
     "customizations": {
         "vscode": {
             "settings": {

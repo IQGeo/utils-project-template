@@ -5,10 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       platform_version:
-        description: 'Platform version for base image (e.g., 7.4)'
+        description: 'Platform version for base image (e.g., 7.5)'
         required: false
         type: string
-        default: '7.4'
+        default: '7.5'
       custom_version:
         description: 'Override auto-generated CalVer (YYYY.MM.DD.BUILD format)'
         required: false
@@ -27,7 +27,7 @@ permissions:
   contents: read
 
 env:
-  PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.4' }}
+  PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.5' }}
   PRODUCT_REGISTRY: harbor.delivery.iqgeo.cloud
   PRODUCT_REPOSITORY_PREFIX: releases_
   PROJECT_REGISTRY: harbor.delivery.iqgeo.cloud
