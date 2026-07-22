@@ -5,10 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       platform_version:
-        description: "Platform version for base image (e.g., 7.4)"
+        description: 'Platform version for base image (e.g., 7.5)'
         required: false
         type: string
-        default: "7.4"
+        default: '7.5'
       custom_version:
         description: "Override auto-generated CalVer (YYYY.MM.DD.BUILD format)"
         required: false
@@ -22,22 +22,22 @@ on:
         type: boolean
         default: false
       amd64_runner:
-        description: "Optional runner label for amd64 jobs"
+        description: 'Optional runner label for amd64 jobs'
         required: false
         type: string
-        default: ""
+        default: 'ubuntu-latest'
       arm64_runner:
-        description: "Optional runner label for arm64 jobs"
+        description: 'Optional runner label for arm64 jobs'
         required: false
         type: string
-        default: ""
+        default: 'ubuntu-24.04-arm'
 
 permissions:
   id-token: write
   contents: read
 
 env:
-  PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.4' }}
+  PLATFORM_VERSION: ${{ github.event.inputs.platform_version || '7.5' }}
   PROJECT_IMAGE_PREFIX: ${{ vars.project_image_prefix || 'myproject/iqgeo-myproj' }}
   PRODUCT_REGISTRY: ${{ vars.product_registry || 'harbor.delivery.iqgeo.cloud' }}
   PRODUCT_REGISTRY_USERNAME: ${{ vars.product_registry_username || vars.registry_username }}
