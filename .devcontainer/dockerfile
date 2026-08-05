@@ -1,8 +1,8 @@
-
-This dockerfile is used to build the devcontainer image for development of modules to extend the 
-IQGeo Platform. It is based on the platform-devenv image and optionally
-adds additional modules to the image. The modules are copied from the injector images
-
+#
+# This dockerfile is used to build the devcontainer image for development of modules to extend the 
+# IQGeo Platform. It is based on the platform-devenv image and optionally
+# adds additional modules to the image. The modules are copied from the injector images
+#
 ARG PRODUCT_REGISTRY=harbor.delivery.iqgeo.cloud/releases_
 
 # START SECTION Aliases for Injector images - beware this section is updated by the IQGeo project configuration tool
