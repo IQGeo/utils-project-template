@@ -1,0 +1,19 @@
+name: PR source branch
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited]
+
+jobs:
+  source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only dev, release/* or hotfix/* may merge into main
+        env:
+          HEAD: ${{ github.head_ref }}
+        run: |
+          case "$HEAD" in
+            dev|release/*|hotfix/*) echo "OK: $HEAD" ;;
+            *) echo "::error::PRs into main must come from dev (got '$HEAD'). Retarget to dev."; exit 1 ;;
+          esac
