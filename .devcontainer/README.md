@@ -145,3 +145,7 @@ For more information regarding development with the Anywhere Electron App, pleas
 ## I get an error when the myw_product build command runs
 
 Try increasing the memory available to Docker
+
+## The dev container fails to build with `additional privileges requested: pass "--allow=fs.read=..."`
+
+This is a Docker Compose bug affecting Docker Buildx v0.37.2 and later. See [Dev Container Troubleshooting](https://github.com/IQGeo/utils-project-template/wiki/Dev-Container-Troubleshooting) for the cause, fix and workaround.
