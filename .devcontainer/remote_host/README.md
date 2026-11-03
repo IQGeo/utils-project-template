@@ -66,4 +66,4 @@ You can now run the VS Code command "dev containers: Reopen in Container". (This
 
 ### Troubleshooting
 
-(to complete)
+See [Dev Container Troubleshooting](https://github.com/IQGeo/utils-project-template/wiki/Dev-Container-Troubleshooting) for known issues and their workarounds, including the remote host steps.

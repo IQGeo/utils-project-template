@@ -1,5 +1,15 @@
 # Changelog
 
+#### v1.4.0 (10/28/2026)
+
+- workflow: build-deployment-images: add runner overrides via repository vars, keeping existing runners as the default
+- workflow: build-deployment-images: split product/project registry vars and replace `PROJECT_IMAGE_PREFIX` with `PROJECT_PREFIX`
+- deployment: docker compose: make project image tags configurable via `PROJECT_TAG`
+- devcontainer: add core symlink for Copilot visibility
+- PLAT-15929: docs: document `type` property in module config comments
+- ET-1006: docs: link dev container troubleshooting for Buildx fs.read entitlement error
+- docs: add `doc` folder for project documentation files
+
 #### v1.3.0 (07/06/2026)
 
 - DX-37: devcontainer: add copilot cli with instructions on how to configure it.
